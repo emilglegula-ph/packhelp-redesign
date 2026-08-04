@@ -4028,6 +4028,10 @@
       'add': 'menuPanelAdd'
     };
 
+    // Where the AI-design conversation's scroll was left, restored on
+    // return instead of the top-reset every other panel gets below.
+    var savedAiDesignScrollTop = 0;
+
     // The "Get branding with AI" field is never duplicated (see the markup
     // comment on #menuPanelBrand for why) — instead this moves the one
     // real #companyWebsiteField element between its step 3 home and the
@@ -4065,17 +4069,26 @@
       // via .is-multistep once it grows) but would crop a tall bottom-menu
       // panel's own top off-screen with no way to scroll back up to it —
       // same class of bug .is-multistep already solves for steps, applied
-      // here for panels. Resetting scrollTop on every switch guarantees
-      // each panel's beginning is what you see, never wherever the
-      // previous panel happened to leave the scroll position.
+      // here for panels. Resetting scrollTop on every switch to one of
+      // those guarantees each panel's beginning is what you see, never
+      // wherever the previous panel happened to leave the scroll position.
+      //
+      // AI design is the one exception: it's a running conversation, not a
+      // fresh panel each time, so switching back to it restores exactly
+      // the scroll position it was left at (captured in the click handler
+      // below right before navigating away) instead of jumping to the top.
       var sidebarContent = document.getElementById('sidebarContent');
       sidebarContent.classList.toggle('is-menu-panel', menuKey !== 'ai-design');
-      sidebarContent.scrollTop = 0;
+      sidebarContent.scrollTop = menuKey === 'ai-design' ? savedAiDesignScrollTop : 0;
     }
 
     document.getElementById('editorMenu').addEventListener('click', function (e) {
       var item = e.target.closest('.editor-menu-item');
       if (!item) return;
+      var aiDesignFlow = document.getElementById('aiDesignFlow');
+      if (aiDesignFlow && !aiDesignFlow.hidden) {
+        savedAiDesignScrollTop = document.getElementById('sidebarContent').scrollTop;
+      }
       document.querySelectorAll('#editorMenu .editor-menu-item.is-active').forEach(function (el) {
         el.classList.remove('is-active');
       });
