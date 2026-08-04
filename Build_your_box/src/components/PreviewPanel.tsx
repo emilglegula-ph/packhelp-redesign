@@ -11,7 +11,7 @@ interface PreviewPanelProps {
   productBufferMm: number
   focusedDimension: DimensionField | null
   onInteractionStart: () => void
-  flipTrigger: number
+  closureFlipped: boolean
 }
 
 export default function PreviewPanel({
@@ -22,7 +22,7 @@ export default function PreviewPanel({
   productBufferMm,
   focusedDimension,
   onInteractionStart,
-  flipTrigger,
+  closureFlipped,
 }: PreviewPanelProps) {
   const [side, setSide] = useState<'front' | 'back'>('front')
   const [openness, setOpenness] = useState(0)
@@ -46,7 +46,7 @@ export default function PreviewPanel({
         productBufferMm={productBufferMm}
         focusedDimension={focusedDimension}
         onInteractionStart={onInteractionStart}
-        flipTrigger={flipTrigger}
+        flipped={closureFlipped}
       />
 
       <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-6">

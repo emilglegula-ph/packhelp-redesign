@@ -32,6 +32,7 @@ interface SidebarProps {
   focusedDimension: DimensionField | null
   onFocusDimension: (field: DimensionField | null) => void
   onClosureClick: () => void
+  onClosureHoverChange: (hovering: boolean) => void
 }
 
 export default function Sidebar({
@@ -49,6 +50,7 @@ export default function Sidebar({
   focusedDimension,
   onFocusDimension,
   onClosureClick,
+  onClosureHoverChange,
 }: SidebarProps) {
   const [boxType, setBoxType] = useState('folding')
   const [construction, setConstruction] = useState('hanging')
@@ -130,19 +132,28 @@ export default function Sidebar({
           onFocusDimension={onFocusDimension}
         />
 
-        <OptionGroup title="Closure">
-          {closureOptions.map((option) => (
-            <Chip
-              key={option.id}
-              option={option}
-              selected={closure === option.id}
-              onSelect={() => {
-                setClosure(option.id)
-                onClosureClick()
-              }}
-            />
-          ))}
-        </OptionGroup>
+        {/* Hovering anywhere in the group previews the closure reveal live;
+            onClosureClick (per-chip, below) backs that up with a timed
+            pulse for clicks/taps that aren't backed by a hover. */}
+        <div
+          onMouseEnter={() => onClosureHoverChange(true)}
+          onMouseLeave={() => onClosureHoverChange(false)}
+          className="w-full"
+        >
+          <OptionGroup title="Closure">
+            {closureOptions.map((option) => (
+              <Chip
+                key={option.id}
+                option={option}
+                selected={closure === option.id}
+                onSelect={() => {
+                  setClosure(option.id)
+                  onClosureClick()
+                }}
+              />
+            ))}
+          </OptionGroup>
+        </div>
 
         <OptionGroup title="Windows and cutouts">
           {windowsOptions.map((option) => (

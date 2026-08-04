@@ -67,7 +67,7 @@ interface ControlsBridgeProps {
   fitDistance: number
   minDistance: number
   maxDistance: number
-  flipTrigger: number
+  flipped: boolean
 }
 
 function ControlsBridge({
@@ -79,7 +79,7 @@ function ControlsBridge({
   fitDistance,
   minDistance,
   maxDistance,
-  flipTrigger,
+  flipped,
 }: ControlsBridgeProps) {
   const { camera } = useThree()
   const controlsRef = useRef<OrbitControlsImpl>(null)
@@ -87,7 +87,7 @@ function ControlsBridge({
   const wasFocused = useRef(false)
   const fitDistanceRef = useRef(fitDistance)
   const isFirstFit = useRef(true)
-  const lastFlipTrigger = useRef(flipTrigger)
+  const wasFlipped = useRef(flipped)
 
   fitDistanceRef.current = fitDistance
 
@@ -170,17 +170,19 @@ function ControlsBridge({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedDimension])
 
-  // A closure flip always reveals the underside from the same default
+  // A closure reveal always shows the underside from the same default
   // angle -- so if the user has freely orbited the camera elsewhere first,
   // snap back to that angle rather than showing the (fixed, world-space)
-  // flip pose from whatever odd angle they'd dragged to.
+  // flip pose from whatever odd angle they'd dragged to. Only the rising
+  // edge (idle -> flipped) snaps the camera; letting go of hover doesn't
+  // tween it again, same as before when the hold simply timed out.
   useEffect(() => {
-    if (flipTrigger !== lastFlipTrigger.current) {
-      lastFlipTrigger.current = flipTrigger
+    if (flipped && !wasFlipped.current) {
       startTween(target, DEFAULT_PHI, DEFAULT_THETA, undefined, 0.6)
     }
+    wasFlipped.current = flipped
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flipTrigger])
+  }, [flipped])
 
   useFrame((_, delta) => {
     const anim = tween.current
@@ -226,7 +228,7 @@ interface SceneProps {
   productBufferMm: number
   focusedDimension: DimensionField | null
   onInteractionStart: () => void
-  flipTrigger: number
+  flipped: boolean
 }
 
 export default function Scene({
@@ -240,7 +242,7 @@ export default function Scene({
   productBufferMm,
   focusedDimension,
   onInteractionStart,
-  flipTrigger,
+  flipped,
 }: SceneProps) {
   // In "Size of my product" mode the typed W/L/H describe the product --
   // the box itself is grown by the buffer so the product actually fits.
@@ -288,7 +290,7 @@ export default function Scene({
           width={boxWidth}
           length={boxLength}
           height={boxHeight}
-          flipTrigger={flipTrigger}
+          flipped={flipped}
           showProduct={showProduct}
         />
       </Suspense>
@@ -311,7 +313,7 @@ export default function Scene({
         fitDistance={framing.fitDistance}
         minDistance={framing.minDistance}
         maxDistance={framing.maxDistance}
-        flipTrigger={flipTrigger}
+        flipped={flipped}
       />
     </Canvas>
   )

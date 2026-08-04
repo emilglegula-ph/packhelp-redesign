@@ -10,8 +10,9 @@ interface BoxModelProps {
   width: number
   length: number
   height: number
-  /** Bumped to trigger a fresh tumble-flip revealing the box's underside. */
-  flipTrigger: number
+  /** True while a closure option is hovered/clicked -- eases the box toward
+   *  a tilted pose revealing its underside, and back once it goes false. */
+  flipped: boolean
   /** "Size of my product" mode, focused on a dimension field: ghost the walls
    *  and reveal the product placeholder sized to fit inside them. */
   showProduct: boolean
@@ -34,17 +35,13 @@ const FLIP_ANGLE = THREE.MathUtils.degToRad(125)
 const FLIPPED_QUAT = new THREE.Quaternion().setFromAxisAngle(FLIP_AXIS, FLIP_ANGLE)
 const IDLE_QUAT = new THREE.Quaternion()
 
-const FLIP_DURATION = 0.9
-const HOLD_DURATION = 1.4
-const RETURN_DURATION = 0.9
+const TRANSITION_DURATION = 0.9
 
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
-type FlipPhase = 'idle' | 'toFlipped' | 'holding' | 'toIdle'
-
-export default function BoxModel({ width, length, height, flipTrigger, showProduct }: BoxModelProps) {
+export default function BoxModel({ width, length, height, flipped, showProduct }: BoxModelProps) {
   const kraftMap = useTexture(imgKraftTexture)
   kraftMap.colorSpace = THREE.SRGBColorSpace
   kraftMap.anisotropy = 8
@@ -62,60 +59,29 @@ export default function BoxModel({ width, length, height, flipTrigger, showProdu
   const pivotY = (boxSize.y + tag.height) / 2
 
   const pivotRef = useRef<THREE.Group>(null)
-  const flip = useRef<{
-    phase: FlipPhase
-    t: number
-    from: THREE.Quaternion
-    to: THREE.Quaternion
-  }>({ phase: 'idle', t: 0, from: IDLE_QUAT.clone(), to: IDLE_QUAT.clone() })
-  const lastTrigger = useRef(flipTrigger)
-
-  if (flipTrigger !== lastTrigger.current) {
-    lastTrigger.current = flipTrigger
-    const group = pivotRef.current
-    flip.current = {
-      phase: 'toFlipped',
-      t: 0,
-      from: group ? group.quaternion.clone() : IDLE_QUAT.clone(),
-      to: FLIPPED_QUAT.clone(),
-    }
-  }
+  // 0 = idle pose, 1 = fully flipped -- eased toward whichever `flipped`
+  // currently points at each frame, so a direction change mid-transition
+  // (e.g. hover leaving right as the box was still tilting up) reverses
+  // smoothly from wherever it already got to, rather than snapping or
+  // waiting for a fixed hold to finish first.
+  const progress = useRef(0)
 
   useFrame((_, rawDelta) => {
     const group = pivotRef.current
-    const state = flip.current
-    if (!group || state.phase === 'idle') return
+    const target = flipped ? 1 : 0
+    if (!group || progress.current === target) return
 
     // Clamp only truly pathological stalls (tab backgrounded for a while) so
     // the animation can't visibly teleport -- a low but sustained frame rate
     // should still drive it at roughly correct wall-clock speed.
     const delta = Math.min(rawDelta, 0.25)
+    const step = delta / TRANSITION_DURATION
+    progress.current =
+      target > progress.current
+        ? Math.min(target, progress.current + step)
+        : Math.max(target, progress.current - step)
 
-    if (state.phase === 'holding') {
-      state.t += delta
-      if (state.t >= HOLD_DURATION) {
-        state.phase = 'toIdle'
-        state.t = 0
-        state.from = group.quaternion.clone()
-        state.to = IDLE_QUAT.clone()
-      }
-      return
-    }
-
-    const duration = state.phase === 'toFlipped' ? FLIP_DURATION : RETURN_DURATION
-    state.t += delta
-    const eased = easeInOutCubic(Math.min(1, state.t / duration))
-    group.quaternion.slerpQuaternions(state.from, state.to, eased)
-
-    if (state.t >= duration) {
-      if (state.phase === 'toFlipped') {
-        state.phase = 'holding'
-        state.t = 0
-      } else {
-        state.phase = 'idle'
-        state.t = 0
-      }
-    }
+    group.quaternion.slerpQuaternions(IDLE_QUAT, FLIPPED_QUAT, easeInOutCubic(progress.current))
   })
 
   const tagGeometry = useMemo(() => {
