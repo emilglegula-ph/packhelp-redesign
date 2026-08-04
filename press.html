@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Press — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  .section-badge {
+    display: inline-block;
+    margin: 0 0 var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-bg-muted-hover);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    border-radius: var(--radius-full);
+  }
+
+  /* ---------- PAGE HEADER (contact-title-row pattern: H1 + subheading) ---------- */
+  .press-title-row {
+    padding: var(--space-4) var(--space-8) var(--space-8);
+  }
+
+  .press-title {
+    margin: 0 0 var(--space-2);
+    max-width: 34rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .press-title-desc {
+    max-width: 30rem;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- PRESS KIT / CONTACT — primary+secondary CTA duet, same role split
+     as the Shop now / Get a quote pair elsewhere (pkt 5 guideline), adapted to
+     this page's two actions: download vs. get in touch. ---------- */
+  .press-kit-row {
+    padding: 0 var(--space-8) var(--space-16);
+  }
+
+  .press-kit-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding: var(--space-8);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-xl);
+  }
+
+  .press-kit-text {
+    max-width: 32rem;
+  }
+
+  .press-kit-title {
+    margin: 0 0 var(--space-2);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .press-kit-desc {
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .press-kit-buttons {
+    display: flex;
+    flex: none;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 700px) {
+    .press-kit-card { flex-direction: column; align-items: flex-start; }
+    .press-kit-buttons { flex-wrap: wrap; }
+  }
+
+  /* ---------- LATEST NEWS — badge+H2+subheading pattern (pkt 4 guideline),
+     text-only: no fabricated leadership photo, see PAGE_BUILDING_GUIDELINE
+     §2.5 rule "missing asset = no fallback, never a stand-in photo". ---------- */
+  .press-feature-section {
+    padding: var(--space-8) var(--space-8) var(--space-16);
+  }
+
+  .press-feature-card {
+    max-width: 46rem;
+  }
+
+  .press-feature-heading {
+    margin: 0 0 var(--space-4);
+    font-weight: 450;
+    font-size: 2.25rem;
+    line-height: 1.12;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .press-feature-desc {
+    margin: 0 0 var(--space-4);
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+  }
+
+  .press-feature-source {
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  /* ---------- COMPANY FACTS — simple stat row, new pattern (only used once on
+     this page so not promoted to components.css yet, see PAGE_BUILDING_GUIDELINE
+     §3 graduation threshold). ---------- */
+  .press-facts-section {
+    padding: var(--space-8) var(--space-8) var(--space-16);
+    border-top: 1px solid var(--color-border-default);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .press-facts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-8);
+    padding: var(--space-8) 0;
+  }
+
+  .press-fact-value {
+    display: block;
+    margin: 0 0 var(--space-1);
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  .press-fact-label {
+    display: block;
+    margin: 0;
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .press-facts-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 700px) {
+    .press-facts-grid { grid-template-columns: 1fr; gap: var(--space-6); }
+  }
+
+  /* ---------- MEDIA COVERAGE — plain text list grouped by year, NOT
+     .media-card: entries are publication names/links with no real photo per
+     mention, and PAGE_BUILDING_GUIDELINE §3.1 explicitly flags fabricated
+     placeholder visuals for this exact kind of content (Help/Impressum/Press
+     links on contact.html) as a mistake not to repeat. ---------- */
+  .press-mentions-section {
+    padding: var(--space-16) var(--space-8) var(--space-16);
+  }
+
+  .press-mentions-heading {
+    margin: 0 0 var(--space-8);
+    font-weight: 450;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+    max-width: 1216px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .press-year-groups {
+    max-width: 1216px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .press-year-heading {
+    margin: 0 0 var(--space-4);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .press-mention-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .press-mention-row {
+    display: grid;
+    grid-template-columns: 220px 1fr auto;
+    align-items: baseline;
+    gap: var(--space-6);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--color-border-default);
+    text-decoration: none;
+  }
+
+  .press-mention-row:hover .press-mention-source {
+    text-decoration: underline;
+  }
+
+  .press-mention-source {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* arrow lives at the row's end, hidden until hover — same slide-in
+     mechanics as .btn-arrow (components.css), reused here at row scope
+     instead of button scope. */
+  .press-mention-arrow {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    color: var(--color-text-muted);
+    transition: width 0.2s ease, opacity 0.2s ease;
+  }
+
+  .press-mention-row:hover .press-mention-arrow {
+    width: 16px;
+    opacity: 1;
+  }
+
+  .press-mention-source svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    color: var(--color-text-muted);
+  }
+
+  .press-mention-desc {
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .press-mention-row { grid-template-columns: 1fr; gap: var(--space-1); }
+  }
+
+  /* ---------- FOOTER (site-footer, shared across every page) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: 4rem 0 0;
+    background: var(--color-bg-page);
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-8);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-16);
+  }
+
+  .footer-left {
+    max-width: 22rem;
+  }
+
+  .footer-logo img { height: 28px; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-6) 0 var(--space-4);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-newsletter-input {
+    flex: 1;
+    padding: var(--space-3) var(--space-5);
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    font: inherit;
+    font-size: 0.875rem;
+  }
+
+  .footer-badges {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge img { height: 32px; }
+
+  .footer-links {
+    display: flex;
+    gap: var(--space-16);
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .footer-col-title {
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer-col a {
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    margin-top: 4rem;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-8);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .footer-inner { flex-direction: column; gap: var(--space-10); }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  @media (max-width: 700px) {
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <span class="current">Press</span>
+  </nav>
+
+  <section class="press-title-row reveal">
+    <h1 class="press-title">Press</h1>
+    <p class="press-title-desc">News, media resources and brand assets for journalists covering Packhelp.</p>
+  </section>
+
+  <section class="press-kit-row reveal">
+    <div class="press-kit-card">
+      <div class="press-kit-text">
+        <p class="press-kit-title">Writing about Packhelp?</p>
+        <p class="press-kit-desc">Download our media kit for logos, product photography and company facts, or get in touch directly for interviews and quotes.</p>
+      </div>
+      <div class="press-kit-buttons">
+        <a href="#" class="btn-pill lg">Download press kit<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        <a href="mailto:press@packhelp.com" class="btn-pill lg secondary">Email press team<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="press-feature-section reveal">
+    <div class="press-feature-card">
+      <span class="section-badge">Latest news</span>
+      <h2 class="press-feature-heading">Packhelp raises €40M Series B to grow custom packaging across Europe.</h2>
+      <p class="press-feature-desc">The round backs further expansion of Packhelp's packaging marketplace and production network, following steady growth since the company's 2019 Series A.</p>
+      <a href="https://techcrunch.com/2021/11/18/packhelp-series-b/" target="_blank" rel="noopener" class="press-feature-source">Read the coverage on TechCrunch →</a>
+    </div>
+  </section>
+
+  <section class="press-facts-section reveal">
+    <div class="press-facts-grid">
+      <div class="press-fact">
+        <span class="press-fact-value">€40M</span>
+        <span class="press-fact-label">Series B funding, 2021</span>
+      </div>
+      <div class="press-fact">
+        <span class="press-fact-value">€8.5M</span>
+        <span class="press-fact-label">Series A funding, 2019</span>
+      </div>
+      <div class="press-fact">
+        <span class="press-fact-value">9,077%</span>
+        <span class="press-fact-label">Growth ranking, Deloitte Technology Fast 50 CEE 2020</span>
+      </div>
+      <div class="press-fact">
+        <span class="press-fact-value">Warsaw</span>
+        <span class="press-fact-label">Headquartered here, shipping across Europe</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="press-mentions-section reveal">
+    <h2 class="press-mentions-heading">Packhelp in the press</h2>
+
+    <div class="press-year-groups">
+      <div class="press-year-group">
+        <h3 class="press-year-heading">2022</h3>
+        <ul class="press-mention-list">
+          <li><a class="press-mention-row" href="https://sifted.eu/articles/why-cee-founders-move-startups-abroad" target="_blank" rel="noopener"><span class="press-mention-source">Sifted</span><span class="press-mention-desc">On why Central and Eastern European founders relocate their startups abroad.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.packaginginsights.com/news/packhelp-reimagines-customizable-packaging-with-carbon-labeling-for-e-commerce-designs.html" target="_blank" rel="noopener"><span class="press-mention-source">Packaging Insights</span><span class="press-mention-desc">Coverage of Packhelp's carbon-labelling work for e-commerce packaging.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.eu-startups.com/2022/12/packhelps-approach-to-becoming-transparent-about-sustainability" target="_blank" rel="noopener"><span class="press-mention-source">EU Startups</span><span class="press-mention-desc">On Packhelp's approach to transparency in sustainability claims.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.businessleader.co.uk/why-brands-cant-claim-to-be-sustainable-without-looking-at-their-packaging/" target="_blank" rel="noopener"><span class="press-mention-source">Business Leader</span><span class="press-mention-desc">Opinion piece on why brands can't claim sustainability without addressing packaging.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.packaging-gateway.com/comment/common-myths-associated-with-sustainable-packaging-options/" target="_blank" rel="noopener"><span class="press-mention-source">Packaging Gateway</span><span class="press-mention-desc">Commentary on common misconceptions about sustainable packaging options.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://packagingeurope.com/comment/the-role-of-software-in-ensuring-sustainable-supply-chains/8760.article" target="_blank" rel="noopener"><span class="press-mention-source">Packaging Europe</span><span class="press-mention-desc">Analysis of software's role in keeping supply chains sustainable.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://the-brandidentity.com/project/marina-veziko-and-packhelps-typographic-maze-showcases-the-reality-of-small-business-owners" target="_blank" rel="noopener"><span class="press-mention-source">The Brand Identity</span><span class="press-mention-desc">Feature on a typographic installation illustrating small business owners' experiences.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://cyfrowa.rp.pl/biznes-ludzie-startupy/art35953901-wyroznienia-rz-oni-udowadniaja-ze-innowacje-sa-lekiem-na-trudne-czasy" target="_blank" rel="noopener"><span class="press-mention-source">Rzeczpospolita</span><span class="press-mention-desc">Polish-language coverage of an innovation award recognising economic resilience.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="press-year-group">
+        <h3 class="press-year-heading">2021</h3>
+        <ul class="press-mention-list">
+          <li><a class="press-mention-row" href="https://techcrunch.com/2021/11/18/packhelp-series-b/" target="_blank" rel="noopener"><span class="press-mention-source">TechCrunch</span><span class="press-mention-desc">Announcement of Packhelp's €40 million Series B funding round.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.eu-startups.com/2021/11/polish-packaging-marketplace-packhelp-raises-e40-million-to-accelerate-international-expansion" target="_blank" rel="noopener"><span class="press-mention-source">EU Startups</span><span class="press-mention-desc">On the Warsaw-based packaging marketplace's €40 million Series B.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://thenextweb.com/news/3-lessons-expanding-startup-new-markets" target="_blank" rel="noopener"><span class="press-mention-source">TNW</span><span class="press-mention-desc">Three lessons from Packhelp's expansion into new markets.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.eib.org/en/press/news/eib-supports-polish-software-company-packhelp-to-develop-marketplace-for-customised-and-sustainable-packaging" target="_blank" rel="noopener"><span class="press-mention-source">EIB</span><span class="press-mention-desc">On the European Investment Bank's support for Packhelp's marketplace growth.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.raconteur.net/c-suite/what-does-it-take-to-become-a-successful-csco/" target="_blank" rel="noopener"><span class="press-mention-source">Raconteur</span><span class="press-mention-desc">Discussion of what it takes to be a chief sustainability officer, featuring Packhelp.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://robbreport.com/lifestyle/news/luxury-packaging-1234611705/" target="_blank" rel="noopener"><span class="press-mention-source">Robb Report</span><span class="press-mention-desc">On luxury packaging's effect on perceived product value.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://the-brandidentity.com/feed/jens-nilsson-develops-bold-range-typographic-boxes-mark-packhelps-launch-sweden/" target="_blank" rel="noopener"><span class="press-mention-source">The Brand Identity</span><span class="press-mention-desc">Feature on a typographic box design created for Packhelp's Swedish launch.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://techfundingnews.com/this-polish-startup-is-setting-epic-sustainable-packaging-goals-for-businesses-lands-e40m-funding/" target="_blank" rel="noopener"><span class="press-mention-source">Tech Funding News</span><span class="press-mention-desc">On Packhelp's sustainable packaging goals following its funding round.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="press-year-group">
+        <h3 class="press-year-heading">2020</h3>
+        <ul class="press-mention-list">
+          <li><a class="press-mention-row" href="https://www2.deloitte.com/rs/en/pages/about-deloitte/articles/fast50-results-2020.html" target="_blank" rel="noopener"><span class="press-mention-source">Deloitte</span><span class="press-mention-desc">Packhelp ranked among the fastest-growing companies in the region, with 9,077% growth.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.trendingtopics.at/9077-polish-startup-packhelp-is-the-fastest-growing-tech-company-in-cee/" target="_blank" rel="noopener"><span class="press-mention-source">Trending Topics</span><span class="press-mention-desc">On Packhelp topping a ranking of the fastest-growing CEE tech companies.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.thefirstnews.com/article/polish-software-firm-tops-ranking-of-eus-fastest-developing-firms-17746" target="_blank" rel="noopener"><span class="press-mention-source">The First News</span><span class="press-mention-desc">On the Warsaw firm leading an EU ranking of fastest-developing companies.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.ecotextile.com/2020102126889/materials-production-news/packaging-project-to-replant-trees-as-orders-come-in.html" target="_blank" rel="noopener"><span class="press-mention-source">Eco Textile</span><span class="press-mention-desc">On a reforestation partnership tied to Packhelp's packaging.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://businessmondays.co.uk/packhelp-launches-ready-wrapped-packaging-for-an-eco-friendly-christmas/" target="_blank" rel="noopener"><span class="press-mention-source">Business Mondays</span><span class="press-mention-desc">Launch of an eco-friendly holiday packaging initiative.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="press-year-group">
+        <h3 class="press-year-heading">2019</h3>
+        <ul class="press-mention-list">
+          <li><a class="press-mention-row" href="https://business.lesechos.fr/entrepreneurs/financer-sa-creation/0600898641344-packhelp-personnalise-les-colis-pour-l-e-commerce-327824.php" target="_blank" rel="noopener"><span class="press-mention-source">Les Echos</span><span class="press-mention-desc">French coverage of Packhelp's €8.5 million Series A round.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.latribune.fr/technos-medias/innovation-et-start-up/emballages-personnalises-la-startup-packhelp-leve-8-5-millions-d-euros-et-s-installe-en-france-811035.html" target="_blank" rel="noopener"><span class="press-mention-source">La Tribune</span><span class="press-mention-desc">On Packhelp's expansion into France following its Series A.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.privateequitywire.co.uk/2019/03/18/274072/packhelp-secures-eur85m-series-funding-round-led-white-star-capital" target="_blank" rel="noopener"><span class="press-mention-source">Private Equity Wire</span><span class="press-mention-desc">Announcement of the €8.5 million round led by White Star Capital.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.eu-startups.com/2019/03/warsaw-based-packhelp-secures-e8-8-million-series-a-for-its-custom-designed-packaging-for-businesses/" target="_blank" rel="noopener"><span class="press-mention-source">EU Startups</span><span class="press-mention-desc">On the Warsaw firm's Series A round and plans for growth.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://thenextweb.com/business/2019/02/20/here-are-the-5-hottest-startups-in-poland/" target="_blank" rel="noopener"><span class="press-mention-source">TNW</span><span class="press-mention-desc">Profile featuring Packhelp among emerging Polish startups.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.thefirstnews.com/article/thinking-outside-the-box-the-warsaw-lads-taking-europe-by-storm-with-their-sleek-bespoke-packaging-4734" target="_blank" rel="noopener"><span class="press-mention-source">The First News</span><span class="press-mention-desc">On Warsaw entrepreneurs, including Packhelp, gaining recognition across Europe.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="press-year-group">
+        <h3 class="press-year-heading">2018</h3>
+        <ul class="press-mention-list">
+          <li><a class="press-mention-row" href="https://techcrunch.com/2018/06/05/packhelp-raises-a-seed-round-to-spread-the-love-of-beautiful-boxes/" target="_blank" rel="noopener"><span class="press-mention-source">TechCrunch</span><span class="press-mention-desc">Coverage of an early funding round for the custom packaging platform.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.siliconrepublic.com/start-ups/warsaw-poland-startups-2018" target="_blank" rel="noopener"><span class="press-mention-source">Silicon Republic</span><span class="press-mention-desc">Packhelp named among Warsaw startups to watch.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+          <li><a class="press-mention-row" href="https://www.eu-startups.com/2018/07/10-polish-startups-to-look-out-for-in-2018-and-beyond/" target="_blank" rel="noopener"><span class="press-mention-source">EU Startups</span><span class="press-mention-desc">Packhelp included in a list of promising Polish startups.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="press-year-group">
+        <h3 class="press-year-heading">2017</h3>
+        <ul class="press-mention-list">
+          <li><a class="press-mention-row" href="https://techcrunch.com/2017/04/07/packhelp-raises-e350000-to-make-your-boxes-pretty/" target="_blank" rel="noopener"><span class="press-mention-source">TechCrunch</span><span class="press-mention-desc">On Packhelp's early seed funding to build out its packaging design platform.</span><span class="press-mention-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="contact.html">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) return;
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

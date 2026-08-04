@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Case study: Oase — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- CASE STUDY TITLE ---------- */
+  .cs-title-row {
+    padding: var(--space-4) var(--space-8) var(--space-12);
+  }
+
+  .cs-title {
+    margin: 0 0 var(--space-2);
+    max-width: 46rem;
+    font-weight: 500;
+    font-size: clamp(2.25rem, 3.6vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-subheading {
+    max-width: 42rem;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- PHOTOS / VIDEO ---------- */
+  .cs-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--color-bg-muted);
+  }
+
+  .cs-hero-media {
+    margin: 0 var(--space-8);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  @media (max-width: 700px) {
+    .cs-hero-media { aspect-ratio: 4 / 3; }
+  }
+
+  .cs-video-wrap {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: var(--space-8) 0;
+  }
+
+  .cs-video-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* ---------- MAIN LAYOUT ----------
+     Grid for the whole page body: meta sidebar (column 1), a flexible empty
+     gutter (column 2) that absorbs leftover space, and .cs-main (column 3,
+     capped at a readable width) right-flush against the container edge —
+     same position as the hero image above it. .cs-main is a SINGLE grid
+     item wrapping every section — its internal spacing is then sized only
+     by its own content, not by the sidebar's height (two separate grid
+     items sharing a row would size that row to the taller of the two,
+     pushing later content down even when the sidebar is shorter). Sana/
+     Polestar reference: the left side stays blank once the meta list ends,
+     it isn't sticky. */
+  .cs-layout {
+    display: grid;
+    grid-template-columns: 15rem 1fr minmax(0, 46rem);
+    align-items: start;
+    padding: var(--space-12) var(--space-8) 0;
+  }
+
+  .cs-aside {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* Everything after the sidebar is ONE grid item (column 3) — keeping it a
+     single box means its internal vertical rhythm (margins between .cs-col
+     children) is sized purely by its own content, never by the sidebar's
+     height. Two separate grid items sharing a row would size that row to
+     the taller of the two regardless of align-items, pushing later content
+     down to match the sidebar even when the sidebar is shorter. */
+  .cs-main { grid-column: 3; }
+
+  .cs-meta-label {
+    margin: 0 0 var(--space-1);
+    font-size: 0.6875rem;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .cs-meta-value {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-col + .cs-col { margin-top: var(--space-8); }
+  .cs-intro + .cs-col { margin-top: var(--space-20); }
+
+  .cs-col p.cs-lede {
+    margin: 0 0 var(--space-4);
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-col p.cs-lede:last-child { margin-bottom: 0; }
+
+  .cs-heading {
+    margin: 0 0 var(--space-4);
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-col p {
+    margin: 0 0 var(--space-4);
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-secondary);
+  }
+
+  .cs-col p:last-child { margin-bottom: 0; }
+
+  .cs-blockquote {
+    margin: var(--space-8) 0;
+    padding: var(--space-3) 0 var(--space-3) var(--space-6);
+    border-left: 2px solid var(--color-border-default);
+    font-size: 1.0625rem;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-primary);
+  }
+
+  .cs-media-photo {
+    aspect-ratio: 3 / 2;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: var(--space-8) 0;
+  }
+
+  /* ---------- PULL QUOTE (bleeds ~160px left of the reading column, left-aligned) ---------- */
+  .cs-quote-break {
+    width: calc(100% + var(--space-40));
+    margin: var(--space-16) 0 var(--space-16) calc(-1 * var(--space-40));
+    text-align: left;
+  }
+
+  .cs-quote {
+    margin: 0;
+    max-width: 46rem;
+    font-weight: 500;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.24;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-quote-attribution {
+    margin: var(--space-6) 0 0;
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .cs-layout { grid-template-columns: 1fr; }
+    .cs-aside { grid-column: 1; margin-bottom: var(--space-8); }
+    .cs-main { grid-column: 1; }
+    .cs-quote-break { width: 100%; margin: var(--space-8) 0; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern, minus the deco-square wordplay) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (index.html pattern — every closing
+     CTA heading gets one inline tilted photo that pops in on reveal and
+     pushes the surrounding words apart; see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-image: url('assets/case-study/oase/OASE-Product-Shot-01-1024x675.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as industries.html/packaging.html) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="case-studies.html">Case studies</a>
+    <span>/</span>
+    <span class="current">Oase</span>
+  </nav>
+
+  <section class="cs-title-row reveal">
+    <h1 class="cs-title">Designer Packaging: Oase</h1>
+    <p class="cs-subheading">Ever come across packaging that could be described as sexy? We have.</p>
+  </section>
+
+  <div class="cs-hero-media reveal">
+    <img class="cs-photo" src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
+  </div>
+
+  <div class="cs-layout reveal">
+    <aside class="cs-aside">
+      <div>
+        <p class="cs-meta-label">Industry</p>
+        <p class="cs-meta-value">Health &amp; Beauty</p>
+      </div>
+      <div>
+        <p class="cs-meta-label">Product</p>
+        <p class="cs-meta-value">Vegan hair vitamins</p>
+      </div>
+      <div>
+        <p class="cs-meta-label">Founder</p>
+        <p class="cs-meta-value">Justin Regteschot</p>
+      </div>
+      <div>
+        <p class="cs-meta-label">Headquarters</p>
+        <p class="cs-meta-value">The Netherlands</p>
+      </div>
+    </aside>
+
+    <div class="cs-main">
+    <div class="cs-col cs-intro">
+      <p class="cs-lede">Meet OASE, a hair vitamins brand from The Netherlands, who created their own luxurious, custom packaging with the help of Packhelp.</p>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">The Oase story</h2>
+      <p>OASE is a revolutionary, vegan hair supplement. Providing all the essential nutrients for healthier, longer and better-looking hair.</p>
+      <p>After running another e-commerce store for hair supplies, Oase founder Justin Regteschot noticed that people were mostly interested in finding solutions for hair loss, dandruff and damaged hair. He founded Oase Hair supplements to answer the call.</p>
+      <p class="cs-blockquote">&ldquo;I wanted to make the perfect supplement that would eliminate all these problems.&rdquo;</p>
+      <p>Oase&rsquo;s vitamins come in the form of soft, chewable blackcurrant flavour gummy sweets, that don&rsquo;t get stuck to your teeth. They&rsquo;re made of 100% natural ingredients.</p>
+      <p>Such a unique product needed to have packaging that helped them stand out. OASE turned to Packhelp.</p>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">Designer packaging</h2>
+      <p>When Oase came to Packhelp, they were looking for packaging that encapsulated their brand image. As an online brand, this was crucial. The packaging they designed would be their first physical point of contact with customers.</p>
+      <p>Oase&rsquo;s unique product demanded some special attention. Packhelp sales and production teams were on hand to provide Oase with what they needed.</p>
+      <p>The collaboration of the two companies led to amazing results. A luxury rigid box showcasing Oase hair vitamins as a classy, desirable product.</p>
+
+      <div class="cs-media-photo">
+        <img class="cs-photo" src="assets/case-study/oase/OASE-Setting-3-1024x683.jpg" alt="OASE rigid boxes and bottle styled together">
+      </div>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">Luxury packaging that&rsquo;s made-for-purpose</h2>
+      <p>Oase needed to design two types of high-end packaging; product packaging and shipping packaging.</p>
+    </div>
+
+    <div class="cs-quote-break">
+      <p class="cs-quote">&ldquo;I was lucky to find Packhelp, who made the perfect packaging for our bottles.&rdquo;</p>
+      <p class="cs-quote-attribution">Justin Regteschot, Founder, OASE</p>
+    </div>
+
+    <div class="cs-col">
+      <p>For shipping packaging, they opted for Packhelp&rsquo;s Eco White Mailer Boxes with a simple and minimalist design. The brand&rsquo;s logo is showcased on the top of the box in black water-based ink.</p>
+
+      <div class="cs-media-photo">
+        <img class="cs-photo" src="assets/case-study/oase/OASE-Product-Shot-02-1024x683.jpg" alt="Three OASE hair vitamin boxes">
+      </div>
+
+      <p>Upon opening the box, you find the brand&rsquo;s Instagram handle printed on the inside. It&rsquo;s a smart thing to do, persuading people to share their unboxing experience on social media.</p>
+      <p>Oase also include a thank you card for every customer. Small details that add to the overall customer experience.</p>
+      <p>Everything within the box is well designed - it&rsquo;s modern, with mellow tone colours. It&rsquo;s simplistic but effective.</p>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">Promoting the unboxing experience</h2>
+      <p>So good was the final product, that Packhelp even made a promotional video specifically to show off OASE and its packaging. Check out the unboxing video below:</p>
+
+      <div class="cs-video-wrap">
+        <iframe src="https://www.youtube.com/embed/_tSmGVPnrNY" title="OASE unboxing video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+
+      <p>The hair vitamins come perfectly packed in tailor-made soft pink rigid boxes. Made from sturdy rigid cardboard. They are perfect to showcase products in a very elegant light.</p>
+      <p>Chalk paper lamination finishes were added to give it that soft and elegant feel to touch. In the soft pink colour, the box is soft, delicate, elegant, and strong &mdash; just like healthy hair should be.</p>
+
+      <div class="cs-media-photo">
+        <img class="cs-photo" src="assets/case-study/oase/OASE-Product-Shot-01-1024x675.jpg" alt="Close-up of OASE bottle and embossed box">
+      </div>
+
+      <p>When it came to the design, Oase stays faithful to its branding by keeping it simple. The signature pink is on show, as is the brand&rsquo;s logo &mdash; front and centre. Printed with embossing, giving it a soft texture.</p>
+      <p>Oase elegantly added their unique product&rsquo;s features, with symbols representing vegan, halal, and Swiss technological manufacturing. Inside, the bottle is secured with a custom insert.</p>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">Conclusion</h2>
+      <p>Packhelp&rsquo;s collaboration with Oase resulted in some classy, sophisticated packaging that did exactly what Oase had hoped for. A unique design, for a unique product.</p>
+    </div>
+    </div>
+  </div>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Need packaging similar <span class="final-deco-square"></span> to Oase?</h2>
+    <p class="final-cta-subheading">Order custom rigid boxes for your brand.</p>
+    <div class="final-cta-buttons">
+      <a href="packaging.html" class="btn-pill lg">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="get-a-quote.html" class="btn-pill lg secondary">Get a quote<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) return;
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

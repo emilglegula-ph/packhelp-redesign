@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contact — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- PAGE HEADER (cs-hub-title-row pattern: H1 + subheading, canonical space-4/space-8/space-12 rhythm) ---------- */
+  .contact-title-row {
+    padding: var(--space-4) var(--space-8) var(--space-12);
+  }
+
+  .contact-title {
+    margin: 0 0 var(--space-2);
+    max-width: 34rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .contact-title-desc {
+    max-width: 30rem;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- CONTACT LIST — name / description / CTA rows separated by
+     hairlines. This is the only layout the page needs; the earlier
+     card-grid, icon-tile and hero-bleed-photo variants were all removed
+     once this list became the permanent default. ---------- */
+  .contact-section {
+    padding: 0 var(--space-8) var(--space-16);
+  }
+
+  .contact-grid {
+    display: block;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .contact-card {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  /* Each row is its own grid, but with fixed px column widths (not fr/auto)
+     on both the name and CTA columns — since every row is the same overall
+     width, identical fixed tracks land in the same place on every row.
+     Fixed (not auto) is also what stops the CTA column from being
+     re-measured — and every row shifting — when a button's hover-expanding
+     arrow changes its own content width. */
+  .contact-card-body {
+    display: grid;
+    grid-template-columns: 220px 1fr 184px;
+    align-items: center;
+    gap: var(--space-6);
+    width: 100%;
+    max-width: 100%;
+    padding: var(--space-6) 0;
+  }
+
+  .contact-card-title {
+    grid-column: 1;
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .contact-card-desc-wrap {
+    grid-column: 2;
+  }
+
+  .contact-card-list-extra,
+  .contact-card-desc {
+    display: block;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text-muted);
+  }
+
+  .contact-card-list-extra + .contact-card-desc {
+    margin-top: var(--space-1);
+  }
+
+  .contact-card-body > a.btn-pill {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  /* hover reveal: the row's own photo, tilted -8deg (matching
+     .final-deco-square elsewhere on the site), tucked below the row and
+     clipped by the row's own overflow:hidden — it slides up on hover but
+     its bottom edge stays cropped flush against the row's bottom divider,
+     as if it were sitting just underneath it. */
+  .contact-card-list-thumb {
+    position: absolute;
+    right: 264px;
+    bottom: -140px;
+    z-index: 2;
+    width: 88px;
+    height: 88px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transform: rotate(-8deg);
+    transition: bottom 0.3s ease;
+    pointer-events: none;
+  }
+
+  .contact-card-list-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .contact-card:hover .contact-card-list-thumb {
+    bottom: -14px;
+  }
+
+  @media (max-width: 900px) {
+    .contact-card-list-thumb { display: none; }
+  }
+
+  @media (max-width: 700px) {
+    .contact-card-body {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+      justify-items: start;
+      padding: var(--space-5) 0;
+    }
+
+    .contact-card-title,
+    .contact-card-desc-wrap,
+    .contact-card-body > a.btn-pill {
+      grid-column: 1;
+      justify-self: start;
+    }
+  }
+
+  /* ---------- FAQ (same two-column faq-section/faq-grid pattern as index.html:
+     left badge+H2, right accordion — reusing the identical component, not a
+     one-off single-column variant) ---------- */
+  .faq-section {
+    padding: var(--space-16) var(--space-8) var(--space-16);
+  }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: var(--space-16);
+    max-width: 1216px;
+    margin: 0 auto;
+  }
+
+  /* .section-badge lives inline per-page (index.html), not yet in
+     components.css. There it's display:none by default (dev-panel toggle) —
+     PAGE_BUILDING_GUIDELINE.md §3 says new sections should treat it as
+     always visible, so it's inline-block here rather than hidden. */
+  .section-badge {
+    display: inline-block;
+    margin: 0 0 var(--space-3);
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-bg-muted-hover);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    border-radius: var(--radius-full);
+  }
+
+  .faq-heading {
+    margin: 0 0 var(--space-3);
+    font-weight: 450;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  .faq-subheading {
+    margin: 0;
+    max-width: 26rem;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 800px) {
+    .faq-grid { grid-template-columns: 1fr; }
+  }
+
+  .faq-accordions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .faq-item {
+    border-radius: var(--radius-md);
+    background: var(--color-bg-muted);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-5) var(--space-6);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .faq-chevron {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.25s ease;
+  }
+
+  .faq-item.open .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s ease;
+  }
+
+  .faq-answer-inner {
+    overflow: hidden;
+  }
+
+  .faq-answer p {
+    margin: 0;
+    padding: 0 var(--space-6) var(--space-5);
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .faq-answer p a {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .faq-answer p a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  .faq-item.open .faq-answer {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-item.open .faq-answer p {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.15s;
+  }
+
+  /* ---------- RELATED LINKS (same card recipe as deals.html's
+     .deals-carousel-card/-title/-desc/-btn — visual tile on top, title+desc+
+     secondary button below — just a static 3-up grid instead of a scroll
+     carousel, since there are only 3 links) ---------- */
+  .related-section {
+    padding: var(--space-16) var(--space-8) var(--space-16);
+  }
+
+  .related-heading {
+    margin: 0 0 var(--space-2);
+    font-weight: 450;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  .related-subheading {
+    margin: 0 0 var(--space-8);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (max-width: 800px) {
+    .related-grid { grid-template-columns: 1fr; }
+  }
+
+  /* .media-card-visual (components.css) provides position/radius/overflow —
+     this just adds the page-specific height + tint background. */
+  .related-card-visual {
+    height: 320px;
+    background: #D9E6FD;
+  }
+
+  .related-blob {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .related-blob-a {
+    width: 460.4px;
+    height: 460.4px;
+    background: linear-gradient(180deg, #D9E6FD 0%, #2757FF 100%, #7061A3 100%);
+    filter: blur(50px);
+  }
+
+  .related-blob-b {
+    width: 629.213px;
+    height: 629.213px;
+    background: linear-gradient(180deg, #B4CBF4 0%, rgba(111, 132, 255, 0.46) 100%);
+    filter: blur(100px);
+  }
+
+  /* same two blobs on every card, just re-positioned/re-rotated per variant
+     so no two tiles read as identical */
+  .related-card-visual--1 .related-blob-a { top: -140px; left: -90px; transform: rotate(-172.637deg); }
+  .related-card-visual--1 .related-blob-b { bottom: -260px; right: -220px; transform: rotate(-172.637deg); }
+
+  .related-card-visual--3 .related-blob-a { top: -60px; right: -160px; transform: rotate(96deg); }
+  .related-card-visual--3 .related-blob-b { bottom: -320px; left: -180px; transform: rotate(-30deg); }
+
+  /* ---------- HELP TILE COMPOSER (index.html's .cta-tile-composer pattern,
+     recolored for a light tile instead of the dark video background it's
+     normally overlaid on — same pill shape + typewriter text, no reply
+     bubbles here since it only ever shows incoming questions) ---------- */
+  .help-composer {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: calc(100% - 32px);
+    height: 52px;
+    transform: translate(-50%, -50%) scale(0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-2) 0 var(--space-4);
+    box-sizing: border-box;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .help-composer-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--color-text-primary);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .help-composer-send {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .help-composer-send svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .help-composer-send.pulse {
+    animation: cta-send-pulse 0.5s ease;
+  }
+
+  @keyframes cta-send-pulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  /* lighter/quieter variant of the 2rem .categories-heading step — regular
+     weight, softer tracking and lower opacity so it reads as a subtle
+     watermark rather than a headline */
+  .related-visual-label {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.55);
+    white-space: nowrap;
+  }
+
+  /* .related-title/.related-desc/.related-btn now live in components.css as
+     .media-card-title/.media-card-desc/.media-card-cta (§3.1). */
+
+  /* ---------- FOOTER (duplicated per-page, same as case-studies.html/industries.html) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <span class="current">Contact</span>
+  </nav>
+
+  <section class="contact-title-row reveal">
+    <h1 class="contact-title">Get in touch</h1>
+    <p class="contact-title-desc">Whatever you need, pick the fastest way to reach us — our team is one message away.</p>
+  </section>
+
+  <section class="contact-section reveal">
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-card-list-thumb"><img src="https://cdn-pim.packhelp.com/assets/2145039c-e1bc-4d4c-bd2d-235114286109/4351758-packhelp-28013?w=616&fit=min&auto=format" alt=""></div>
+        <div class="contact-card-body">
+          <h3 class="contact-card-title">Product advisory</h3>
+          <div class="contact-card-desc-wrap">
+            <p class="contact-card-list-extra">Need any type of help with your order?</p>
+            <p class="contact-card-desc">advisory@packhelp.com</p>
+          </div>
+          <a href="mailto:advisory@packhelp.com" class="btn-pill sm secondary">Email advisory<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-list-thumb"><img src="https://cdn-pim.packhelp.com/assets/113e6c31-13eb-463a-9305-2e89261d9ba9/4390419-packhelp-27892?w=616&fit=min&auto=format" alt=""></div>
+        <div class="contact-card-body">
+          <h3 class="contact-card-title">Complaint form</h3>
+          <div class="contact-card-desc-wrap">
+            <p class="contact-card-desc">Something is wrong with my order</p>
+          </div>
+          <a href="#" class="btn-pill sm secondary">Open complaint form<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-list-thumb"><img src="https://cdn-pim.packhelp.com/assets/6ff46278-8a6b-4606-b289-8f48484c181c/5508886-packhelp-27515?w=616&fit=min&auto=format" alt=""></div>
+        <div class="contact-card-body">
+          <h3 class="contact-card-title">Write an e-mail</h3>
+          <div class="contact-card-desc-wrap">
+            <p class="contact-card-list-extra">Have a question? Drop us a line anytime.</p>
+            <p class="contact-card-desc">hello@packhelp.com</p>
+          </div>
+          <a href="mailto:hello@packhelp.com" class="btn-pill sm secondary">Send an email<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-list-thumb"><img src="https://cdn-pim.packhelp.com/assets/51eb79ab-24a8-4d8f-99ea-242c68540535/4306130-packhelp-27186?w=616&fit=min&auto=format" alt=""></div>
+        <div class="contact-card-body">
+          <h3 class="contact-card-title">Send us a brief</h3>
+          <div class="contact-card-desc-wrap">
+            <p class="contact-card-desc">Step by step easy brief creator</p>
+          </div>
+          <a href="get-a-quote.html" class="btn-pill sm secondary">Start the brief<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-list-thumb"><img src="https://avatars.hubspot.net/73ea0056cab87fc6af097e29a7de1a43-100" alt=""></div>
+        <div class="contact-card-body">
+          <h3 class="contact-card-title">Chat now</h3>
+          <div class="contact-card-desc-wrap">
+            <p class="contact-card-desc">Start a live chat</p>
+          </div>
+          <a href="#" class="btn-pill sm secondary">Start chat<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-list-thumb"><img src="https://cdn-pim.packhelp.com/assets/54e2a6f2-b636-4810-b81f-126424ba5468/6622027-packhelp-28821-b-2?w=616&fit=min&auto=format" alt=""></div>
+        <div class="contact-card-body">
+          <h3 class="contact-card-title">Call us</h3>
+          <div class="contact-card-desc-wrap">
+            <p class="contact-card-list-extra">Prefer to talk? Give our team a call.</p>
+            <p class="contact-card-desc">+44 20 3769 3028</p>
+          </div>
+          <a href="tel:+442037693028" class="btn-pill sm secondary">Call us<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section reveal">
+    <div class="faq-grid">
+
+      <div class="faq-text">
+        <h2 class="faq-heading">Frequently asked questions</h2>
+        <p class="faq-subheading">Can't find what you're looking for? Any of the options above will get you straight to our team.</p>
+      </div>
+
+    <div class="faq-accordions">
+      <div class="faq-item">
+        <button class="faq-question">Can I order samples before placing a full order?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>Yes. You can order a sample pack by visiting: <a href="https://longleg.dev.packhelp.com/app/sample-packs/" target="_blank" rel="noopener">longleg.dev.packhelp.com/app/sample-packs</a></p>
+          <p>For mailer boxes, it's also possible to order a printed prototype with your own design using digital printing technology. Please note that digital printing is available for smaller quantities—larger production runs may use different printing methods. In that case, we recommend consulting our Customer Support or Sales team.</p>
+          <p>We're continuously expanding prototype options to other products, so be sure to check individual product pages for availability.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Can I get a custom quote for large volumes?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>Absolutely. For large-volume or bespoke orders, please contact us via:</p>
+          <p><a href="https://longleg.dev.packhelp.com/packhelp-brief-v2/" target="_blank" rel="noopener">longleg.dev.packhelp.com/packhelp-brief-v2</a></p>
+          <p>Email: <a href="mailto:hello@packhelp.com">hello@packhelp.com</a></p>
+          <p>Phone: <a href="tel:+442037693028">+44 20 3769 3028</a></p>
+          <p>Our team will be happy to prepare a custom offer tailored to your needs.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">How do I repeat a previous order?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>If your order was placed with the help of our Sales team, please contact them directly — they'll assist you with reordering.</p>
+          <p>For orders placed directly on our website, simply log in to your Packhelp dashboard, go to Orders, and reorder from there in just a few clicks.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">Can I talk to a packaging expert before ordering?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>Yes. If you have any questions or need guidance, you can reach our packaging experts via email at <a href="mailto:hello@packhelp.com">hello@packhelp.com</a>, live chat, or phone. We'll be happy to help you choose the best solution.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">How long does production take?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner">
+          <p>Production times vary depending on the product. For the most accurate information, please check the production timeline displayed on the product page.</p>
+          <p>If you're in a hurry, we also offer Express and Super Express production options for selected products.</p>
+        </div></div>
+      </div>
+    </div>
+
+    </div>
+  </section>
+
+  <section class="related-section reveal">
+    <h2 class="related-heading">Related links</h2>
+    <p class="related-subheading">Looking for something else? These links might help.</p>
+
+    <div class="related-grid">
+      <div class="related-card">
+        <div class="related-card-visual related-card-visual--1 media-card-visual">
+          <div class="related-blob related-blob-b"></div>
+          <div class="related-blob related-blob-a"></div>
+          <div class="help-composer">
+            <span class="help-composer-text" id="helpComposerText"></span>
+            <span class="help-composer-send" id="helpComposerSend">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+          </div>
+        </div>
+        <h3 class="media-card-title">Help</h3>
+        <p class="media-card-desc">Guides, FAQs and answers to common questions about your order.</p>
+        <a href="#" class="btn-pill sm secondary media-card-cta">Visit help center</a>
+      </div>
+
+      <div class="related-card">
+        <div class="related-card-visual related-card-visual--2 media-card-visual">
+          <img src="https://packhelp.co.uk/_astro/impressum-bg.B3c_ElvL.png" alt="">
+        </div>
+        <h3 class="media-card-title">Impressum</h3>
+        <p class="media-card-desc">Company details, registration and legal information.</p>
+        <a href="impressum.html" class="btn-pill sm secondary media-card-cta">View impressum</a>
+      </div>
+
+      <div class="related-card">
+        <div class="related-card-visual related-card-visual--3 media-card-visual">
+          <div class="related-blob related-blob-b"></div>
+          <div class="related-blob related-blob-a"></div>
+          <p class="related-visual-label">For journalists</p>
+        </div>
+        <h3 class="media-card-title">Press</h3>
+        <p class="media-card-desc">News, media resources and brand assets for journalists.</p>
+        <a href="#" class="btn-pill sm secondary media-card-cta">Visit press page</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="contact.html">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) return;
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+
+  (function () {
+    var faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(function (item) {
+      item.querySelector('.faq-question').addEventListener('click', function () {
+        item.classList.toggle('open');
+      });
+    });
+  })();
+
+  (function () {
+    var el = document.getElementById('helpComposerText');
+    var sendBtn = document.getElementById('helpComposerSend');
+    if (!el || !sendBtn) { return; }
+
+    var phrases = [
+      'How do I reset my password?',
+      'Does the box editor work on mobile?',
+      'How do I file a complaint?'
+    ];
+    var phraseIndex = 0;
+    var charIndex = 0;
+
+    function pulseSend() {
+      sendBtn.classList.remove('pulse');
+      void sendBtn.offsetWidth;
+      sendBtn.classList.add('pulse');
+    }
+
+    function typeTick() {
+      var phrase = phrases[phraseIndex];
+      charIndex++;
+      el.textContent = phrase.slice(0, charIndex);
+
+      if (charIndex >= phrase.length) {
+        setTimeout(function () {
+          pulseSend();
+          setTimeout(function () {
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            charIndex = 0;
+            el.textContent = '';
+            setTimeout(typeTick, 400);
+          }, 300);
+        }, 1600);
+        return;
+      }
+
+      setTimeout(typeTick, 45);
+    }
+
+    typeTick();
+  })();
+
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

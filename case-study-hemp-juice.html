@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Case study: Hemp Juice — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as packaging.html/industries.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- CASE STUDY TITLE ---------- */
+  .cs-title-row {
+    padding: var(--space-4) var(--space-8) var(--space-12);
+  }
+
+  .cs-title {
+    margin: 0 0 var(--space-2);
+    max-width: 50rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 3.2vw, 2.75rem);
+    line-height: 1.12;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-subheading {
+    max-width: 42rem;
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- PHOTOS / PLACEHOLDER ---------- */
+  .cs-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--color-bg-muted);
+  }
+
+  .ph-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-muted);
+    color: var(--color-border-hover);
+  }
+
+  .ph-media svg {
+    width: 15%;
+    max-width: 56px;
+    min-width: 28px;
+  }
+
+  .ph-media-label {
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .cs-hero-media {
+    margin: 0 var(--space-8);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  @media (max-width: 700px) {
+    .cs-hero-media { aspect-ratio: 4 / 3; }
+  }
+
+  /* ---------- MAIN LAYOUT (same recipe as case-study-oase.html) ---------- */
+  .cs-layout {
+    display: grid;
+    grid-template-columns: 15rem 1fr minmax(0, 46rem);
+    align-items: start;
+    padding: var(--space-12) var(--space-8) 0;
+  }
+
+  .cs-aside {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .cs-main { grid-column: 3; }
+
+  .cs-meta-label {
+    margin: 0 0 var(--space-1);
+    font-size: 0.6875rem;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .cs-meta-value {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-col + .cs-col { margin-top: var(--space-8); }
+  .cs-intro + .cs-col { margin-top: var(--space-20); }
+
+  .cs-col p.cs-lede {
+    margin: 0 0 var(--space-4);
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-col p.cs-lede:last-child { margin-bottom: 0; }
+
+  .cs-heading {
+    margin: 0 0 var(--space-4);
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-col p {
+    margin: 0 0 var(--space-4);
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-secondary);
+  }
+
+  .cs-col p:last-child { margin-bottom: 0; }
+
+  .cs-col p.cs-statement {
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.32;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-blockquote {
+    margin: var(--space-8) 0;
+    padding: var(--space-3) 0 var(--space-3) var(--space-6);
+    border-left: 2px solid var(--color-border-default);
+    font-size: 1.0625rem;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-primary);
+  }
+
+  .cs-media-photo {
+    aspect-ratio: 3 / 2;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: var(--space-8) 0;
+  }
+
+  /* ---------- OBJECTIVES & RESULTS (new: two short bullet lists side by side) ---------- */
+  .cs-split-lists {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (max-width: 700px) {
+    .cs-split-lists { grid-template-columns: 1fr; }
+  }
+
+  .cs-split-lists-label {
+    margin: 0 0 var(--space-3);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .cs-list li {
+    position: relative;
+    padding-left: var(--space-6);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-secondary);
+  }
+
+  .cs-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  /* ---------- CALLOUTS (new: 3 short text callouts, no icons — Eco-friendly
+     printing / Flexibility / Design) ---------- */
+  .cs-callouts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin: var(--space-8) 0;
+  }
+
+  @media (max-width: 700px) {
+    .cs-callouts { grid-template-columns: 1fr; }
+  }
+
+  .cs-callout {
+    padding: var(--space-5);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-lg);
+  }
+
+  .cs-callout-label {
+    margin: 0 0 var(--space-1);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-callout-text {
+    margin: 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- HIGHLIGHTS (new: real stat row — legitimate here since Hemp
+     Juice has real quantified results, unlike Oase) ---------- */
+  .cs-highlights {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8);
+    margin: var(--space-8) 0;
+  }
+
+  @media (max-width: 700px) {
+    .cs-highlights { grid-template-columns: 1fr; }
+  }
+
+  .cs-highlight {
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .cs-highlight-value {
+    margin: 0 0 var(--space-2);
+    font-weight: 500;
+    font-size: 2.5rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-highlight-caption {
+    margin: 0;
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- PULL QUOTE (bleeds ~160px left of the reading column, left-aligned) ---------- */
+  .cs-quote-break {
+    width: calc(100% + var(--space-40));
+    margin: var(--space-16) 0 var(--space-16) calc(-1 * var(--space-40));
+    text-align: left;
+  }
+
+  .cs-quote {
+    margin: 0;
+    max-width: 46rem;
+    font-weight: 500;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.24;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-quote-attribution {
+    margin: var(--space-6) 0 0;
+    font-size: 0.875rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .cs-layout { grid-template-columns: 1fr; }
+    .cs-aside { grid-column: 1; margin-bottom: var(--space-8); }
+    .cs-main { grid-column: 1; }
+    .cs-quote-break { width: 100%; margin: var(--space-8) 0; }
+  }
+
+  /* ---------- FINAL CTA (index.html pattern) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (see PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-image: url('https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=400');
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as case-study-oase.html) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <a href="case-studies.html">Case studies</a>
+    <span>/</span>
+    <span class="current">Hemp Juice</span>
+  </nav>
+
+  <section class="cs-title-row reveal">
+    <h1 class="cs-title">How Hemp Juice stayed true to its eco-mission and lowered its packaging costs by 25% with Packhelp</h1>
+    <p class="cs-subheading">A D2C brand with a growing, diverse product range usually means design complexity and higher packaging costs. Or does it?</p>
+  </section>
+
+  <div class="cs-hero-media reveal">
+    <img class="cs-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1600" alt="Hemp Juice packaging">
+  </div>
+
+  <div class="cs-layout reveal">
+    <aside class="cs-aside">
+      <div>
+        <p class="cs-meta-label">Industry</p>
+        <p class="cs-meta-value">CBD Oils &amp; Cosmetics</p>
+      </div>
+      <div>
+        <p class="cs-meta-label">Business model</p>
+        <p class="cs-meta-value">D2C</p>
+      </div>
+      <div>
+        <p class="cs-meta-label">CEO</p>
+        <p class="cs-meta-value">Radek Budzik</p>
+      </div>
+      <div>
+        <p class="cs-meta-label">Headquarters</p>
+        <p class="cs-meta-value">Warsaw, Poland</p>
+      </div>
+    </aside>
+
+    <div class="cs-main">
+    <div class="cs-col cs-intro">
+      <p class="cs-lede">Meet Hemp Juice: a D2C brand specialising in hemp-based oils and cosmetics, competing in a crowded CBD market on quality, visual communication, and branding.</p>
+    </div>
+
+    <div class="cs-col">
+      <p>The brief was demanding: a diverse product range, precise branding requirements, a tight budget, and logistics that couldn&rsquo;t get in the way of growth. So, how did Hemp Juice manage to cover all their packaging needs and cut costs by 25% at the same time? Here&rsquo;s how.</p>
+    </div>
+
+    <div class="cs-col">
+      <div class="cs-split-lists">
+        <div>
+          <p class="cs-split-lists-label">Objectives</p>
+          <ul class="cs-list">
+            <li>Optimise packaging costs and logistics</li>
+            <li>Meet high aesthetic standards across a diverse product range</li>
+            <li>Support the brand&rsquo;s eco-mission</li>
+          </ul>
+        </div>
+        <div>
+          <p class="cs-split-lists-label">Results</p>
+          <ul class="cs-list">
+            <li>A 25% cut in production, 3PL storage &amp; fulfilment costs</li>
+            <li>Best quality-to-price ratio with matt foils and offset printing</li>
+            <li>Recycled materials and natural ink used throughout</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">The challenge</h2>
+      <p class="cs-statement">Hemp Juice&rsquo;s range consists of six types of CBD oils and cosmetics, along with products for pets.</p>
+      <p>Each product differs in CBD concentration and health properties, and each oil type has its own visual character. The 30ml bottles ship in full-colour printed product boxes — nine different designs in total — yet the entire range still had to read as one coherent brand. Nothing less than perfect would do.</p>
+
+      <div class="cs-media-photo">
+        <img class="cs-photo" src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/25150950/Packhelp_23.10.20203075-1-scaled.jpg?fit=clip&auto=format&w=1200" alt="Hemp Juice product boxes">
+      </div>
+
+      <div class="cs-callouts">
+        <div class="cs-callout">
+          <p class="cs-callout-label">Eco-friendly printing</p>
+          <p class="cs-callout-text">Natural, water-based inks throughout the range.</p>
+        </div>
+        <div class="cs-callout">
+          <p class="cs-callout-label">Flexibility</p>
+          <p class="cs-callout-text">A delivery calendar and on-demand ordering with a Packhelp Plan.</p>
+        </div>
+        <div class="cs-callout">
+          <p class="cs-callout-label">Design</p>
+          <p class="cs-callout-text">Matt foil finish paired with offset printing.</p>
+        </div>
+      </div>
+
+      <p>Hemp Juice was a growing company that needed logistic support just as much as it needed design — one without the other wouldn&rsquo;t have solved the brief.</p>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">The solution</h2>
+      <p class="cs-statement">The Packhelp team went to work.</p>
+      <p>The product boxes were produced in GC1 cardboard at 400gsm, across nine different designs sized 3.5 &times; 3.5 &times; 11.1cm, each finished with a matt foil application. Shipping was handled with eco-friendly mailing boxes, cushioned with a natural filler instead of plastic.</p>
+
+      <p class="cs-statement">The ordering &amp; logistics process was made simple &amp; seamless with a Packhelp Plan.</p>
+
+      <div class="ph-media cs-media-photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+        <span class="ph-media-label">Image placeholder</span>
+      </div>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">The result</h2>
+      <p class="cs-statement">The end result was a truly original product box with a unique design over the entire surface.</p>
+      <p>The matt foil brought out the colour across all nine designs, while the overall project cut Hemp Juice&rsquo;s packaging costs by 25%. Shipping got the same treatment: bio poly mailers made from vegetable starch, certified &ldquo;OK compost INDUSTRIAL,&rdquo; wrapped around boxes made from 90% recycled cardboard.</p>
+
+      <div class="cs-highlights">
+        <div class="cs-highlight">
+          <p class="cs-highlight-value">9</p>
+          <p class="cs-highlight-caption">Graphic designs — nine product boxes, each reflecting a different product, with an extra layer of matte foil for more vivid colour.</p>
+        </div>
+        <div class="cs-highlight">
+          <p class="cs-highlight-value">25%</p>
+          <p class="cs-highlight-caption">Lower costs — Packhelp&rsquo;s in-house storage and fulfilment hub consolidated costs and enabled flexible ordering.</p>
+        </div>
+        <div class="cs-highlight">
+          <p class="cs-highlight-value">90%</p>
+          <p class="cs-highlight-caption">Recycled content — the share of recycled material in Hemp Juice&rsquo;s mailer boxes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cs-quote-break">
+      <p class="cs-quote">&ldquo;When developing the design brief, we thought about two aspects: functionality and ecology. We wanted the mailer box to be visually attractive and encourage people to give it a second life. We know it worked because our customers often write that they use our box to keep jewellery, cosmetics or other items in it. You can&rsquo;t ask for more than that.&rdquo;</p>
+      <p class="cs-quote-attribution">Radek Budzik, CEO, Hemp Juice</p>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">Why Hemp Juice chose Packhelp</h2>
+      <p class="cs-statement">Hemp Juice says the biggest benefit of working with Packhelp is a fully customised Packhelp Plan.</p>
+      <p>Bulk production, warehouse storage, shipping at set intervals, and fast turnaround on-demand — all wrapped into one seamless process, so Hemp Juice never has to choose between cost, speed, and consistency.</p>
+
+      <div class="ph-media cs-media-photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+        <span class="ph-media-label">Image placeholder</span>
+      </div>
+    </div>
+
+    <div class="cs-col">
+      <h2 class="cs-heading">About Hemp Juice</h2>
+      <p>Hemp Juice is a Polish brand producing and selling CBD oils and hemp-based products. Its founders believe in CBD&rsquo;s therapeutic potential, and the brand is defined by quality ingredients, distinctive styling, and a focus on ecological values and customer education.</p>
+    </div>
+    </div>
+  </div>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Need packaging similar <span class="final-deco-square"></span> to Hemp Juice?</h2>
+    <p class="final-cta-subheading">Order custom product boxes and eco-friendly mailers for your brand.</p>
+    <div class="final-cta-buttons">
+      <a href="packaging.html" class="btn-pill lg">See all packaging<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="get-a-quote.html" class="btn-pill lg secondary">Get a quote<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) return;
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deals — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css.
+     The "Book an expert call" avatar-stack isn't promoted there yet — same
+     duplicate here as on sample-packs.html/packaging.html so nav-header.js's
+     markup renders styled. */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  /* ---------- SCROLL REVEAL (same recipe as index.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- breadcrumb (same recipe as packaging.html's .pkg-breadcrumb,
+     minus its own horizontal padding since it now sits inside
+     .deals-page, which already supplies that) ---------- */
+  .deals-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .deals-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .deals-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .deals-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- page shell ----------
+     Top padding matches packaging.html/industries.html's nav→breadcrumb
+     gap (space-8), so the breadcrumb starts at the same height across all
+     three catalog-style pages. Bottom stays the same space-8 because the
+     deal-cta-section right after it is a new-topic section and supplies
+     its own space-40 top padding — together that's the ~12rem "before a
+     headed section" gap from the spacing rule, not a double gap. */
+  .deals-page {
+    padding: var(--space-8) var(--space-8) var(--space-8);
+  }
+
+  .deals-intro {
+    max-width: 34rem;
+    margin: 0 0 var(--space-14);
+  }
+
+  .deals-heading {
+    margin: 0 0 var(--space-3);
+    font-weight: 500;
+    font-size: clamp(2rem, 3.2vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .deals-subheading {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- Deals carousel ----------
+     Cards the same width as the homepage's .category-item carousel
+     (320px), a bit taller, full-bleed photo, and a frosted centered badge
+     showing the code. Caption (title+desc+CTA) sits below the card, same
+     recipe as .category-title/.category-desc. */
+
+  /* Same .scroll-carousel recipe as the homepage's categories carousels
+     (see PAGE_BUILDING_GUIDELINE.md §1.1/1.2): the nav wrapper stays
+     container-width so the arrows sit inset near the 1280px edge, while
+     the track itself bleeds full viewport width behind them. */
+  .scroll-carousel {
+    position: relative;
+  }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .scroll-carousel-nav.prev { left: var(--space-4); }
+  .scroll-carousel-nav.next { right: var(--space-4); }
+
+  /* Same override recipe as index.html's
+     ".categories-section .scroll-carousel-nav { top: 160px; }" — centers
+     the arrows on the photo itself (half the card's 400px height) rather
+     than on the whole card+caption block below it. */
+  .deals-carousel .scroll-carousel-nav {
+    top: 200px;
+  }
+
+  .scroll-carousel-nav svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .scroll-carousel-nav::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav {
+    display: flex;
+  }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .deals-carousel-track {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    padding-left: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+    padding-right: calc((100vw - min(100vw, var(--max-w))) / 2 + 2rem);
+  }
+
+  .deals-carousel-item {
+    flex: 0 0 auto;
+    width: 320px;
+  }
+
+  /* .media-card-visual (components.css) provides position/radius/overflow/
+     background — this just adds the page-specific height. Badge, title,
+     desc and CTA margin now live in components.css too (see §3.1 in
+     PAGE_BUILDING_GUIDELINE.md) as .media-card-badge/-title/-desc/-cta. */
+  .deals-carousel-card {
+    height: 400px;
+  }
+
+  .deals-carousel-img {
+    position: absolute;
+    inset: 0;
+  }
+
+  @media (max-width: 700px) {
+    .deals-page { padding: var(--space-8) var(--space-5) var(--space-8); }
+  }
+
+  /* ---------- final CTA: same closing treatment as index.html's
+     final-cta-section ("Everything in the box...") — plain background,
+     big centered heading — with an email form standing in for that
+     section's Shop now/Get a quote button pair. ---------- */
+  .deal-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .deal-cta-heading {
+    margin: 0 auto;
+    max-width: 60rem;
+    font-weight: 500;
+    font-size: 5rem;
+    line-height: 1.04;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  /* Same trick as index.html's .final-deco-square in the "Everything in
+     the box. And the [] box." closer — an inline square that pops open
+     between two words once the section scrolls into view, cycling
+     through a handful of product photos, tilted a few degrees. */
+  .deal-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .deal-cta-section.is-visible .deal-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .deal-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-image: var(--deco-img);
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+    animation: deal-deco-cycle 2.5s steps(1) infinite;
+  }
+
+  .deal-cta-section.is-visible .deal-deco-square::before {
+    animation: deal-deco-cycle 2.5s steps(1) infinite, deal-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes deal-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  @keyframes deal-deco-cycle {
+    0%   { background-image: url('assets/main-segment/packaging/packaging-bundles.avif'); }
+    25%  { background-image: url('assets/custom-packaging/food/food-bags.png'); }
+    50%  { background-image: url('assets/custom-packaging/ecommerce/ecommerce-boxes.avif'); }
+    75%  { background-image: url('assets/main-segment/packaging/packaging-samples.avif'); }
+    100% { background-image: url('assets/main-segment/packaging/packaging-bundles.avif'); }
+  }
+
+  .deal-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  .deal-cta-subheading {
+    max-width: 32rem;
+    margin: var(--space-6) auto 0;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .deal-cta-form {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    max-width: 26rem;
+    margin: var(--space-10) auto 0;
+  }
+
+  .deal-cta-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: var(--space-12);
+    padding: 0 var(--space-5);
+    box-sizing: border-box;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    font-family: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .deal-cta-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .deal-cta-input:hover {
+    background: var(--color-bg-muted-hover);
+  }
+
+  .deal-cta-input:focus {
+    outline: none;
+    background: var(--color-bg-surface);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+
+  .deal-cta-btn {
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 700px) {
+    .deal-cta-section { padding: var(--space-24) var(--space-5) var(--space-16); }
+    .deal-cta-heading { font-size: 2.5rem; line-height: 1.08; letter-spacing: -0.05em; }
+    .deal-cta-form { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FOOTER (same recipe as index.html/packaging.html/sample-packs.html) ---------- */
+  .site-footer {
+    position: relative;
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo {
+    display: inline-flex;
+  }
+
+  .footer-logo img {
+    height: 26px;
+    width: auto;
+  }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  /* .footer-newsletter-input lives in components.css */
+
+  .footer-newsletter-btn {
+    flex: 0 0 auto;
+  }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img {
+    height: 44px;
+    width: auto;
+  }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col {
+    width: 200px;
+    flex: 0 0 auto;
+  }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover {
+    text-decoration: underline;
+  }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+<main class="deals-page">
+  <nav class="deals-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <span class="current">Deals</span>
+  </nav>
+
+  <div class="deals-intro reveal">
+    <h1 class="deals-heading">Deals</h1>
+    <p class="deals-subheading">Explore all active deals and limited-time offers — from bundle discounts to cashback on every order.</p>
+  </div>
+
+  <div class="deals-carousel">
+    <div class="scroll-carousel">
+      <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+      <div class="deals-carousel-track">
+
+      <div class="deals-carousel-item">
+        <div class="deals-carousel-card media-card-visual">
+          <img class="deals-carousel-img" src="https://cdn-pim.packhelp.com/assets/96e9561b-f35d-4e1f-88ac-34fe13ac40ad/5752043-packhelp-29460?w=616&fit=min&auto=format" alt="">
+          <div class="media-card-badge" data-code="BUNDLEUP" role="button" tabindex="0" aria-label="Copy code BUNDLEUP">
+            <span class="media-card-badge-label">BUNDLEUP</span>
+            <span class="media-card-badge-pill">Up to 20%</span>
+            <span class="media-card-badge-copied">Copied</span>
+          </div>
+        </div>
+        <h3 class="media-card-title">The more products you add, the more you save</h3>
+        <p class="media-card-desc">Add more custom products to your cart and unlock bigger savings — 10% off with 1, up to 20% off with 4 or more.</p>
+        <a href="packaging.html" class="btn-pill sm secondary media-card-cta">Shop now</a>
+      </div>
+
+      <div class="deals-carousel-item">
+        <div class="deals-carousel-card media-card-visual">
+          <video class="deals-carousel-img" src="assets/deals.mp4" autoplay muted playsinline></video>
+          <div class="media-card-badge" data-code="SUMMERPACKUK" role="button" tabindex="0" aria-label="Copy code SUMMERPACKUK">
+            <span class="media-card-badge-label">SUMMERPACKUK</span>
+            <span class="media-card-badge-pill">15% off</span>
+            <span class="media-card-badge-copied">Copied</span>
+          </div>
+        </div>
+        <h3 class="media-card-title">15% off personalised packaging</h3>
+        <p class="media-card-desc">Summer is in full swing. Get 15% off personalised packaging on orders over £350 gross.</p>
+        <a href="build-your-box.html" class="btn-pill sm secondary media-card-cta">Shop now</a>
+      </div>
+
+      <div class="deals-carousel-item">
+        <div class="deals-carousel-card media-card-visual">
+          <img class="deals-carousel-img" src="https://cdn-pim.packhelp.com/assets/2145039c-e1bc-4d4c-bd2d-235114286109/4351758-packhelp-28013?w=616&fit=min&auto=format" alt="">
+          <div class="media-card-badge">
+            <span class="media-card-badge-label">Packhelp Wallet</span>
+            <span class="media-card-badge-pill">20% back</span>
+          </div>
+        </div>
+        <h3 class="media-card-title">Save up to 20% with Packhelp Wallet</h3>
+        <p class="media-card-desc">Earn cashback on every order and use it towards your next purchase — savings that build up to 20%.</p>
+        <a href="#" class="btn-pill sm secondary media-card-cta">Learn more</a>
+      </div>
+
+      <div class="deals-carousel-item">
+        <div class="deals-carousel-card media-card-visual">
+          <img class="deals-carousel-img" src="https://cdn-pim.packhelp.com/assets/374e73f5-27b0-44f8-a651-6187067af2c3/3271617-packhelp-20271?w=616&fit=min&auto=format" alt="">
+          <div class="media-card-badge" data-code="MERCHDROP" role="button" tabindex="0" aria-label="Copy code MERCHDROP">
+            <span class="media-card-badge-label">MERCHDROP</span>
+            <span class="media-card-badge-pill">25% off</span>
+            <span class="media-card-badge-copied">Copied</span>
+          </div>
+        </div>
+        <h3 class="media-card-title">25% off promotional products</h3>
+        <p class="media-card-desc">New branded merchandise just dropped — clothing and accessories at 25% off for a limited time.</p>
+        <a href="packaging.html" class="btn-pill sm secondary media-card-cta">Shop now</a>
+      </div>
+
+      </div>
+      <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+</main>
+
+<section class="deal-cta-section reveal">
+  <h2 class="deal-cta-heading">Never miss <span class="deal-deco-square"></span> a deal</h2>
+  <p class="deal-cta-subheading">Join the newsletter for 15% off your first order, plus first access to new deals and discount codes.</p>
+  <form class="deal-cta-form">
+    <input type="email" class="deal-cta-input" placeholder="Your email" required>
+    <button type="submit" class="btn-pill lg deal-cta-btn">Sign up<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+  </form>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+      <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+      <form class="footer-newsletter">
+        <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+        <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+      </form>
+
+      <div class="footer-badges">
+        <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+        <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-col-group">
+        <div class="footer-col">
+          <p class="footer-col-title">Contact &amp; Help</p>
+          <ul>
+            <li><a href="#">Contact us</a></li>
+            <li><a href="#">Send us a brief</a></li>
+            <li><a href="#">Help</a></li>
+            <li><a href="#">Return policy</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="press.html">Press</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Company</p>
+          <ul>
+            <li><a href="press.html">Press</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col-group">
+        <div class="footer-col">
+          <p class="footer-col-title">Sustainability</p>
+          <ul>
+            <li><a href="#">Sustainability Hub</a></li>
+            <li><a href="#">Our Progress Reports</a></li>
+            <li><a href="#">Responsible Supply Chain</a></li>
+            <li><a href="#">Eco badge</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Resources</p>
+          <ul>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Terms of service</a></li>
+            <li><a href="#">Privacy policy</a></li>
+            <li><a href="#">Whistleblowing policy</a></li>
+            <li><a href="#">Sitemap</a></li>
+            <li><a href="#">Cookie settings</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <p class="footer-col-title">Connect</p>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">X</a></li>
+          <li><a href="#">Pinterest</a></li>
+          <li><a href="#">Tiktok</a></li>
+          <li><a href="#">Linkedin</a></li>
+          <li><a href="#">Youtube</a></li>
+          <li><a href="#">Facebook</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <span>Copyright Packhelp 2025</span>
+      <span>Business Hours Monday - Friday 8:00-15:00</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var navRow1 = document.querySelector('.nav-row1');
+  var stickyBar = document.getElementById('stickyBar');
+
+  function onScroll() {
+    var rect = navRow1.getBoundingClientRect();
+    var pinned = rect.bottom <= 0;
+    stickyBar.classList.toggle('is-pinned', pinned);
+
+    var minTop = 12;
+    var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+    stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+})();
+
+(function () {
+  var targets = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  targets.forEach(function (el) { observer.observe(el); });
+})();
+
+(function () {
+  var carousels = document.querySelectorAll('.scroll-carousel');
+
+  Array.prototype.forEach.call(carousels, function (carousel) {
+    var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+    var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+    var track = null;
+
+    for (var i = 0; i < carousel.children.length; i++) {
+      var child = carousel.children[i];
+      if (child !== prevBtn && child !== nextBtn) {
+        track = child;
+        break;
+      }
+    }
+
+    if (!prevBtn || !nextBtn || !track) {
+      return;
+    }
+
+    function updateNavState() {
+      var maxScroll = track.scrollWidth - track.clientWidth;
+      prevBtn.disabled = track.scrollLeft <= 0;
+      nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+    }
+
+    function checkOverflow() {
+      var overflowing = track.scrollWidth > track.clientWidth + 1;
+      carousel.classList.toggle('has-overflow', overflowing);
+      updateNavState();
+    }
+
+    prevBtn.addEventListener('click', function () {
+      track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', function () {
+      track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+    });
+
+    track.addEventListener('scroll', updateNavState);
+    window.addEventListener('resize', checkOverflow);
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(checkOverflow).observe(track);
+    } else {
+      checkOverflow();
+    }
+  });
+})();
+
+(function () {
+  var badges = document.querySelectorAll('.media-card-badge[data-code]');
+
+  Array.prototype.forEach.call(badges, function (badge) {
+    var code = badge.getAttribute('data-code');
+    var hideTimer;
+
+    function copyCode() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code);
+      }
+      badge.classList.add('copied');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () {
+        badge.classList.remove('copied');
+      }, 1500);
+    }
+
+    badge.addEventListener('click', copyCode);
+    badge.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        copyCode();
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

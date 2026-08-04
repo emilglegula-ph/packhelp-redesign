@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Case studies — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  /* top nav (sticky bar + nav-wrapper) styles live in components.css */
+  /* .nav-wrapper's -20px margin-top assumes an .announcement-bar above it —
+     its extra 20px bottom padding compensates for the overlap, see below. */
+
+  /* ---------- ANNOUNCEMENT ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover {
+    background: rgba(255,255,255,.8);
+  }
+
+  .announcement-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---------- NAV STICKY-CTA AVATARS (nav-header.js markup, styled per-page — not yet in components.css) ---------- */
+  .cta-avatars {
+    display: flex;
+    margin-right: var(--space-3);
+  }
+
+  .cta-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    border: 2px solid var(--color-accent);
+    margin-left: -8px;
+  }
+
+  .cta-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .cta-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .cta-avatars.sm {
+    margin-right: var(--space-2);
+  }
+
+  .cta-avatars.sm .cta-avatar {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+    .sticky-bar { display: none; }
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(-16px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- BREADCRUMB (packaging.html pattern) ---------- */
+  .pkg-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pkg-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .pkg-breadcrumb a:hover {
+    text-decoration: underline;
+    color: var(--color-text-primary);
+  }
+
+  .pkg-breadcrumb .current {
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- IMAGE PLACEHOLDER (no real asset available for this slot) ---------- */
+  .ph-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-muted);
+    color: var(--color-border-hover);
+    overflow: hidden;
+  }
+
+  .ph-media svg {
+    width: 15%;
+    max-width: 56px;
+    min-width: 28px;
+  }
+
+  .ph-media-label {
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- PAGE HEADER (industry-title-row-alt pattern: stacked H1 +
+     subheading + CTA, canonical space-4/space-8/space-12 rhythm) ---------- */
+  .cs-hub-title-row {
+    padding: var(--space-4) var(--space-8) var(--space-12);
+  }
+
+  .cs-hub-title {
+    margin: 0 0 var(--space-2);
+    max-width: 42rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 3.6vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-hub-title-desc {
+    max-width: 34rem;
+    margin: 0 0 var(--space-6);
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  /* ---------- HERO: gray tile (featured case study) + photo, side by side ---------- */
+  /* Split hero: plain image tile left, plain text column right (no card
+     background, no gradient/overlay text-on-photo treatment). */
+  .cs-hub-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10);
+    align-items: center;
+    padding: 0 var(--space-8) 0;
+  }
+
+  .cs-hero-image {
+    height: 410px;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .cs-hero-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cs-hero-heading {
+    margin: 0 0 var(--space-3);
+    font-weight: 500;
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+    line-height: 1.16;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-hero-meta {
+    margin: 0 0 var(--space-4);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .cs-hero-desc {
+    margin: 0;
+    max-width: 30rem;
+    font-size: 1.0625rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  @media (max-width: 800px) {
+    .cs-hub-hero { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- GRID: 3 case-study cards per row (same card recipe as the
+     homepage's .category-item scroll-carousel — photo tile + caption below —
+     just laid out as a static grid instead of horizontal scroll) ---------- */
+  .cs-grid-section {
+    padding: var(--space-40) var(--space-8) 0;
+  }
+
+  .cs-grid-heading {
+    margin: 0 0 var(--space-6);
+    font-weight: 500;
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8) var(--space-6);
+  }
+
+  @media (max-width: 900px) {
+    .cs-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .cs-grid { grid-template-columns: 1fr; }
+  }
+
+  .cs-grid-item { display: block; text-decoration: none; }
+
+  /* .media-card-visual (components.css) provides position/radius/overflow/
+     background — this just adds the page-specific aspect-ratio. Title/meta
+     now live in components.css too as .media-card-title/-desc (§3.1). */
+  .cs-grid-thumb {
+    aspect-ratio: 4 / 3;
+  }
+
+  .cs-grid-item:hover .cs-grid-thumb img {
+    transform: scale(1.08);
+  }
+
+  /* ---------- FINAL CTA (same pattern as case-study-oase.html) ---------- */
+  .final-cta-section {
+    padding: var(--space-40) var(--space-8) var(--space-32);
+    text-align: center;
+  }
+
+  .final-cta-heading {
+    margin: 0 auto;
+    max-width: 44rem;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .final-cta-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+
+  @media (max-width: 700px) {
+    .final-cta-buttons { flex-direction: column; align-items: stretch; }
+  }
+
+  /* ---------- FINAL-CTA DECO SQUARE (index.html / case-study-oase.html
+     pattern — every closing CTA heading gets one inline tilted photo that
+     pops in on reveal and pushes the surrounding words apart; see
+     PAGE_BUILDING_GUIDELINE.md §5) ---------- */
+  .final-deco-square {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: middle;
+    margin: 0;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1) 1s, margin 0.6s cubic-bezier(.34,1.56,.64,1) 1s;
+  }
+
+  .final-cta-section.is-visible .final-deco-square {
+    width: 64px;
+    margin: 0 var(--space-2);
+  }
+
+  .final-deco-square::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--gray-300);
+    background-image: url('assets/case-study/oase/OASE-Setting-3-1024x683.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, -50%) rotate(-8deg) scale(0);
+    transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+
+  .final-cta-section.is-visible .final-deco-square::before {
+    animation: final-deco-appear 0.6s cubic-bezier(.34,1.56,.64,1) 1s forwards;
+  }
+
+  @keyframes final-deco-appear {
+    from { transform: translate(-50%, -50%) rotate(-8deg) scale(0); }
+    to   { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+  }
+
+  .final-deco-square:hover::before {
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  /* ---------- FOOTER (duplicated per-page, same as industries.html/case-study-oase.html) ---------- */
+  .site-footer {
+    position: relative;
+    margin-top: var(--space-16);
+    padding: var(--space-16) 0 0;
+  }
+
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-inner {
+    padding: 0 var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12);
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    flex: 0 1 420px;
+    max-width: 460px;
+  }
+
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+
+  .footer-newsletter-copy {
+    margin: var(--space-5) 0 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-muted);
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .footer-newsletter-btn { flex: 0 0 auto; }
+
+  .footer-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+  }
+
+  .footer-badge {
+    display: flex;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--radius-sm);
+  }
+
+  .footer-badge img { height: 44px; width: auto; }
+
+  .footer-links {
+    display: flex;
+    flex: 0 1 auto;
+    gap: var(--space-14);
+  }
+
+  .footer-col { width: 200px; flex: 0 0 auto; }
+
+  .footer-col-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  .footer-col-title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-col a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-col a:hover { text-decoration: underline; }
+
+  .footer-bottom {
+    position: relative;
+    margin-top: var(--space-14);
+  }
+
+  .footer-bottom::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .footer-bottom-inner {
+    padding: var(--space-6) var(--space-8);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 1.5rem; }
+    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div id="ph-sticky-bar"></div>
+
+<div class="container">
+  <div id="ph-nav-wrapper"></div>
+  <script src="nav-header.js"></script>
+  <nav class="pkg-breadcrumb">
+    <a href="index.html">Packhelp</a>
+    <span>/</span>
+    <span class="current">Case studies</span>
+  </nav>
+
+  <section class="cs-hub-title-row reveal">
+    <h1 class="cs-hub-title">Winning designs &amp; smarter packaging choices.</h1>
+    <p class="cs-hub-title-desc">See the details of our most successful collaborations.</p>
+    <a href="packaging.html" class="btn-pill lg">Explore products<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  </section>
+
+  <section class="cs-hub-hero reveal">
+    <div class="cs-hero-image">
+      <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/25150950/Packhelp_23.10.20203075-1-scaled.jpg?fit=clip&auto=format&w=1600" alt="Hemp Juice packaging">
+    </div>
+
+    <div>
+      <h2 class="cs-hero-heading">Hemp Juice: A 25% drop in packaging costs with packaging designed from the ground up.</h2>
+      <p class="cs-hero-meta">5 min read</p>
+      <p class="cs-hero-desc">Hemp Juice&rsquo;s packaging captures the diversity of nine different products, with a unique finish adding an extra depth to the complex and colourful design.</p>
+    </div>
+  </section>
+
+  <section class="cs-grid-section reveal">
+    <h2 class="cs-grid-heading">All case studies</h2>
+
+    <div class="cs-grid">
+      <a class="cs-grid-item" href="case-study-oase.html">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="assets/case-study/oase/Oase-main-e1619792280508.png" alt="OASE hair vitamins box and bottle">
+        </div>
+        <h3 class="media-card-title">Designer Packaging: Oase</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="case-study-hemp-juice.html">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/08/09140215/5_img.png?fit=clip&auto=format&w=1200" alt="Hemp Juice packaging">
+        </div>
+        <h3 class="media-card-title">How Hemp Juice stayed true to its eco-mission and lowered packaging costs by 25%</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2025/08/06115844/PackHelp0615-copy-2.png?fit=clip&auto=format&w=1200" alt="Beztrosko packaging">
+        </div>
+        <h3 class="media-card-title">How Beztrosko used custom packaging to boost sales at a fair by almost 80%</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2025/01/04095358/ALH_0163-1.png?fit=clip&auto=format&w=1200" alt="Pao Gin packaging">
+        </div>
+        <h3 class="media-card-title">How Pao Gin elevated their brand with premium hot-stamped packaging</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/11/15141527/2_white-2.jpg?fit=clip&auto=format&w=1200" alt="Sord packaging">
+        </div>
+        <h3 class="media-card-title">Sord: packaging built around the brand</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/08/22093646/2024.10.30-hayb-43-edited02-1737x2048-1.png?fit=clip&auto=format&w=1200" alt="HAYB packaging">
+        </div>
+        <h3 class="media-card-title">From Bean to Box: HAYB's recipe for Advent calendar success</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/07/16162326/ALH_1853-scaled.jpg?fit=clip&auto=format&w=1200" alt="Ice packaging">
+        </div>
+        <h3 class="media-card-title">Ice: packaging that keeps its cool</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2024/06/12124619/douze10-12.png?fit=clip&auto=format&w=1200" alt="Douze packaging">
+        </div>
+        <h3 class="media-card-title">Douze: bringing their packaging to life with Packhelp</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2020/07/25150316/fullsizeoutput_35ce-scaled.jpeg?fit=clip&auto=format&w=1200" alt="Raylo packaging">
+        </div>
+        <h3 class="media-card-title">How Raylo decreased their packaging costs by 11% with Packhelp</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+
+      <a class="cs-grid-item" href="#">
+        <div class="cs-grid-thumb media-card-visual">
+          <img src="https://ph-prod.imgix.net/wp-content/uploads/2021/06/18122953/Case_study-Xlash-photo-header.png?fit=clip&auto=format&w=1200" alt="Xlash España packaging">
+        </div>
+        <h3 class="media-card-title">How Xlash España made the switch to sustainable packaging and cut its costs by 16%</h3>
+        <p class="media-card-desc">5 min read</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="final-cta-section reveal">
+    <h2 class="final-cta-heading">Simply better <span class="final-deco-square"></span> packaging.</h2>
+    <div class="final-cta-buttons">
+      <a href="get-a-quote.html" class="btn-pill lg">Find your ideal solution<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+        <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+        <form class="footer-newsletter">
+          <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+        </form>
+
+        <div class="footer-badges">
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+          <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Contact &amp; Help</p>
+            <ul>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Send us a brief</a></li>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">Return policy</a></li>
+              <li><a href="impressum.html">Impressum</a></li>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="press.html">Press</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col-group">
+          <div class="footer-col">
+            <p class="footer-col-title">Sustainability</p>
+            <ul>
+              <li><a href="#">Sustainability Hub</a></li>
+              <li><a href="#">Our Progress Reports</a></li>
+              <li><a href="#">Responsible Supply Chain</a></li>
+              <li><a href="#">Eco badge</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <p class="footer-col-title">Resources</p>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Terms of service</a></li>
+              <li><a href="#">Privacy policy</a></li>
+              <li><a href="#">Whistleblowing policy</a></li>
+              <li><a href="#">Sitemap</a></li>
+              <li><a href="#">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Connect</p>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">X</a></li>
+            <li><a href="#">Pinterest</a></li>
+            <li><a href="#">Tiktok</a></li>
+            <li><a href="#">Linkedin</a></li>
+            <li><a href="#">Youtube</a></li>
+            <li><a href="#">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-inner">
+        <span>Copyright Packhelp 2025</span>
+        <span>Business Hours Monday - Friday 8:00-15:00</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    var navRow1 = document.querySelector('.nav-row1');
+    var stickyBar = document.getElementById('stickyBar');
+    if (!navRow1 || !stickyBar) return;
+
+    function onScroll() {
+      var rect = navRow1.getBoundingClientRect();
+      var pinned = rect.bottom <= 0;
+      stickyBar.classList.toggle('is-pinned', pinned);
+
+      var minTop = 12;
+      var naturalTop = rect.top + rect.height / 2 - stickyBar.offsetHeight / 2;
+      stickyBar.style.top = Math.max(minTop, naturalTop) + 'px';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
+
+</body>
+</html>
