@@ -20,7 +20,7 @@ export default function FinishSection({ selected, onSelect }: FinishSectionProps
             className={`flex cursor-pointer items-center justify-center rounded-lg px-4 py-3 text-[15px] leading-[1.32] tracking-[-0.3px] text-richblue transition-colors ${
               selected === option.id
                 ? 'border border-grey-400 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
-                : 'border border-transparent bg-preview-bg hover:bg-grey-300'
+                : 'border border-transparent bg-white hover:bg-grey-300'
             }`}
           >
             {option.label}

@@ -3,14 +3,14 @@ import type { ReactNode } from 'react'
 interface OptionGroupProps {
   title: string
   showLearnMore?: boolean
-  scrollable?: boolean
+  wrap?: boolean
   children: ReactNode
 }
 
 export default function OptionGroup({
   title,
   showLearnMore = false,
-  scrollable = false,
+  wrap = false,
   children,
 }: OptionGroupProps) {
   return (
@@ -28,13 +28,7 @@ export default function OptionGroup({
           </a>
         )}
       </div>
-      <div
-        className={
-          scrollable
-            ? 'no-scrollbar flex w-[calc(100%+56px)] items-start gap-2 overflow-x-auto pr-14'
-            : 'flex items-start gap-2'
-        }
-      >
+      <div className={wrap ? 'flex w-full flex-wrap items-start gap-2' : 'flex items-start gap-2'}>
         {children}
       </div>
     </section>

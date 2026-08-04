@@ -81,7 +81,7 @@ export default function Sidebar({
   }, [])
 
   return (
-    <div ref={scrollRef} className="h-full w-[540px] shrink-0 overflow-y-auto bg-white">
+    <div ref={scrollRef} className="h-full w-[540px] shrink-0 overflow-y-auto bg-grey-100">
       <div className="flex flex-col items-start gap-14 pb-14 pl-11 pr-14 pt-14">
         <header className="flex w-full flex-col items-start gap-2">
           <h1 className="text-[40px] font-medium leading-[1.08] tracking-[-2px] text-richblue">
@@ -103,7 +103,7 @@ export default function Sidebar({
           ))}
         </OptionGroup>
 
-        <OptionGroup title="Construction" showLearnMore scrollable>
+        <OptionGroup title="Construction" showLearnMore wrap>
           {constructionOptions.map((option) => (
             <Chip
               key={option.id}

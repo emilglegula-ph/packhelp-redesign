@@ -30,7 +30,7 @@ export default function PreviewPanel({
   const sceneApiRef = useRef<SceneApi | null>(null)
 
   return (
-    <div className="relative ml-3 my-3 flex h-[calc(100%-24px)] flex-1 items-center justify-center overflow-hidden rounded-[32px] bg-preview-bg">
+    <div className="relative ml-3 my-3 flex h-[calc(100%-24px)] flex-1 items-center justify-center overflow-hidden rounded-[32px] bg-grey-100">
       <a href="../../index.html" className="absolute left-8 top-8 z-10">
         <img src={imgLogo} alt="Packhelp" className="h-[28px] w-[145px]" />
       </a>

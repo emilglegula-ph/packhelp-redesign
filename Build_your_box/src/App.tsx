@@ -24,7 +24,7 @@ function App() {
     )
 
   return (
-    <div className="flex h-screen w-screen items-start gap-3 bg-white">
+    <div className="flex h-screen w-screen items-start gap-3 bg-grey-100">
       <PreviewPanel
         width={width}
         length={length}

@@ -65,7 +65,7 @@ export default function QuantitySection({ quantity, onQuantityChange }: Quantity
               className={`flex w-full items-center justify-between gap-4 rounded-lg px-4 py-3 text-left transition-colors ${
                 isSelected
                   ? 'border border-grey-400 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
-                  : 'border border-transparent bg-preview-bg hover:bg-grey-300'
+                  : 'border border-transparent bg-white hover:bg-grey-300'
               }`}
             >
               <span className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export default function QuantitySection({ quantity, onQuantityChange }: Quantity
           className={`rounded-lg transition-colors ${
             !isTierSelected
               ? 'border border-grey-400 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
-              : 'border border-transparent bg-preview-bg hover:bg-grey-300'
+              : 'border border-transparent bg-white hover:bg-grey-300'
           }`}
         >
           <button
