@@ -73,7 +73,7 @@ function NumberField({
     <div className="flex min-w-px flex-1 flex-col items-start gap-1">
       <span className="text-[13px] leading-[1.32] tracking-[-0.26px] text-richblue">{label}</span>
       <div
-        className={`flex h-12 w-full items-center justify-end gap-2 rounded-lg bg-white px-4 py-3 shadow-[inset_0_1px_4px_rgba(0,0,0,0.04)] ${
+        className={`flex h-12 w-full items-center justify-end gap-2 rounded-lg bg-white px-4 py-3 ${
           focused
             ? 'border-2 border-dark-blue'
             : error
@@ -87,7 +87,7 @@ function NumberField({
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => onFocusDimension(field)}
           onBlur={() => onFocusDimension(null)}
-          className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.32] tracking-[-0.3px] text-richblue outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="min-w-0 flex-1 bg-transparent text-[15px] leading-[1.32] tracking-[-0.3px] text-richblue outline-none"
         />
         <span className="whitespace-nowrap text-right text-[15px] leading-[1.32] tracking-[-0.3px] text-grey-500">
           cm
