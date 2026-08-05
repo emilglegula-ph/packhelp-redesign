@@ -3,6 +3,10 @@ import {
   imgRigidBox,
   imgMailerBox,
   imgConstructionClassic,
+  imgConstructionHanging,
+  imgConstructionWithLid,
+  imgConstructionWithHandle,
+  imgConstructionGable,
   imgClosureSnapLock,
   imgClosureAutoLock,
   imgClosureReverseTuck,
@@ -33,9 +37,14 @@ export const materialOptions: ChipOption[] = [
   { id: 'corrugated', label: 'Corrugated', image: imgMailerBox, fit: 'cover' },
 ]
 
-// Real per-option icons don't exist yet -- every tile temporarily reuses
-// the old "Classic" construction icon as a placeholder.
+// The 6 new options below don't have real icons yet, so each temporarily
+// reuses the "Classic" construction icon as a placeholder.
 export const typeOptions: ChipOption[] = [
+  { id: 'classic', label: 'Classic', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'hanging', label: 'Hanging', image: imgConstructionHanging, fit: 'cover' },
+  { id: 'with-lid', label: 'With Lid', image: imgConstructionWithLid, fit: 'cover' },
+  { id: 'with-handle', label: 'With Handle', image: imgConstructionWithHandle, fit: 'cover' },
+  { id: 'gable', label: 'Gable', image: imgConstructionGable, fit: 'cover' },
   { id: 'pull-out', label: 'Pull out', image: imgConstructionClassic, fit: 'cover' },
   { id: 'pillow', label: 'Pillow', image: imgConstructionClassic, fit: 'cover' },
   { id: 'displays', label: 'Displays', image: imgConstructionClassic, fit: 'cover' },

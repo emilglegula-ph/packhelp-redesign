@@ -54,7 +54,7 @@ export default function Sidebar({
   onClosureHoverChange,
 }: SidebarProps) {
   const [material, setMaterial] = useState('cardboard')
-  const [type, setType] = useState('pull-out')
+  const [type, setType] = useState('hanging')
   const [construction, setConstruction] = useState('tuck-end')
   const [closure, setClosure] = useState('snap-lock')
   const [windows, setWindows] = useState('kraft')
