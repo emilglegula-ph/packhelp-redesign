@@ -2,12 +2,7 @@ import {
   imgFoldingBox,
   imgRigidBox,
   imgMailerBox,
-  imgShippingBox,
   imgConstructionClassic,
-  imgConstructionHanging,
-  imgConstructionWithLid,
-  imgConstructionWithHandle,
-  imgConstructionGable,
   imgClosureSnapLock,
   imgClosureAutoLock,
   imgClosureReverseTuck,
@@ -32,19 +27,32 @@ export interface ChipOption {
   fit: ChipFit
 }
 
-export const boxTypeOptions: ChipOption[] = [
-  { id: 'folding', label: 'Folding Box', image: imgFoldingBox, fit: 'cover' },
-  { id: 'rigid', label: 'Rigid Box', image: imgRigidBox, fit: 'cover' },
-  { id: 'mailer', label: 'Mailer Box', image: imgMailerBox, fit: 'cover' },
-  { id: 'shipping', label: 'Shipping Box', image: imgShippingBox, fit: 'cover' },
+export const materialOptions: ChipOption[] = [
+  { id: 'cardboard', label: 'Cardboard', image: imgFoldingBox, fit: 'cover' },
+  { id: 'rigid', label: 'Rigid', image: imgRigidBox, fit: 'cover' },
+  { id: 'corrugated', label: 'Corrugated', image: imgMailerBox, fit: 'cover' },
 ]
 
+// Real per-option icons don't exist yet -- every tile temporarily reuses
+// the old "Classic" construction icon as a placeholder.
+export const typeOptions: ChipOption[] = [
+  { id: 'pull-out', label: 'Pull out', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'pillow', label: 'Pillow', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'displays', label: 'Displays', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'open-end', label: 'Open end', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'tray', label: 'Tray', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'sleeve', label: 'Sleeve', image: imgConstructionClassic, fit: 'cover' },
+]
+
+// Bottom/base construction options for the "Classic" Type -- one static
+// list for now, not yet conditional per Type selection. Also placeholder
+// icons, same as typeOptions above.
 export const constructionOptions: ChipOption[] = [
-  { id: 'classic', label: 'Classic', image: imgConstructionClassic, fit: 'cover' },
-  { id: 'hanging', label: 'Hanging', image: imgConstructionHanging, fit: 'cover' },
-  { id: 'with-lid', label: 'With Lid', image: imgConstructionWithLid, fit: 'cover' },
-  { id: 'with-handle', label: 'With Handle', image: imgConstructionWithHandle, fit: 'cover' },
-  { id: 'gable', label: 'Gable', image: imgConstructionGable, fit: 'cover' },
+  { id: 'tuck-end', label: 'Tuck end', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'seal-end', label: 'Seal end', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'tuck-and-tongue', label: 'Tuck and Tongue', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'deluxe-bellow', label: 'Deluxe bellow', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'tube-neck-lock', label: 'Tube neck lock', image: imgConstructionClassic, fit: 'cover' },
 ]
 
 export const closureOptions: ChipOption[] = [

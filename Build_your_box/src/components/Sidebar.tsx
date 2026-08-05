@@ -8,7 +8,8 @@ import SummarySection from './SummarySection'
 import StickyDeliveryBar from './StickyDeliveryBar'
 import type { DimensionField } from '../App'
 import {
-  boxTypeOptions,
+  materialOptions,
+  typeOptions,
   constructionOptions,
   closureOptions,
   windowsOptions,
@@ -52,8 +53,9 @@ export default function Sidebar({
   onClosureClick,
   onClosureHoverChange,
 }: SidebarProps) {
-  const [boxType, setBoxType] = useState('folding')
-  const [construction, setConstruction] = useState('hanging')
+  const [material, setMaterial] = useState('cardboard')
+  const [type, setType] = useState('pull-out')
+  const [construction, setConstruction] = useState('tuck-end')
   const [closure, setClosure] = useState('snap-lock')
   const [windows, setWindows] = useState('kraft')
   const [materialColor, setMaterialColor] = useState('kraft')
@@ -94,13 +96,24 @@ export default function Sidebar({
           </p>
         </header>
 
-        <OptionGroup title="Box type" showLearnMore>
-          {boxTypeOptions.map((option) => (
+        <OptionGroup title="Material" showLearnMore>
+          {materialOptions.map((option) => (
             <Chip
               key={option.id}
               option={option}
-              selected={boxType === option.id}
-              onSelect={() => setBoxType(option.id)}
+              selected={material === option.id}
+              onSelect={() => setMaterial(option.id)}
+            />
+          ))}
+        </OptionGroup>
+
+        <OptionGroup title="Type" showLearnMore wrap>
+          {typeOptions.map((option) => (
+            <Chip
+              key={option.id}
+              option={option}
+              selected={type === option.id}
+              onSelect={() => setType(option.id)}
             />
           ))}
         </OptionGroup>
@@ -140,7 +153,7 @@ export default function Sidebar({
           onMouseLeave={() => onClosureHoverChange(false)}
           className="w-full"
         >
-          <OptionGroup title="Closure">
+          <OptionGroup title="Bottom">
             {closureOptions.map((option) => (
               <Chip
                 key={option.id}
