@@ -10,7 +10,7 @@ import type { DimensionField } from '../App'
 import {
   materialOptions,
   typeOptions,
-  constructionOptions,
+  openingOptions,
   closureOptions,
   windowsOptions,
   materialColorOptions,
@@ -55,7 +55,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const [material, setMaterial] = useState('cardboard')
   const [type, setType] = useState('hanging')
-  const [construction, setConstruction] = useState('tuck-end')
+  const [opening, setOpening] = useState('tuck-end')
   const [closure, setClosure] = useState('snap-lock')
   const [windows, setWindows] = useState('kraft')
   const [materialColor, setMaterialColor] = useState('kraft')
@@ -118,17 +118,6 @@ export default function Sidebar({
           ))}
         </OptionGroup>
 
-        <OptionGroup title="Construction" showLearnMore wrap>
-          {constructionOptions.map((option) => (
-            <Chip
-              key={option.id}
-              option={option}
-              selected={construction === option.id}
-              onSelect={() => setConstruction(option.id)}
-            />
-          ))}
-        </OptionGroup>
-
         <SizeSection
           sizeMode={sizeMode}
           onSizeModeChange={onSizeModeChange}
@@ -144,6 +133,17 @@ export default function Sidebar({
           focusedDimension={focusedDimension}
           onFocusDimension={onFocusDimension}
         />
+
+        <OptionGroup title="Opening" showLearnMore wrap>
+          {openingOptions.map((option) => (
+            <Chip
+              key={option.id}
+              option={option}
+              selected={opening === option.id}
+              onSelect={() => setOpening(option.id)}
+            />
+          ))}
+        </OptionGroup>
 
         {/* Hovering anywhere in the group previews the closure reveal live;
             onClosureClick (per-chip, below) backs that up with a timed

@@ -53,10 +53,10 @@ export const typeOptions: ChipOption[] = [
   { id: 'sleeve', label: 'Sleeve', image: imgConstructionClassic, fit: 'cover' },
 ]
 
-// Bottom/base construction options for the "Classic" Type -- one static
+// Bottom/base opening options for the "Classic" Type -- one static
 // list for now, not yet conditional per Type selection. Also placeholder
 // icons, same as typeOptions above.
-export const constructionOptions: ChipOption[] = [
+export const openingOptions: ChipOption[] = [
   { id: 'tuck-end', label: 'Tuck end', image: imgConstructionClassic, fit: 'cover' },
   { id: 'seal-end', label: 'Seal end', image: imgConstructionClassic, fit: 'cover' },
   { id: 'tuck-and-tongue', label: 'Tuck and Tongue', image: imgConstructionClassic, fit: 'cover' },
