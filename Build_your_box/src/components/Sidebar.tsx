@@ -3,7 +3,6 @@ import OptionGroup from './OptionGroup'
 import Chip from './Chip'
 import SizeSection from './SizeSection'
 import FinishSection from './FinishSection'
-import TextOptionSection from './TextOptionSection'
 import QuantitySection from './QuantitySection'
 import SummarySection from './SummarySection'
 import StickyDeliveryBar from './StickyDeliveryBar'
@@ -213,21 +212,29 @@ export default function Sidebar({
         )}
 
         {isCorrugated && (
-          <TextOptionSection
-            title="Print colour mode"
-            options={printColourModeOptions}
-            selected={printColourMode}
-            onSelect={setPrintColourMode}
-          />
+          <OptionGroup title="Print colour mode">
+            {printColourModeOptions.map((option) => (
+              <Chip
+                key={option.id}
+                option={option}
+                selected={printColourMode === option.id}
+                onSelect={() => setPrintColourMode(option.id)}
+              />
+            ))}
+          </OptionGroup>
         )}
 
         {isCorrugated && (
-          <TextOptionSection
-            title="Adhesive strip"
-            options={adhesiveStripOptions}
-            selected={adhesiveStrip}
-            onSelect={setAdhesiveStrip}
-          />
+          <OptionGroup title="Adhesive strip">
+            {adhesiveStripOptions.map((option) => (
+              <Chip
+                key={option.id}
+                option={option}
+                selected={adhesiveStrip === option.id}
+                onSelect={() => setAdhesiveStrip(option.id)}
+              />
+            ))}
+          </OptionGroup>
         )}
 
         <OptionGroup title="Material color">

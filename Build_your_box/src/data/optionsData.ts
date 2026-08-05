@@ -28,6 +28,9 @@ import {
   imgPrintPlain,
   imgCoverageOutside,
   imgCoverageOutsideInside,
+  imgAdhesiveNone,
+  imgAdhesiveSingle,
+  imgAdhesiveDouble,
 } from '../assets/figma'
 
 export type ChipFit = 'cover' | 'icon' | 'empty'
@@ -124,16 +127,18 @@ export const finishOptions = [
   { id: 'matt', label: 'Matt' },
 ]
 
-// Corrugated-only sections -- text-only options, no chip imagery.
-export const printColourModeOptions = [
-  { id: 'one-colour', label: 'One colour' },
-  { id: 'white-colour', label: 'White colour' },
-  { id: 'multicolour-muted', label: 'Multicolour – muted' },
-  { id: 'multicolour-premium', label: 'Multicolour – premium' },
+// Corrugated-only sections.
+// No dedicated photos yet for the 4 colour modes -- temporarily all reuse
+// the same "Kraft" material-colour photo as a placeholder.
+export const printColourModeOptions: ChipOption[] = [
+  { id: 'one-colour', label: 'One colour', image: imgMaterialKraft, fit: 'cover' },
+  { id: 'white-colour', label: 'White colour', image: imgMaterialKraft, fit: 'cover' },
+  { id: 'multicolour-muted', label: 'Multicolour – muted', image: imgMaterialKraft, fit: 'cover' },
+  { id: 'multicolour-premium', label: 'Multicolour – premium', image: imgMaterialKraft, fit: 'cover' },
 ]
 
-export const adhesiveStripOptions = [
-  { id: 'none', label: 'None' },
-  { id: 'single', label: 'Single' },
-  { id: 'double', label: 'Double' },
+export const adhesiveStripOptions: ChipOption[] = [
+  { id: 'none', label: 'None', image: imgAdhesiveNone, fit: 'cover' },
+  { id: 'single', label: 'Single', image: imgAdhesiveSingle, fit: 'cover' },
+  { id: 'double', label: 'Double', image: imgAdhesiveDouble, fit: 'cover' },
 ]
