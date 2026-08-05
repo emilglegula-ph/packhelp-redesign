@@ -33,8 +33,8 @@ export interface ChipOption {
 
 export const materialOptions: ChipOption[] = [
   { id: 'cardboard', label: 'Cardboard', image: imgFoldingBox, fit: 'cover' },
-  { id: 'rigid', label: 'Rigid', image: imgRigidBox, fit: 'cover' },
   { id: 'corrugated', label: 'Corrugated', image: imgMailerBox, fit: 'cover' },
+  { id: 'rigid', label: 'Rigid', image: imgRigidBox, fit: 'cover' },
 ]
 
 // The 6 new options below don't have real icons yet, so each temporarily
