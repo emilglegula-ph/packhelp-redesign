@@ -229,6 +229,7 @@ interface SceneProps {
   focusedDimension: DimensionField | null
   onInteractionStart: () => void
   flipped: boolean
+  showPattern: boolean
 }
 
 export default function Scene({
@@ -243,6 +244,7 @@ export default function Scene({
   focusedDimension,
   onInteractionStart,
   flipped,
+  showPattern,
 }: SceneProps) {
   // In "Size of my product" mode the typed W/L/H describe the product --
   // the box itself is grown by the buffer so the product actually fits.
@@ -292,6 +294,7 @@ export default function Scene({
           height={boxHeight}
           flipped={flipped}
           showProduct={showProduct}
+          showPattern={showPattern}
         />
       </Suspense>
       <ShadowFloor size={framing.boundingRadius * 6} opacity={0.25} />

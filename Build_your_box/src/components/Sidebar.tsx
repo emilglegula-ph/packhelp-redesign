@@ -38,6 +38,8 @@ interface SidebarProps {
   onFocusDimension: (field: DimensionField | null) => void
   onClosureClick: () => void
   onClosureHoverChange: (hovering: boolean) => void
+  print: string
+  onPrintChange: (id: string) => void
 }
 
 export default function Sidebar({
@@ -56,6 +58,8 @@ export default function Sidebar({
   onFocusDimension,
   onClosureClick,
   onClosureHoverChange,
+  print,
+  onPrintChange,
 }: SidebarProps) {
   const [material, setMaterial] = useState('cardboard')
   const [type, setType] = useState('hanging')
@@ -63,7 +67,6 @@ export default function Sidebar({
   const [closure, setClosure] = useState('snap-lock')
   const [windows, setWindows] = useState('kraft')
   const [materialColor, setMaterialColor] = useState('kraft')
-  const [print, setPrint] = useState('custom')
   const [printCoverage, setPrintCoverage] = useState('outside')
   const [printColourMode, setPrintColourMode] = useState('one-colour')
   const [adhesiveStrip, setAdhesiveStrip] = useState('none')
@@ -254,7 +257,7 @@ export default function Sidebar({
               key={option.id}
               option={option}
               selected={print === option.id}
-              onSelect={() => setPrint(option.id)}
+              onSelect={() => onPrintChange(option.id)}
             />
           ))}
         </OptionGroup>

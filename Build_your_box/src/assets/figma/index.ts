@@ -45,9 +45,10 @@ export { default as imgAdhesiveNone } from './adhesive_none.avif'
 export { default as imgAdhesiveSingle } from './adhesive_single.avif'
 export { default as imgAdhesiveDouble } from './adhesive_double.avif'
 
-// ?inline: this is the only asset loaded via THREE.useTexture() (3D box
-// material). THREE sets crossOrigin on the <img> it creates for WebGL
-// textures, which turns file:// image loads into CORS-checked requests that
-// Chrome always rejects (file:// origin is "null"). Inlining as a data: URI
-// sidesteps that — see the same reasoning in HdriEnvironment.tsx.
+// ?inline: these are loaded via THREE.useTexture() (3D box material).
+// THREE sets crossOrigin on the <img> it creates for WebGL textures, which
+// turns file:// image loads into CORS-checked requests that Chrome always
+// rejects (file:// origin is "null"). Inlining as a data: URI sidesteps
+// that — see the same reasoning in HdriEnvironment.tsx.
 export { default as imgKraftTexture } from './kraft-texture.jpg?inline'
+export { default as imgPrintPattern1 } from './pattern1.svg?inline'

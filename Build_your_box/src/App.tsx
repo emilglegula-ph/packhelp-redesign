@@ -20,6 +20,7 @@ function App() {
   const [height, setHeight] = useState(12)
   const [productBufferMm, setProductBufferMm] = useState(DEFAULT_PRODUCT_BUFFER_MM)
   const [focusedDimension, setFocusedDimension] = useState<DimensionField | null>(null)
+  const [print, setPrint] = useState('plain')
   const [closureHovered, setClosureHovered] = useState(false)
   const [closureClickPulse, setClosureClickPulse] = useState(false)
   const closurePulseTimeout = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -52,6 +53,7 @@ function App() {
         focusedDimension={focusedDimension}
         onInteractionStart={() => setFocusedDimension(null)}
         closureFlipped={closureFlipped}
+        showPattern={print === 'custom'}
       />
       <Sidebar
         sizeMode={sizeMode}
@@ -69,6 +71,8 @@ function App() {
         onFocusDimension={setFocusedDimension}
         onClosureClick={handleClosureClick}
         onClosureHoverChange={setClosureHovered}
+        print={print}
+        onPrintChange={setPrint}
       />
     </div>
   )

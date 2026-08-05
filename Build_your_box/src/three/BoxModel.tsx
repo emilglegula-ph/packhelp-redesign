@@ -2,9 +2,9 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
-import { computeBoxSize, computeTag, hangHole } from './dielineGeometry'
+import { CM_TO_UNITS, computeBoxSize, computeTag, hangHole } from './dielineGeometry'
 import { createSlotPath, createTagShape } from './shapeHelpers'
-import { imgKraftTexture } from '../assets/figma'
+import { imgKraftTexture, imgPrintPattern1 } from '../assets/figma'
 
 interface BoxModelProps {
   width: number
@@ -16,7 +16,15 @@ interface BoxModelProps {
   /** "Size of my product" mode, focused on a dimension field: ghost the walls
    *  and reveal the product placeholder sized to fit inside them. */
   showProduct: boolean
+  /** Print === "Custom" -- tiles the pattern texture over the box instead
+   *  of the plain kraft grain. */
+  showPattern: boolean
 }
+
+// Physical size (world units, 4cm at CM_TO_UNITS scale) one pattern tile
+// repeats at, so it reads as a printed pattern rather than one image
+// stretched across the whole face.
+const PATTERN_TILE_UNITS = 4 * CM_TO_UNITS
 
 const PRODUCT_COLOR = '#7c8f5f'
 // Purely illustrative -- exaggerated well past the real (often just a few
@@ -41,12 +49,28 @@ function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
-export default function BoxModel({ width, length, height, flipped, showProduct }: BoxModelProps) {
+export default function BoxModel({
+  width,
+  length,
+  height,
+  flipped,
+  showProduct,
+  showPattern,
+}: BoxModelProps) {
   const kraftMap = useTexture(imgKraftTexture)
   kraftMap.colorSpace = THREE.SRGBColorSpace
   kraftMap.anisotropy = 8
 
+  const patternMap = useTexture(imgPrintPattern1)
+  patternMap.colorSpace = THREE.SRGBColorSpace
+  patternMap.anisotropy = 8
+  patternMap.wrapS = THREE.RepeatWrapping
+  patternMap.wrapT = THREE.RepeatWrapping
+
   const boxSize = useMemo(() => computeBoxSize(width, length, height), [width, length, height])
+  patternMap.repeat.set(boxSize.x / PATTERN_TILE_UNITS, boxSize.y / PATTERN_TILE_UNITS)
+
+  const boxMap = showPattern ? patternMap : kraftMap
   const productSize = useMemo(
     () => ({
       x: boxSize.x * PRODUCT_VISUAL_SCALE,
@@ -124,7 +148,7 @@ export default function BoxModel({ width, length, height, flipped, showProduct }
         <mesh key={`body-${showProduct}`} position={[0, boxSize.y / 2, 0]} castShadow receiveShadow>
           <boxGeometry args={[boxSize.x, boxSize.y, boxSize.z]} />
           <meshStandardMaterial
-            map={kraftMap}
+            map={boxMap}
             roughness={0.92}
             metalness={0}
             toneMapped={false}
@@ -143,7 +167,7 @@ export default function BoxModel({ width, length, height, flipped, showProduct }
           receiveShadow
         >
           <meshStandardMaterial
-            map={kraftMap}
+            map={boxMap}
             roughness={0.92}
             metalness={0}
             side={THREE.DoubleSide}

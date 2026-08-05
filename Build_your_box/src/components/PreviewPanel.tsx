@@ -12,6 +12,7 @@ interface PreviewPanelProps {
   focusedDimension: DimensionField | null
   onInteractionStart: () => void
   closureFlipped: boolean
+  showPattern: boolean
 }
 
 export default function PreviewPanel({
@@ -23,6 +24,7 @@ export default function PreviewPanel({
   focusedDimension,
   onInteractionStart,
   closureFlipped,
+  showPattern,
 }: PreviewPanelProps) {
   const [side, setSide] = useState<'front' | 'back'>('front')
   const [openness, setOpenness] = useState(0)
@@ -47,6 +49,7 @@ export default function PreviewPanel({
         focusedDimension={focusedDimension}
         onInteractionStart={onInteractionStart}
         flipped={closureFlipped}
+        showPattern={showPattern}
       />
 
       <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-6">

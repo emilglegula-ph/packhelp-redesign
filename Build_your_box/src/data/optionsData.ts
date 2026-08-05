@@ -105,8 +105,8 @@ export const materialColorOptions: ChipOption[] = [
 ]
 
 export const printOptions: ChipOption[] = [
-  { id: 'custom', label: 'Custom', image: imgPrintCustom, fit: 'cover' },
   { id: 'plain', label: 'Plain', image: imgPrintPlain, fit: 'cover' },
+  { id: 'custom', label: 'Custom', image: imgPrintCustom, fit: 'cover' },
 ]
 
 export const printCoverageOptions: ChipOption[] = [
