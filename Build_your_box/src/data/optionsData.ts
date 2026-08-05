@@ -51,6 +51,7 @@ export const typeOptions: ChipOption[] = [
   { id: 'open-end', label: 'Open end', image: imgConstructionClassic, fit: 'cover' },
   { id: 'tray', label: 'Tray', image: imgConstructionClassic, fit: 'cover' },
   { id: 'sleeve', label: 'Sleeve', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'food', label: 'Food', image: imgConstructionClassic, fit: 'cover' },
 ]
 
 // Bottom/base opening options for the "Classic" Type -- one static
