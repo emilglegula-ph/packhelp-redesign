@@ -2,7 +2,8 @@ import {
   imgFoldingBox,
   imgRigidBox,
   imgMailerBox,
-  imgConstructionClassic,
+  imgShippingBox,
+  imgTypeClassic,
   imgTypeHanging,
   imgTypeWithLid,
   imgTypeWithHandle,
@@ -45,7 +46,7 @@ export const materialOptions: ChipOption[] = [
 ]
 
 export const typeOptions: ChipOption[] = [
-  { id: 'classic', label: 'Classic', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'classic', label: 'Classic', image: imgTypeClassic, fit: 'cover' },
   { id: 'hanging', label: 'Hanging', image: imgTypeHanging, fit: 'cover' },
   { id: 'with-lid', label: 'With Lid', image: imgTypeWithLid, fit: 'cover' },
   { id: 'with-handle', label: 'With Handle', image: imgTypeWithHandle, fit: 'cover' },
@@ -59,15 +60,26 @@ export const typeOptions: ChipOption[] = [
   { id: 'food', label: 'Food', image: imgTypeFood, fit: 'cover' },
 ]
 
+// Shown instead of typeOptions above when Material is "Corrugated" -- ids
+// shared with typeOptions ('with-lid', 'open-end') keep that selection
+// across a material switch instead of resetting it.
+export const corrugatedTypeOptions: ChipOption[] = [
+  { id: 'mailer-box', label: 'Mailer Box', image: imgMailerBox, fit: 'cover' },
+  { id: 'shipping-box', label: 'Shipping Box', image: imgShippingBox, fit: 'cover' },
+  { id: 'with-lid', label: 'With Lid', image: imgTypeWithLid, fit: 'cover' },
+  { id: 'display', label: 'Display', image: imgTypeDisplays, fit: 'cover' },
+  { id: 'open-end', label: 'Open end', image: imgTypeOpenEnd, fit: 'cover' },
+]
+
 // Bottom/base opening options for the "Classic" Type -- one static
 // list for now, not yet conditional per Type selection. Also placeholder
 // icons, same as typeOptions above.
 export const openingOptions: ChipOption[] = [
-  { id: 'tuck-end', label: 'Tuck end', image: imgConstructionClassic, fit: 'cover' },
-  { id: 'seal-end', label: 'Seal end', image: imgConstructionClassic, fit: 'cover' },
-  { id: 'tuck-and-tongue', label: 'Tuck and Tongue', image: imgConstructionClassic, fit: 'cover' },
-  { id: 'deluxe-bellow', label: 'Deluxe bellow', image: imgConstructionClassic, fit: 'cover' },
-  { id: 'tube-neck-lock', label: 'Tube neck lock', image: imgConstructionClassic, fit: 'cover' },
+  { id: 'tuck-end', label: 'Tuck end', image: imgTypeClassic, fit: 'cover' },
+  { id: 'seal-end', label: 'Seal end', image: imgTypeClassic, fit: 'cover' },
+  { id: 'tuck-and-tongue', label: 'Tuck and Tongue', image: imgTypeClassic, fit: 'cover' },
+  { id: 'deluxe-bellow', label: 'Deluxe bellow', image: imgTypeClassic, fit: 'cover' },
+  { id: 'tube-neck-lock', label: 'Tube neck lock', image: imgTypeClassic, fit: 'cover' },
 ]
 
 export const closureOptions: ChipOption[] = [
@@ -99,7 +111,29 @@ export const printCoverageOptions: ChipOption[] = [
   { id: 'outside-inside', label: 'Outside + Inside', image: imgCoverageOutsideInside, fit: 'cover' },
 ]
 
+// Shown instead of printCoverageOptions above when Material is
+// "Corrugated" -- no dedicated "inside only" photo exists yet, so this
+// temporarily reuses the Outside image as a placeholder.
+export const corrugatedPrintCoverageOptions: ChipOption[] = [
+  ...printCoverageOptions,
+  { id: 'inside', label: 'Inside', image: imgCoverageOutside, fit: 'cover' },
+]
+
 export const finishOptions = [
   { id: 'goss', label: 'Goss' },
   { id: 'matt', label: 'Matt' },
+]
+
+// Corrugated-only sections -- text-only options, no chip imagery.
+export const printColourModeOptions = [
+  { id: 'one-colour', label: 'One colour' },
+  { id: 'white-colour', label: 'White colour' },
+  { id: 'multicolour-muted', label: 'Multicolour – muted' },
+  { id: 'multicolour-premium', label: 'Multicolour – premium' },
+]
+
+export const adhesiveStripOptions = [
+  { id: 'none', label: 'None' },
+  { id: 'single', label: 'Single' },
+  { id: 'double', label: 'Double' },
 ]

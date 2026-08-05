@@ -10,7 +10,7 @@ export { default as imgRigidBox } from './Rigid_Box.png'
 export { default as imgMailerBox } from './Mailer_Box.png'
 export { default as imgShippingBox } from './Shipping_Box.png'
 
-export { default as imgConstructionClassic } from './constructionClassic.svg'
+export { default as imgTypeClassic } from './Classic.png'
 export { default as imgTypeHanging } from './Hanging.png'
 export { default as imgTypeWithLid } from './With_Lid.png'
 export { default as imgTypeWithHandle } from './With_Handle.png'

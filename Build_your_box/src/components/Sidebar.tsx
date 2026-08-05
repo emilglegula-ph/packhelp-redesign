@@ -3,6 +3,7 @@ import OptionGroup from './OptionGroup'
 import Chip from './Chip'
 import SizeSection from './SizeSection'
 import FinishSection from './FinishSection'
+import TextOptionSection from './TextOptionSection'
 import QuantitySection from './QuantitySection'
 import SummarySection from './SummarySection'
 import StickyDeliveryBar from './StickyDeliveryBar'
@@ -10,12 +11,16 @@ import type { DimensionField } from '../App'
 import {
   materialOptions,
   typeOptions,
+  corrugatedTypeOptions,
   openingOptions,
   closureOptions,
   windowsOptions,
   materialColorOptions,
   printOptions,
   printCoverageOptions,
+  corrugatedPrintCoverageOptions,
+  printColourModeOptions,
+  adhesiveStripOptions,
 } from '../data/optionsData'
 
 interface SidebarProps {
@@ -61,7 +66,28 @@ export default function Sidebar({
   const [materialColor, setMaterialColor] = useState('kraft')
   const [print, setPrint] = useState('custom')
   const [printCoverage, setPrintCoverage] = useState('outside')
+  const [printColourMode, setPrintColourMode] = useState('one-colour')
+  const [adhesiveStrip, setAdhesiveStrip] = useState('none')
   const [finish, setFinish] = useState('goss')
+
+  const isCorrugated = material === 'corrugated'
+  const currentTypeOptions = isCorrugated ? corrugatedTypeOptions : typeOptions
+  const currentPrintCoverageOptions = isCorrugated ? corrugatedPrintCoverageOptions : printCoverageOptions
+
+  // Switching Material can make the current Type/Print-coverage selection
+  // invalid (its option list just changed) -- fall back to that list's
+  // first option instead of leaving nothing visibly selected. Ids shared
+  // between the two Type lists (with-lid, open-end) mean this is a no-op
+  // when the selection was already valid on both sides of the switch.
+  useEffect(() => {
+    if (!currentTypeOptions.some((option) => option.id === type)) {
+      setType(currentTypeOptions[0].id)
+    }
+    if (!currentPrintCoverageOptions.some((option) => option.id === printCoverage)) {
+      setPrintCoverage(currentPrintCoverageOptions[0].id)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [material])
 
   const [quantity, setQuantity] = useState(30)
   const [pricePerPiece, setPricePerPiece] = useState(0.92)
@@ -108,7 +134,7 @@ export default function Sidebar({
         </OptionGroup>
 
         <OptionGroup title="Type" showLearnMore wrap>
-          {typeOptions.map((option) => (
+          {currentTypeOptions.map((option) => (
             <Chip
               key={option.id}
               option={option}
@@ -134,50 +160,75 @@ export default function Sidebar({
           onFocusDimension={onFocusDimension}
         />
 
-        <OptionGroup title="Opening" showLearnMore wrap>
-          {openingOptions.map((option) => (
-            <Chip
-              key={option.id}
-              option={option}
-              selected={opening === option.id}
-              onSelect={() => setOpening(option.id)}
-            />
-          ))}
-        </OptionGroup>
-
-        {/* Hovering anywhere in the group previews the closure reveal live;
-            onClosureClick (per-chip, below) backs that up with a timed
-            pulse for clicks/taps that aren't backed by a hover. */}
-        <div
-          onMouseEnter={() => onClosureHoverChange(true)}
-          onMouseLeave={() => onClosureHoverChange(false)}
-          className="w-full"
-        >
-          <OptionGroup title="Bottom">
-            {closureOptions.map((option) => (
+        {/* Corrugated is a simpler flow -- these three don't apply to it. */}
+        {!isCorrugated && (
+          <OptionGroup title="Opening" showLearnMore wrap>
+            {openingOptions.map((option) => (
               <Chip
                 key={option.id}
                 option={option}
-                selected={closure === option.id}
-                onSelect={() => {
-                  setClosure(option.id)
-                  onClosureClick()
-                }}
+                selected={opening === option.id}
+                onSelect={() => setOpening(option.id)}
               />
             ))}
           </OptionGroup>
-        </div>
+        )}
 
-        <OptionGroup title="Windows and cutouts">
-          {windowsOptions.map((option) => (
-            <Chip
-              key={option.id}
-              option={option}
-              selected={windows === option.id}
-              onSelect={() => setWindows(option.id)}
-            />
-          ))}
-        </OptionGroup>
+        {!isCorrugated && (
+          // Hovering anywhere in the group previews the closure reveal live;
+          // onClosureClick (per-chip, below) backs that up with a timed
+          // pulse for clicks/taps that aren't backed by a hover.
+          <div
+            onMouseEnter={() => onClosureHoverChange(true)}
+            onMouseLeave={() => onClosureHoverChange(false)}
+            className="w-full"
+          >
+            <OptionGroup title="Bottom">
+              {closureOptions.map((option) => (
+                <Chip
+                  key={option.id}
+                  option={option}
+                  selected={closure === option.id}
+                  onSelect={() => {
+                    setClosure(option.id)
+                    onClosureClick()
+                  }}
+                />
+              ))}
+            </OptionGroup>
+          </div>
+        )}
+
+        {!isCorrugated && (
+          <OptionGroup title="Windows and cutouts">
+            {windowsOptions.map((option) => (
+              <Chip
+                key={option.id}
+                option={option}
+                selected={windows === option.id}
+                onSelect={() => setWindows(option.id)}
+              />
+            ))}
+          </OptionGroup>
+        )}
+
+        {isCorrugated && (
+          <TextOptionSection
+            title="Print colour mode"
+            options={printColourModeOptions}
+            selected={printColourMode}
+            onSelect={setPrintColourMode}
+          />
+        )}
+
+        {isCorrugated && (
+          <TextOptionSection
+            title="Adhesive strip"
+            options={adhesiveStripOptions}
+            selected={adhesiveStrip}
+            onSelect={setAdhesiveStrip}
+          />
+        )}
 
         <OptionGroup title="Material color">
           {materialColorOptions.map((option) => (
@@ -202,7 +253,7 @@ export default function Sidebar({
         </OptionGroup>
 
         <OptionGroup title="Print coverage">
-          {printCoverageOptions.map((option) => (
+          {currentPrintCoverageOptions.map((option) => (
             <Chip
               key={option.id}
               option={option}
