@@ -58,8 +58,8 @@ var NAV_WRAPPER_HTML = `
       <li class="nav-item-packaging"><a href="packaging.html">Packaging</a></li>
       <li><a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a></li>
       <li><a href="industries.html">Industries</a></li>
-      <li><a href="case-studies.html">Case studies</a></li>
       <li><a href="sample-packs.html">Samples</a></li>
+      <li><a href="deals.html">Deals</a></li>
     </ul>
 
     <div class="nav-megamenu">
@@ -178,7 +178,6 @@ var NAV_WRAPPER_HTML = `
       </div>
     </div>
     <ul class="nav-links desktop-only">
-      <li><a href="deals.html">Deals</a></li>
       <li><a href="#">Solutions</a></li>
       <li><a href="#">Inspirations</a></li>
       <li><a href="contact.html">Contact</a></li>

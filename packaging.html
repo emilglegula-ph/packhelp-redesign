@@ -773,6 +773,7 @@
   .product-card {
     display: block;
     color: inherit;
+    cursor: pointer;
   }
 
   .product-card-media {
@@ -819,23 +820,6 @@
     font-size: 0.8125rem;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
-  }
-
-  .product-card-btn {
-    position: absolute;
-    left: var(--space-3);
-    right: var(--space-3);
-    bottom: var(--space-3);
-    opacity: 0;
-    transform: translateY(100%);
-    pointer-events: none;
-    transition: opacity .15s ease, transform .15s ease;
-  }
-
-  .product-card:hover .product-card-btn {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
   }
 
   /* ---------- PROMO CARD ---------- */
@@ -1225,7 +1209,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap">
+      <div class="filter-pill-wrap" data-filter="size">
         <button class="filter-pill" aria-expanded="false">
           Size
           <span class="filter-count" hidden>
@@ -1291,7 +1275,7 @@
         </div>
       </div>
 
-      <div class="filter-pill-wrap">
+      <div class="filter-pill-wrap" data-filter="type">
         <button class="filter-pill" aria-expanded="false">
           Type
           <span class="filter-count" hidden>
@@ -2000,7 +1984,7 @@
           ? '<img class="product-card-img" src="' + product.img + '" alt="">'
           : '';
         return '<div class="product-card">' +
-          '<div class="product-card-media">' + mediaImg + moqBadge + '<a href="#" class="btn-pill sm product-card-btn">More info</a></div>' +
+          '<div class="product-card-media">' + mediaImg + moqBadge + '</div>' +
           '<div class="product-card-info">' +
           '<h3 class="product-card-name">' + product.name + '</h3>' +
           '<p class="product-card-customisation">' + product.type + '</p>' +
@@ -2132,6 +2116,16 @@
       });
     }
 
+    // "Size" and "Type" only make sense once you're looking at actual boxes
+    // -- hidden on the root listing (mixed packaging types), shown once the
+    // "Boxes" category is active.
+    function updateFilterVisibility(key) {
+      var boxesOnly = document.querySelectorAll('[data-filter="size"], [data-filter="type"]');
+      boxesOnly.forEach(function (el) {
+        el.hidden = key !== 'boxes';
+      });
+    }
+
     function goTo(key) {
       var node = categoryTree[key];
       if (!node) { return; }
@@ -2139,11 +2133,13 @@
       renderBreadcrumb(node.breadcrumb);
       renderTiles(node.tiles, key);
       renderProducts(node.products);
+      updateFilterVisibility(key);
     }
 
     renderHeader(categoryTree.root);
     renderBreadcrumb(categoryTree.root.breadcrumb);
     bindTileClicks();
+    updateFilterVisibility('root');
   })();
 
   (function () {
