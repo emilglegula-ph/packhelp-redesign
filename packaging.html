@@ -747,7 +747,8 @@
 
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
     gap: var(--space-6) var(--space-5);
   }
 
@@ -761,6 +762,8 @@
 
   .product-card {
     display: block;
+    width: 100%;
+    max-width: 340px;
     color: inherit;
     cursor: pointer;
   }
