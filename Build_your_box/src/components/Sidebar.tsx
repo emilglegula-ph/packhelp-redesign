@@ -124,7 +124,7 @@ export default function Sidebar({
           </p>
         </header>
 
-        <OptionGroup title="Material" showLearnMore>
+        <OptionGroup title="Material" options={materialOptions} showLearnMore>
           {materialOptions.map((option) => (
             <Chip
               key={option.id}
@@ -135,7 +135,7 @@ export default function Sidebar({
           ))}
         </OptionGroup>
 
-        <OptionGroup title="Type" showLearnMore wrap>
+        <OptionGroup title="Type" wrap>
           {currentTypeOptions.map((option) => (
             <Chip
               key={option.id}
@@ -164,7 +164,7 @@ export default function Sidebar({
 
         {/* Corrugated is a simpler flow -- these three don't apply to it. */}
         {!isCorrugated && (
-          <OptionGroup title="Opening" showLearnMore wrap>
+          <OptionGroup title="Opening" options={openingOptions} showLearnMore wrap>
             {openingOptions.map((option) => (
               <Chip
                 key={option.id}
@@ -185,7 +185,7 @@ export default function Sidebar({
             onMouseLeave={() => onClosureHoverChange(false)}
             className="w-full"
           >
-            <OptionGroup title="Bottom">
+            <OptionGroup title="Bottom" options={closureOptions} showLearnMore>
               {closureOptions.map((option) => (
                 <Chip
                   key={option.id}
@@ -202,7 +202,7 @@ export default function Sidebar({
         )}
 
         {!isCorrugated && (
-          <OptionGroup title="Windows and cutouts">
+          <OptionGroup title="Windows and cutouts" options={windowsOptions} showLearnMore>
             {windowsOptions.map((option) => (
               <Chip
                 key={option.id}
@@ -240,7 +240,7 @@ export default function Sidebar({
           </OptionGroup>
         )}
 
-        <OptionGroup title="Material color">
+        <OptionGroup title="Material color" options={materialColorOptions} showLearnMore>
           {materialColorOptions.map((option) => (
             <Chip
               key={option.id}
@@ -251,7 +251,7 @@ export default function Sidebar({
           ))}
         </OptionGroup>
 
-        <OptionGroup title="Print">
+        <OptionGroup title="Print" options={printOptions} showLearnMore>
           {printOptions.map((option) => (
             <Chip
               key={option.id}

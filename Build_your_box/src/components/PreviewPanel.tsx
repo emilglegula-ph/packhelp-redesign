@@ -34,9 +34,9 @@ export default function PreviewPanel({
   return (
     <div className="relative ml-3 my-3 flex h-[calc(100%-24px)] flex-1 items-center justify-center overflow-hidden rounded-[32px] bg-grey-100">
       <a href="../../index.html" className="group absolute left-6 top-6 z-10 flex flex-col items-start">
-        <span className="absolute -inset-2 -z-10 rounded-full bg-white opacity-0 shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-opacity duration-150 group-hover:opacity-100" />
+        <span className="absolute -inset-3 -z-10 rounded-2xl bg-white opacity-0 shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-opacity duration-150 group-hover:opacity-100" />
         <img src={imgLogo} alt="Packhelp" className="h-[25px] w-auto" />
-        <span className="pointer-events-none mt-2 flex items-center gap-1 whitespace-nowrap text-[13px] font-medium leading-none tracking-[-0.26px] text-richblue opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+        <span className="pointer-events-none mt-2 flex items-center gap-1 whitespace-nowrap text-[13px] leading-[1.32] tracking-[-0.26px] text-grey-600 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M11 7H3M3 7L6.5 3.5M3 7L6.5 10.5"
