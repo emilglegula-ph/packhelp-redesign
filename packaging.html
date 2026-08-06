@@ -747,9 +747,16 @@
 
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    justify-items: center;
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-6) var(--space-5);
+  }
+
+  /* At 1484px+ viewport, 4 equal columns would need to exceed the
+     340px tile cap to fill the row -- switch to 5 columns exactly
+     there instead, so tiles shrink back under the cap. Below this,
+     4 columns already stay under 340px on their own. */
+  @media (min-width: 1484px) {
+    .product-grid { grid-template-columns: repeat(5, 1fr); }
   }
 
   @media (max-width: 1100px) {
