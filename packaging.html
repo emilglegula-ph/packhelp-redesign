@@ -10,8 +10,16 @@
 <style>
   /* ---------- PAGE CONTAINER ---------- */
   /* Wider desktop breakpoint for this page only -- wraps nav, content and
-     footer, so bumping it here widens all three at once. */
+     footer, so bumping it here widens all three at once. .sticky-bar and
+     .nav-megamenu-inner sit outside .container (fixed/100vw overlays with
+     their own independent max-width), so they need the same override here
+     too, or they'd stay narrower than the listing beneath them. */
   .container {
+    max-width: var(--max-w-lg);
+  }
+
+  .sticky-bar,
+  .nav-megamenu-inner {
     max-width: var(--max-w-lg);
   }
 
