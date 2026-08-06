@@ -64,12 +64,12 @@ export default function LearnMoreModal({ title, options, onClose }: LearnMoreMod
               key={option.id}
               className="flex items-center gap-4 border-b border-grey-100 py-4 last:border-0"
             >
-              <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-grey-100">
+              <span className="flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-grey-100">
                 {option.image && (
                   <img
                     src={option.image}
                     alt=""
-                    className={option.fit === 'icon' ? 'h-auto w-8' : 'size-full object-cover'}
+                    className={option.fit === 'icon' ? 'h-auto w-16' : 'size-full object-cover'}
                   />
                 )}
               </span>
