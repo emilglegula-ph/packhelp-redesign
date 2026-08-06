@@ -51,4 +51,4 @@ export { default as imgAdhesiveDouble } from './Double.png'
 // rejects (file:// origin is "null"). Inlining as a data: URI sidesteps
 // that — see the same reasoning in HdriEnvironment.tsx.
 export { default as imgKraftTexture } from './kraft-texture.jpg?inline'
-export { default as imgPrintPattern1 } from './pattern1.svg?inline'
+export { default as imgPrintPattern1 } from './___2.svg?inline'
