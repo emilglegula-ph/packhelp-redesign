@@ -9,21 +9,10 @@
 <link rel="stylesheet" href="components.css">
 <style>
   /* ---------- PAGE CONTAINER ---------- */
-  /* Wider desktop breakpoint for this page only -- wraps nav, content and
-     footer, so bumping it here widens all three at once. .nav-row1,
-     nav.topbar, .sticky-bar and .nav-megamenu-inner all have their own
-     independent max-width (the nav's outer shell is a full-bleed 100vw
-     background with inset content, and the sticky-bar/megamenu overlays
-     sit outside .container entirely), so each needs the same override
-     here too, or they'd stay narrower than the listing beneath them. */
+  /* Wider desktop breakpoint for this page only -- wraps content and
+     footer. Nav itself is --max-w-lg globally (components.css), same on
+     every page regardless of that page's own container width. */
   .container {
-    max-width: var(--max-w-lg);
-  }
-
-  .nav-row1,
-  nav.topbar,
-  .sticky-bar,
-  .nav-megamenu-inner {
     max-width: var(--max-w-lg);
   }
 

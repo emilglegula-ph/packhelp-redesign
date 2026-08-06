@@ -341,7 +341,7 @@
   justify-content: space-between;
   gap: var(--space-8);
   height: 4rem;
-  max-width: var(--max-w);
+  max-width: var(--max-w-lg);
   margin: 0 auto;
   padding: 0 var(--space-8);
 }
@@ -352,7 +352,7 @@
   transform: translateX(-50%);
   z-index: 50;
   width: 100%;
-  max-width: var(--max-w);
+  max-width: var(--max-w-lg);
   display: grid;
   grid-template-columns: 1fr minmax(180px, 30rem) 1fr;
   align-items: center;
@@ -458,7 +458,7 @@ nav.topbar {
   align-items: center;
   justify-content: space-between;
   height: 3.5rem;
-  max-width: var(--max-w);
+  max-width: var(--max-w-lg);
   margin: 0 auto;
   padding: 0 var(--space-5);
 }
@@ -500,7 +500,7 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
 .nav-megamenu-inner {
   display: flex;
   gap: var(--space-10);
-  max-width: var(--max-w);
+  max-width: var(--max-w-lg);
   margin: 0 auto;
   padding: var(--space-8);
   box-sizing: border-box;
