@@ -119,7 +119,7 @@ export default function Sidebar({
           <h1 className="text-[40px] font-medium leading-[1.08] tracking-[-2px] text-richblue">
             Build your box
           </h1>
-          <p className="w-full text-[17px] leading-[1.32] tracking-[-0.34px] text-grey-600">
+          <p className="w-full text-[15px] leading-[1.32] tracking-[-0.34px] text-grey-600">
             Quickly configure the exact box type you need
           </p>
         </header>

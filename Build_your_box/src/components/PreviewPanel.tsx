@@ -33,8 +33,21 @@ export default function PreviewPanel({
 
   return (
     <div className="relative ml-3 my-3 flex h-[calc(100%-24px)] flex-1 items-center justify-center overflow-hidden rounded-[32px] bg-grey-100">
-      <a href="../../index.html" className="absolute left-8 top-8 z-10">
-        <img src={imgLogo} alt="Packhelp" className="h-[28px] w-[145px]" />
+      <a href="../../index.html" className="group absolute left-6 top-6 z-10 flex flex-col items-start">
+        <span className="absolute -inset-2 -z-10 rounded-full bg-white opacity-0 shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-opacity duration-150 group-hover:opacity-100" />
+        <img src={imgLogo} alt="Packhelp" className="h-[25px] w-auto" />
+        <span className="pointer-events-none mt-2 flex items-center gap-1 whitespace-nowrap text-[13px] font-medium leading-none tracking-[-0.26px] text-richblue opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 7H3M3 7L6.5 3.5M3 7L6.5 10.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Wróć
+        </span>
       </a>
 
       <Scene
@@ -52,7 +65,7 @@ export default function PreviewPanel({
         showPattern={showPattern}
       />
 
-      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-6">
+      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-4">
         <div className="flex h-9 items-center rounded-full bg-black/[0.04] backdrop-blur-[5px]">
           <div className="flex h-8 flex-col items-center justify-center rounded-full pl-1">
             <button
