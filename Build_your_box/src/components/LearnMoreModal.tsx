@@ -81,7 +81,7 @@ export default function LearnMoreModal({ title, options, onClose }: LearnMoreMod
                   {mockDescription(title, option.label)}
                 </span>
               </div>
-              <span className="shrink-0 whitespace-nowrap text-[13px] leading-[1.32] tracking-[-0.26px] text-grey-600">
+              <span className="shrink-0 whitespace-nowrap text-[15px] leading-[1.32] tracking-[-0.3px] text-richblue">
                 {mockPrice(index)}
               </span>
             </div>
