@@ -2,7 +2,6 @@ import {
   imgFoldingBox,
   imgRigidBox,
   imgMailerBox,
-  imgShippingBox,
   imgTypeClassic,
   imgTypeHanging,
   imgTypeWithLid,
@@ -66,12 +65,16 @@ export const typeOptions: ChipOption[] = [
 // Shown instead of typeOptions above when Material is "Corrugated" -- ids
 // shared with typeOptions ('with-lid', 'open-end') keep that selection
 // across a material switch instead of resetting it.
+// Mailer Box, Shipping Box, Food and Example don't have dedicated photos
+// yet -- all four reuse the generic "Classic" icon as a placeholder.
 export const corrugatedTypeOptions: ChipOption[] = [
-  { id: 'mailer-box', label: 'Mailer Box', image: imgMailerBox, fit: 'cover' },
-  { id: 'shipping-box', label: 'Shipping Box', image: imgShippingBox, fit: 'cover' },
+  { id: 'mailer-box', label: 'Mailer Box', image: imgTypeClassic, fit: 'cover' },
+  { id: 'shipping-box', label: 'Shipping Box', image: imgTypeClassic, fit: 'cover' },
   { id: 'with-lid', label: 'With Lid', image: imgTypeWithLid, fit: 'cover' },
   { id: 'display', label: 'Display', image: imgTypeDisplays, fit: 'cover' },
   { id: 'open-end', label: 'Open end', image: imgTypeOpenEnd, fit: 'cover' },
+  { id: 'food', label: 'Food', image: imgTypeClassic, fit: 'cover' },
+  { id: 'example', label: 'Example', image: imgTypeClassic, fit: 'cover' },
 ]
 
 // Bottom/base opening options for the "Classic" Type -- one static

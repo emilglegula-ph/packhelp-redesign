@@ -123,14 +123,14 @@ export default function SizeSection({
         <h2 className="text-[20px] font-medium leading-[1.16] tracking-[-0.6px] text-richblue">
           Size
         </h2>
-        <div className="flex items-start gap-1">
+        <div className="flex h-9 items-center gap-1 rounded-full bg-black/[0.04] p-1">
           <button
             type="button"
             onClick={() => onSizeModeChange('external')}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 py-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               sizeMode === 'external'
-                ? 'border border-grey-400 bg-white text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
-                : 'border border-grey-300 bg-grey-100 text-grey-600 hover:bg-grey-300'
+                ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
+                : 'text-grey-600 hover:text-richblue'
             }`}
           >
             External size
@@ -138,10 +138,10 @@ export default function SizeSection({
           <button
             type="button"
             onClick={() => onSizeModeChange('product')}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 py-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               sizeMode === 'product'
-                ? 'border border-grey-400 bg-white text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
-                : 'border border-grey-300 bg-grey-100 text-grey-600 hover:bg-grey-300'
+                ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
+                : 'text-grey-600 hover:text-richblue'
             }`}
           >
             Size of my product

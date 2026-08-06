@@ -41,9 +41,9 @@ export { default as imgPrintPlain } from './imgFrame6232.png'
 export { default as imgCoverageOutside } from './imgFrame6235.png'
 export { default as imgCoverageOutsideInside } from './imgFrame6236.png'
 
-export { default as imgAdhesiveNone } from './adhesive_none.avif'
-export { default as imgAdhesiveSingle } from './adhesive_single.avif'
-export { default as imgAdhesiveDouble } from './adhesive_double.avif'
+export { default as imgAdhesiveNone } from './None.png'
+export { default as imgAdhesiveSingle } from './Single.png'
+export { default as imgAdhesiveDouble } from './Double.png'
 
 // ?inline: these are loaded via THREE.useTexture() (3D box material).
 // THREE sets crossOrigin on the <img> it creates for WebGL textures, which

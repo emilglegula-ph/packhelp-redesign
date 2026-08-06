@@ -14,7 +14,7 @@ export default function Chip({ option, selected, onSelect }: ChipProps) {
       aria-pressed={selected}
       className={`flex min-h-[133px] w-[104px] shrink-0 cursor-pointer flex-col items-center justify-start rounded-xl text-left ring-1 ring-inset transition-colors ${
         selected
-          ? 'ring-grey-400 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
+          ? 'ring-grey-500 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
           : 'bg-grey-100 ring-transparent hover:bg-grey-300'
       }`}
     >
