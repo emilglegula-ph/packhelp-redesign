@@ -350,7 +350,7 @@
   transform: translateX(-50%);
   z-index: 50;
   width: 100%;
-  max-width: 1280px;
+  max-width: var(--max-w-lg);
   display: grid;
   grid-template-columns: 1fr minmax(180px, 30rem) 1fr;
   align-items: center;
@@ -383,7 +383,7 @@
 }
 
 .sticky-links a {
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
@@ -417,7 +417,7 @@
 }
 
 .signin-link {
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
@@ -456,7 +456,7 @@ nav.topbar {
   align-items: center;
   justify-content: space-between;
   height: 3.5rem;
-  padding: 0 var(--space-8);
+  padding: 0 var(--space-5);
 }
 
 nav.topbar::after {
@@ -496,7 +496,7 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
 .nav-megamenu-inner {
   display: flex;
   gap: var(--space-10);
-  max-width: var(--max-w);
+  max-width: var(--max-w-lg);
   margin: 0 auto;
   padding: var(--space-8);
   box-sizing: border-box;
@@ -553,7 +553,7 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
 }
 
 .logo {
-  height: 22px;
+  height: 25px;
   width: auto;
   flex: none;
 }
@@ -565,7 +565,7 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   line-height: 1;
   letter-spacing: -0.02em;
 }

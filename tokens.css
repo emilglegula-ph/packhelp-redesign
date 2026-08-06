@@ -97,4 +97,5 @@
 
   /* ---- layout ---- */
   --max-w: 1280px;
+  --max-w-lg: 1600px; /* wider desktop breakpoint — nav internals (globally) and packaging.html's page container */
 }
