@@ -2122,15 +2122,44 @@
       });
     }
 
+    var currentKey = 'root';
+
     function goTo(key) {
       var node = categoryTree[key];
       if (!node) { return; }
+      currentKey = key;
       renderHeader(node);
       renderBreadcrumb(node.breadcrumb);
       renderTiles(node.tiles, key);
       renderProducts(node.products);
       updateFilterVisibility(key);
     }
+
+    // Same use-case strip for every industry for now -- swapped in for the
+    // regular category tiles whenever an Industry filter is active, and
+    // titleEl gets a "<Industry> packaging" title to match.
+    var industryUseCaseTiles = [
+      { label: 'T-shirt', img: 'assets/packaging/T-shirt.png' },
+      { label: 'Shoes', img: 'assets/packaging/Shoes.png' },
+      { label: 'Scarf', img: 'assets/packaging/Scarf.png' },
+      { label: 'Hoodie', img: 'assets/packaging/Hoodie.png' },
+      { label: 'Socks', img: 'assets/packaging/Socks.png' },
+      { label: 'Underwear', img: 'assets/packaging/Underwear.png' },
+      { label: 'Lingerie', img: 'assets/packaging/Lingerie.png' }
+    ];
+
+    document.querySelectorAll('input[name="industry"]').forEach(function (input) {
+      input.addEventListener('change', function () {
+        if (!input.checked) { return; }
+        if (input.hasAttribute('data-any')) {
+          goTo(currentKey);
+          return;
+        }
+        var industryLabel = input.closest('label').textContent.trim();
+        titleEl.textContent = industryLabel + ' packaging';
+        renderTiles(industryUseCaseTiles, null);
+      });
+    });
 
     renderHeader(categoryTree.root);
     renderBreadcrumb(categoryTree.root.breadcrumb);
