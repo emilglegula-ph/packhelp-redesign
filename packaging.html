@@ -748,7 +748,22 @@
   .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-6) var(--space-5);
+    grid-auto-flow: row dense;
+    gap: var(--space-10) var(--space-5);
+  }
+
+  /* Promo tiles get an explicit cell instead of flowing with the
+     product cards, so they always land as the last tile of their
+     row regardless of how many columns are active -- the dense
+     auto-flow above backfills every other cell around them. */
+  .promo-wallet {
+    grid-column: -2 / -1;
+    grid-row: 2 / 3;
+  }
+
+  .promo-samples {
+    grid-column: -2 / -1;
+    grid-row: 4 / 5;
   }
 
   /* At 1484px+ viewport, 4 equal columns would need to exceed the
@@ -1402,7 +1417,7 @@
           <p class="product-card-price">From €0.06 piece</p>
         </div>
       </div>
-      <div class="promo-card">
+      <div class="promo-card promo-wallet">
         <p class="promo-card-eyebrow">Save up to 20% with Packhelp Wallet</p>
         <p class="promo-card-text">Earn cashback with every order and pay less on your next purchases.</p>
         <a href="#" class="btn-pill sm secondary">Learn more</a>
@@ -1449,7 +1464,7 @@
           <p class="product-card-price">From €1.15 piece</p>
         </div>
       </div>
-      <div class="promo-card">
+      <div class="promo-card promo-samples">
         <p class="promo-card-eyebrow">Try before you buy</p>
         <p class="promo-card-text">Get a sample pack for just £15 and check our products.</p>
         <a href="#" class="btn-pill sm secondary">Order now</a>
