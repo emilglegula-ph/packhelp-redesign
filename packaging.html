@@ -766,11 +766,11 @@
     grid-row: 4 / 5;
   }
 
-  /* Default is a fixed 4 columns even on wide desktop. The 5-column
-     variant is opt-in via the site-settings toggle (adds
-     grid-fluid-columns on body) -- at 1484px+ viewport, 4 equal
-     columns would need to exceed the 340px tile cap to fill the row,
-     so 5 columns shrink back under the cap instead. */
+  /* Default is a fixed 4 columns even on wide desktop -- tiles grow
+     to fill the row (no max-width cap), which keeps the gap between
+     them exactly gap's value everywhere. The 5-column variant is
+     opt-in via the site-settings toggle (adds grid-fluid-columns on
+     body). */
   @media (min-width: 1484px) {
     body.grid-fluid-columns .product-grid { grid-template-columns: repeat(5, 1fr); }
   }
@@ -786,7 +786,6 @@
   .product-card {
     display: block;
     width: 100%;
-    max-width: 340px;
     color: inherit;
     cursor: pointer;
   }
