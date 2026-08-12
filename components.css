@@ -322,6 +322,52 @@
   transform: translateX(16px);
 }
 
+/* ---------- Segmented pill toggle (Categories/Merchandise/Industries
+   style tab switch) ---------- */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-muted);
+}
+
+.toggle-switch[hidden] {
+  display: none;
+}
+
+.toggle-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.toggle-option {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.toggle-option.active {
+  color: var(--color-text-primary);
+}
+
 /* ---------- Site settings (floating gear button + panel) ---------- */
 .site-settings-btn {
   position: fixed;
@@ -414,7 +460,12 @@
 /* ---------- Top nav (sticky bar + nav-wrapper) — markup injected by nav-header.js ---------- */
 .nav-wrapper {
   position: relative;
-  z-index: 1;
+  /* Above in-page positioned content (e.g. packaging.html's
+     .pkg-filters-bar at z-index:5) so overlays anchored inside the nav
+     -- the mobile hamburger menu panel, in particular -- render above
+     the page instead of getting trapped under it by this stacking
+     context's own lower z-index. */
+  z-index: 20;
   width: 100vw;
   left: 50%;
   transform: translateX(-50%);
@@ -707,6 +758,95 @@ nav.topbar:has(.nav-item-packaging:hover) .nav-megamenu,
   width: 10px;
   height: 10px;
   opacity: .6;
+}
+
+/* ---------- Top nav — mobile (collapses to a single row + hamburger,
+   matching packhelp.com's current mobile nav) ---------- */
+.mobile-search-btn,
+.mobile-menu-btn {
+  display: none;
+}
+
+.mobile-menu-panel {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  nav.topbar,
+  .sticky-bar {
+    display: none;
+  }
+
+  .nav-row1 {
+    padding: 0 var(--space-4);
+  }
+
+  .signin-link,
+  .flag-badge {
+    display: none;
+  }
+
+  .mobile-search-btn,
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .mobile-menu-panel {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: var(--color-bg-surface);
+    border-bottom: 1px solid rgba(0,0,0,.07);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+  }
+
+  .mobile-menu-panel.open {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .mobile-menu-links {
+    list-style: none;
+    margin: 0;
+    padding: var(--space-4) var(--space-5) 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mobile-menu-links a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) 0;
+    font-size: 1rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .mobile-menu-links li:last-child a {
+    border-bottom: none;
+  }
+
+  .mobile-menu-cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+
+  .mobile-menu-cta .btn-pill {
+    width: 100%;
+  }
 }
 
 /* ---------- Top nav — simplified variant (centered logo, no links) ---------- */

@@ -47,8 +47,38 @@ var NAV_WRAPPER_HTML = `
       <div style="display:flex; align-items:center; gap:1rem;">
         <a href="#" class="signin-link">Sign In</a>
         <span class="flag-badge"><img src="assets/gb.svg" alt="GB"></span>
+        <button class="icon-btn mobile-search-btn" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
         <button class="icon-btn" aria-label="Cart">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>
+        </button>
+        <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-menu-panel" id="mobileMenuPanel">
+      <ul class="mobile-menu-links">
+        <li><a href="packaging.html">Packaging</a></li>
+        <li><a href="packaging.html">Merchandise<span class="nav-badge-new">New</span></a></li>
+        <li><a href="industries.html">Industries</a></li>
+        <li><a href="sample-packs.html">Samples</a></li>
+        <li><a href="deals.html">Deals</a></li>
+        <li><a href="#">Solutions</a></li>
+        <li><a href="#">Inspirations</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="mobile-menu-cta">
+        <a href="get-a-quote.html" class="btn-pill sm secondary">Get a quote</a>
+        <button class="btn-pill sm">
+          <span class="cta-avatars sm">
+            <span class="cta-avatar"><img src="assets/expert-01.png" alt=""></span>
+            <span class="cta-avatar"><img src="assets/expert-02.png" alt=""></span>
+            <span class="cta-avatar"><img src="assets/expert-03.png" alt=""></span>
+          </span>
+          Book an expert call
         </button>
       </div>
     </div>
@@ -215,5 +245,20 @@ var NAV_SIMPLE_HTML = `
   }
   if (navSimplePlaceholder) {
     navSimplePlaceholder.outerHTML = NAV_SIMPLE_HTML;
+  }
+
+  var menuBtn = document.getElementById('mobileMenuBtn');
+  var menuPanel = document.getElementById('mobileMenuPanel');
+  if (menuBtn && menuPanel) {
+    menuBtn.addEventListener('click', function () {
+      var open = menuPanel.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    menuPanel.querySelectorAll('a, button').forEach(function (el) {
+      el.addEventListener('click', function () {
+        menuPanel.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
   }
 })();

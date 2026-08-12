@@ -114,7 +114,7 @@
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-8) var(--space-8) 0;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     line-height: 1;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
@@ -203,6 +203,12 @@
 
   @media (max-width: 700px) {
     .pkg-title-row { flex-direction: column; align-items: flex-start; }
+    /* .pkg-title-row switching to column direction leaves
+       .pkg-title-copy unstretched (column flex items don't fill the
+       cross axis by default) -- without an explicit width it grows to
+       fit the nowrap+ellipsis subtitle's full single-line content
+       width instead of the viewport, overflowing the page. */
+    .pkg-title-copy { width: 100%; }
   }
 
   /* ---------- FILTER & SORT PILLS ---------- */
@@ -243,6 +249,13 @@
 
   .filter-pill:hover {
     border-color: var(--color-border-hover);
+  }
+
+  /* A filter with an active selection gets a darker border so it stands
+     out from the untouched pills, on top of the existing hover/open
+     border-color states. */
+  .filter-pill:has(.filter-count:not([hidden])) {
+    border-color: var(--gray-600);
   }
 
   .filter-pill svg {
@@ -302,6 +315,51 @@
 
   .filter-pill-wrap {
     position: relative;
+  }
+
+  /* ---------- Filter pills: alternate styles (gear panel) ---------- */
+
+  /* Variant 1 ("plain"): no border/padding/fill, just bigger 15px type --
+     hover/open/active states lean on color instead of the border+shadow
+     the default pill shape uses. */
+  body.pkg-filters-plain .filter-pill {
+    height: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    gap: var(--space-1);
+    font-size: 0.9375rem;
+  }
+
+  body.pkg-filters-plain .filter-pills {
+    gap: var(--space-8);
+  }
+
+  body.pkg-filters-plain .filter-pill:hover,
+  body.pkg-filters-plain .filter-pill[aria-expanded="true"],
+  body.pkg-filters-plain .filter-pill:has(.filter-count:not([hidden])) {
+    border: none;
+    box-shadow: none;
+    color: var(--color-accent);
+  }
+
+  /* Settings-panel row variant for the filter-pills-style 3-way switch --
+     .toggle-switch is the same segmented pill control used for Categories/
+     Industries, just narrowed to fit the 280px gear panel. */
+  .site-settings-row-stack {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-settings-toggle-switch {
+    width: 100%;
+    margin-top: var(--space-3);
+  }
+
+  .site-settings-toggle-switch .toggle-option {
+    flex: 1;
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.6875rem;
   }
 
   .active-filter-pills {
@@ -564,6 +622,10 @@
     padding: 0 var(--space-8) var(--space-12);
   }
 
+  #industryStripToggle {
+    margin-bottom: var(--space-4);
+  }
+
   .scroll-carousel {
     position: relative;
   }
@@ -700,12 +762,66 @@
   }
 
   .thumb-item.active .thumb-photo {
-    outline: 2px solid var(--color-text-primary);
+    background-color: transparent;
+    outline: 1px solid var(--gray-500);
     outline-offset: 3px;
   }
 
   .thumb-item.active .thumb-caption {
     font-weight: 500;
+  }
+
+  .thumb-back-caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+
+  .thumb-back-icon {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    transform: rotate(90deg);
+    color: var(--color-text-muted);
+  }
+
+  /* Circular icon badge on back tiles, matching IKEA's category-nav "up a
+     level" tile (e.g. the "Produkty" tile at ikea.com/pl/pl/cat/...):
+     plain photo-tile background, a white circle centered on it, dark icon
+     inside -- used instead of a photo, since a back tile has no product
+     of its own to show. */
+  .thumb-photo-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thumb-back-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--white);
+    color: #484848;
+  }
+
+  .thumb-back-circle svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .thumb-strip-divider {
+    flex: none;
+    align-self: flex-start;
+    /* Centered against the 112px photo square specifically (not the
+       taller full tile incl. caption): (112 - 32) / 2 */
+    margin-top: 40px;
+    width: 1px;
+    height: 32px;
+    background: var(--color-border-default);
   }
 
   /* ---------- PRODUCT GRID ---------- */
@@ -761,9 +877,37 @@
     grid-row: 2 / 3;
   }
 
+  /* Extra .promo-card in the selector for specificity -- .promo-card's own
+     background (defined later in the file, same 1-class specificity as a
+     bare .promo-wallet) would otherwise win on source order and silently
+     override this. */
+  .promo-card.promo-wallet {
+    background: var(--color-bg-accent-subtle);
+    padding: var(--space-8);
+  }
+
+  .promo-wallet .promo-card-text {
+    font-size: 1.75rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+  }
+
   .promo-samples {
     grid-column: -2 / -1;
     grid-row: 4 / 5;
+  }
+
+  /* Same treatment as .promo-wallet (32px padding, 28px heading-style
+     copy) -- only the background differs. */
+  .promo-card.promo-samples {
+    background: var(--gray-200);
+    padding: var(--space-8);
+  }
+
+  .promo-samples .promo-card-text {
+    font-size: 1.75rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
   }
 
   /* Default is a fixed 4 columns even on wide desktop -- tiles grow
@@ -780,13 +924,14 @@
   }
 
   @media (max-width: 700px) {
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-8) var(--space-4); }
   }
 
   .product-card {
     display: block;
     width: 100%;
     color: inherit;
+    text-decoration: none;
     cursor: pointer;
   }
 
@@ -801,16 +946,87 @@
 
   .product-card-img {
     position: absolute;
-    top: 7.5%;
-    left: 7.5%;
-    width: 85%;
-    height: 85%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     transition: transform 0.3s ease;
   }
 
   .product-card:hover .product-card-img {
     transform: scale(1.08);
+  }
+
+  /* Lifestyle-photo hover gallery -- opt-in per card via data-gallery on
+     .product-card-media (see initProductGalleries()). Crossfades the plain
+     product cutout for a real lifestyle shot on hover, with prev/next
+     controls to page through the set while still hovering. */
+  .product-card-gallery-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .product-card:hover .product-card-media[data-gallery] .product-card-img {
+    opacity: 0;
+  }
+
+  .product-card:hover .product-card-media[data-gallery] .product-card-gallery-img {
+    opacity: 1;
+  }
+
+  /* Cycle hover style (gear panel) takes this card over instead -- undo
+     the two rules above so the frame initProductHoverCycle just set on
+     .product-card-img stays visible under the (now src-less) overlay. */
+  body.pkg-tile-hover-cycle .product-card:hover .product-card-media[data-hover-cycle] .product-card-img {
+    opacity: 1;
+  }
+
+  body.pkg-tile-hover-cycle .product-card:hover .product-card-media[data-hover-cycle] .product-card-gallery-img {
+    opacity: 0;
+  }
+
+  .product-card-gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-card:hover .product-card-gallery-nav {
+    opacity: 1;
+  }
+
+  /* Cycle hover style (gear panel) replaces the gallery crossfade for
+     opted-in cards -- hide its now-inert prev/next controls there. */
+  body.pkg-tile-hover-cycle .product-card-media[data-hover-cycle] .product-card-gallery-nav {
+    display: none;
+  }
+
+  .product-card-gallery-nav.prev { left: var(--space-2); }
+  .product-card-gallery-nav.next { right: var(--space-2); }
+
+  .product-card-gallery-nav svg {
+    width: 16px;
+    height: 16px;
   }
 
   .product-card-name {
@@ -842,7 +1058,7 @@
 
   .promo-card-eyebrow {
     margin: 0 0 var(--space-2);
-    font-size: 0.75rem;
+    font-size: 13px;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
   }
@@ -856,6 +1072,89 @@
     color: var(--color-text-primary);
   }
 
+  /* Tile alternative to .quick-box-banner (see gear panel, Figma node
+     6976:575) -- same light blue as the banner, sized like a regular
+     product-card instead of breaking out into its own full-width row. */
+  .promo-build-box {
+    overflow: hidden;
+    padding: var(--space-8) var(--space-8) 0;
+    background: var(--color-bg-accent-faint);
+  }
+
+  .quick-box-tile-copy {
+    width: 100%;
+    margin-bottom: var(--space-6);
+  }
+
+  .quick-box-tile-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .quick-box-tile-dims {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .quick-box-tile-dims .dimension-field { flex: 1; min-width: 0; }
+  .quick-box-tile-dims .dimension-field-label { margin-bottom: var(--space-1); }
+  .quick-box-tile-dims .dimension-input-wrap { height: 40px; padding: 0 var(--space-3); }
+
+  .quick-box-tile-btn { width: 100%; }
+
+  /* Two rotated product photos peeking off the bottom edge -- positions,
+     sizes and crop percentages transcribed from the Figma node's exported
+     transforms (533/355px wrappers centered around a rotated crop window),
+     folded into a single absolutely-positioned box per photo. Hidden for
+     now per request -- markup/JS left in place to re-enable later. */
+  .quick-box-tile-art {
+    display: none;
+    position: relative;
+    width: calc(100% + var(--space-8) * 2);
+    height: 148px;
+    margin: var(--space-6) calc(-1 * var(--space-8)) 0;
+    overflow: hidden;
+  }
+
+  .quick-box-tile-art-mailer-wrap {
+    position: absolute;
+    left: -180px;
+    top: -64px;
+    width: 473px;
+    height: 281px;
+    overflow: hidden;
+    transform: rotate(-135deg) scaleY(-1);
+  }
+
+  .quick-box-tile-art-mailer-wrap img {
+    position: absolute;
+    left: -25.02%;
+    top: -67.91%;
+    width: 150.04%;
+    height: 167.91%;
+    max-width: none;
+  }
+
+  .quick-box-tile-art-cube-wrap {
+    position: absolute;
+    left: 150px;
+    top: -31px;
+    width: 251px;
+    height: 251px;
+    overflow: hidden;
+    transform: rotate(-45deg);
+  }
+
+  .quick-box-tile-art-cube-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   /* ---------- QUICK BOX BANNER (build-any-box CTA, inline row in product grid) ---------- */
   .quick-box-banner {
     grid-column: 1 / -1;
@@ -863,9 +1162,9 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-8);
-    padding: var(--space-8);
+    padding: var(--space-12) var(--space-8);
     border-radius: var(--radius-xl);
-    background: var(--color-bg-accent-subtle);
+    background: var(--color-bg-accent-faint);
     box-sizing: border-box;
   }
 
@@ -1066,10 +1365,49 @@
 
   @media (max-width: 700px) {
     .site-footer { padding: 3rem 0 0; }
-    .footer-inner { padding: 0 1.5rem; }
-    .footer-bottom-inner { padding: 1.5rem; }
+    .footer-inner { padding: 0 var(--space-4); }
+    .footer-bottom-inner { padding: 1.5rem var(--space-4); }
     .footer-newsletter { flex-direction: column; align-items: stretch; }
     .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+
+  /* Placed last on purpose: each of these selectors has its own base
+     rule earlier in this stylesheet, and with equal specificity the
+     later declaration wins regardless of the @media condition -- an
+     earlier copy of this same block silently lost to .pkg-filters-bar
+     / .pkg-tiles-section / .pkg-products's own (later, unconditional)
+     padding declarations. */
+  @media (max-width: 700px) {
+    .announcement-bar,
+    .pkg-breadcrumb,
+    .pkg-title-row,
+    .pkg-filters-bar,
+    .pkg-tiles-section,
+    .pkg-products,
+    .pkg-seo {
+      padding-left: var(--space-4);
+      padding-right: var(--space-4);
+    }
+  }
+
+  /* Categories carousel: no prev/next arrows on mobile, matching
+     packhelp.com's own mobile behaviour -- native swipe scrolling only.
+     Matches .scroll-carousel.has-overflow .scroll-carousel-nav's own
+     specificity (rather than !important) so this wins purely by being
+     later in source order. */
+  @media (max-width: 700px) {
+    .scroll-carousel-nav,
+    .scroll-carousel.has-overflow .scroll-carousel-nav {
+      display: none;
+    }
+
+    .promo-card-eyebrow {
+      display: none;
+    }
+
+    .promo-card-text {
+      font-size: 1rem;
+    }
   }
 </style>
 </head>
@@ -1093,7 +1431,7 @@
     <a href="#" data-key="root">Packaging</a>
   </nav>
 
-  <section class="pkg-title-row reveal">
+  <section class="pkg-title-row">
     <div class="pkg-title-copy">
       <h1 class="pkg-title" id="pkgTitle">Packaging</h1>
       <div class="pkg-desc-row" id="pkgDescRow">
@@ -1103,7 +1441,13 @@
     </div>
   </section>
 
-  <section class="pkg-tiles-section reveal" id="pkgTilesSection">
+  <section class="pkg-tiles-section" id="pkgTilesSection">
+    <div class="toggle-switch" id="industryStripToggle" hidden>
+      <div class="toggle-indicator" id="industryStripIndicator"></div>
+      <button class="toggle-option active" data-target="categories">Categories</button>
+      <button class="toggle-option" data-target="industries" id="industryStripIndustriesOption">Industries</button>
+      <button class="toggle-option" data-target="use-case" id="industryStripUseCaseOption" hidden>Use cases</button>
+    </div>
     <div class="scroll-carousel">
       <button class="scroll-carousel-nav prev" type="button" aria-label="Przewiń w lewo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
@@ -1111,51 +1455,51 @@
       <div class="scroll-fade left"></div>
     <div class="thumb-strip" id="pkgThumbStrip">
       <a class="thumb-item" href="#" data-key="boxes">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-boxes.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Boxes.png')"></div>
         <span class="thumb-caption">Boxes</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-packaging-tubes.avif')"></div>
-        <span class="thumb-caption">Packaging Tubes</span>
-      </a>
-      <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-mailing-bags.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Mailing%20Bags.png')"></div>
         <span class="thumb-caption">Mailing Bags</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-product-bags.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Product%20Bags.png')"></div>
         <span class="thumb-caption">Product Bags</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('https://cdn-pim.packhelp.com/assets/f270ff40-4e1d-4be4-b6f5-2a1d21f89288/25450-packaging-packaging-bags?w=1112&h=800&fit=min&auto=format')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Carrier%20Bags.png')"></div>
         <span class="thumb-caption">Carrier Bags</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-accesories.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Accessories.png')"></div>
         <span class="thumb-caption">Accessories</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-pouches.png')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Packaging%20Tubes.png')"></div>
+        <span class="thumb-caption">Packaging Tubes</span>
+      </a>
+      <a class="thumb-item" href="#">
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Pouches.png')"></div>
         <span class="thumb-caption">Pouches</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-envelopes.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Envelopes.png')"></div>
         <span class="thumb-caption">Envelopes</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-food-packaging.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Food%20Packaging.png')"></div>
         <span class="thumb-caption">Food Packaging</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('https://cdn-pim.packhelp.com/assets/be49ccf1-03f1-468f-821f-d3158a705a20/17249-packaging-containters?w=1112&h=800&fit=min&auto=format')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Containers.png')"></div>
         <span class="thumb-caption">Containers</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('https://cdn-pim.packhelp.com/assets/10cdb256-3433-490f-a59b-6e0820ba985a/488281-sample?w=1112&h=800&fit=min&auto=format')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Samples.png')"></div>
         <span class="thumb-caption">Samples</span>
       </a>
       <a class="thumb-item" href="#">
-        <div class="thumb-photo" style="--thumb-img:url('assets/main-segment/packaging/packaging-bundles.avif')"></div>
+        <div class="thumb-photo" style="--thumb-img:url('assets/packaging/Bundles.png')"></div>
         <span class="thumb-caption">Bundles</span>
       </a>
     </div>
@@ -1166,7 +1510,7 @@
     </div>
   </section>
 
-  <section class="pkg-filters-bar reveal">
+  <section class="pkg-filters-bar">
     <div class="filter-pills">
       <div class="filter-pill-wrap">
         <button class="filter-pill" aria-expanded="false">
@@ -1243,7 +1587,7 @@
           </span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
-        <div class="filter-panel filter-panel-scroll">
+        <div class="filter-panel filter-panel-scroll" id="useCaseFilterPanel">
           <p class="filter-panel-title">Use case</p>
           <div class="filter-panel-options">
             <label class="filter-checkbox"><input type="checkbox"><span class="checkbox-box"></span>Christmas</label>
@@ -1352,51 +1696,39 @@
       </div>
     </div>
 
-    <div class="sort-pill-wrap">
-      <button class="filter-pill sort-pill" id="sortBtn" aria-expanded="false">
-        <span id="sortLabel">Most popular</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-      </button>
-      <div class="sort-menu" id="sortMenu">
-        <button class="sort-option active" data-sort="popular">Most popular</button>
-        <button class="sort-option" data-sort="az">Alphabetically A–Z</button>
-        <button class="sort-option" data-sort="za">Alphabetically Z–A</button>
-      </div>
-    </div>
-
     <div class="active-filter-pills" id="activeFilterPills"></div>
   </section>
 
-  <section class="pkg-products reveal">
+  <section class="pkg-products">
     <div class="product-grid" id="pkgProductGrid">
-      <div class="product-card">
-        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Mailer%20Box.png" alt=""></div>
+      <a class="product-card" href="product_page.html">
+        <div class="product-card-media" data-gallery='["assets/packaging/mailer_box_gallery_1.avif","assets/packaging/mailer_box_gallery_2.avif","assets/packaging/mailer_box_gallery_3.avif","assets/packaging/mailer_box_gallery_4.avif","assets/packaging/mailer_box_gallery_5.avif","assets/packaging/mailer_box_gallery_6.avif","assets/packaging/mailer_box_gallery_7.avif","assets/packaging/mailer_box_gallery_8.avif","assets/packaging/mailer_box_gallery_9.avif"]' data-hover-cycle='["assets/packaging/Custom%20Mailer%20Box.png","assets/packaging/Custom%20Mailer%20Box_2.png","assets/packaging/Custom%20Mailer%20Box_3.png","assets/packaging/Custom%20Mailer%20Box_4.png"]'><img class="product-card-img" src="assets/packaging/Custom%20Mailer%20Box.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Mailer Box</h3>
           <p class="product-card-price">From €0.49 piece</p>
         </div>
-      </div>
-      <div class="product-card">
-        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Recycled%20Poly%20Mailer.png" alt=""></div>
+      </a>
+      <a class="product-card" href="product_page.html">
+        <div class="product-card-media" data-gallery='["assets/packaging/poly_mailer_1.avif","assets/packaging/poly_mailer_2.avif","assets/packaging/poly_mailer_3.avif"]'><img class="product-card-img" src="assets/packaging/Custom%20Recycled%20Poly%20Mailer.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Recycled Poly Mailer</h3>
           <p class="product-card-price">From €0.42 piece</p>
         </div>
-      </div>
-      <div class="product-card">
-        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Tissue%20Paper.png" alt=""></div>
+      </a>
+      <a class="product-card" href="product_page.html">
+        <div class="product-card-media" data-gallery='["assets/packaging/1594736-tissue-paper-20938.avif","assets/packaging/1856796-tissue-paper-2376482.avif","assets/packaging/2461837-tissue-paper-46782.avif","assets/packaging/3376733-tissue-paper-125830.avif","assets/packaging/374406-tissue-paper-02.avif","assets/packaging/508678-tissue-paper-03.avif","assets/packaging/765299-tissue-paper-04.avif"]'><img class="product-card-img" src="assets/packaging/Custom%20Tissue%20Paper.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Tissue Paper</h3>
           <p class="product-card-price">From €0.08 piece</p>
         </div>
-      </div>
-      <div class="product-card">
+      </a>
+      <a class="product-card" href="product_page.html">
         <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Frosted%20Ziplock%20Bag.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Frosted Ziplock Bag</h3>
           <p class="product-card-price">From €0.22 piece</p>
         </div>
-      </div>
+      </a>
       <div class="product-card">
         <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Snap%20Lock%20Product%20Box.png" alt=""></div>
         <div class="product-card-info">
@@ -1419,8 +1751,8 @@
         </div>
       </div>
       <div class="promo-card promo-wallet">
-        <p class="promo-card-eyebrow">Save up to 20% with Packhelp Wallet</p>
-        <p class="promo-card-text">Earn cashback with every order and pay less on your next purchases.</p>
+        <p class="promo-card-eyebrow">Deal</p>
+        <p class="promo-card-text">Get €150 off selected personalised products</p>
         <a href="#" class="btn-pill sm secondary">Learn more</a>
       </div>
       <div class="product-card">
@@ -1471,35 +1803,35 @@
         </div>
       </div>
       <div class="product-card">
-        <div class="product-card-media"></div>
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Cotton%20Bag.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Cotton Bag</h3>
           <p class="product-card-price">From €1.05 piece</p>
         </div>
       </div>
       <div class="product-card">
-        <div class="product-card-media"></div>
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Mailer%20Box%20with%20Hot%20Stamping.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Mailer Box with Hot Stamping</h3>
           <p class="product-card-price">From €0.99 piece</p>
         </div>
       </div>
       <div class="product-card">
-        <div class="product-card-media"></div>
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Rigid%20Magnetic%20Box.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Rigid Magnetic Box</h3>
           <p class="product-card-price">From €1.45 piece</p>
         </div>
       </div>
       <div class="product-card">
-        <div class="product-card-media"></div>
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Custom%20Pizza%20Box.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Custom Pizza Box</h3>
           <p class="product-card-price">From €0.32 piece</p>
         </div>
       </div>
       <div class="product-card">
-        <div class="product-card-media"></div>
+        <div class="product-card-media"><img class="product-card-img" src="assets/packaging/Plain%20E-commerce%20Mailer%20Box.png" alt=""></div>
         <div class="product-card-info">
           <h3 class="product-card-name">Plain E-commerce Mailer Box</h3>
           <p class="product-card-price">From €0.38 piece</p>
@@ -1677,36 +2009,6 @@
   })();
 
   (function () {
-    var btn = document.getElementById('sortBtn');
-    var menu = document.getElementById('sortMenu');
-    var label = document.getElementById('sortLabel');
-    var options = menu.querySelectorAll('.sort-option');
-
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var open = menu.classList.toggle('open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-
-    options.forEach(function (option) {
-      option.addEventListener('click', function () {
-        options.forEach(function (o) { o.classList.remove('active'); });
-        option.classList.add('active');
-        label.textContent = option.textContent;
-        menu.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-      });
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!menu.contains(e.target) && e.target !== btn) {
-        menu.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-    });
-  })();
-
-  (function () {
     var wraps = document.querySelectorAll('.filter-pill-wrap');
 
     function closeAll(except) {
@@ -1872,18 +2174,18 @@
         desc: '150+ packaging products across boxes, bags, tubes and more — printed with your brand, in days.',
         breadcrumb: [{ label: 'Packaging' }],
         tiles: [
-          { key: 'boxes', label: 'Boxes', img: 'assets/main-segment/packaging/packaging-boxes.avif' },
-          { label: 'Packaging Tubes', img: 'assets/main-segment/packaging/packaging-packaging-tubes.avif' },
-          { label: 'Mailing Bags', img: 'assets/main-segment/packaging/packaging-mailing-bags.avif' },
-          { label: 'Product Bags', img: 'assets/main-segment/packaging/packaging-product-bags.avif' },
-          { label: 'Carrier Bags', img: 'https://cdn-pim.packhelp.com/assets/f270ff40-4e1d-4be4-b6f5-2a1d21f89288/25450-packaging-packaging-bags?w=1112&h=800&fit=min&auto=format' },
-          { label: 'Accessories', img: 'assets/main-segment/packaging/packaging-accesories.avif' },
-          { label: 'Pouches', img: 'assets/main-segment/packaging/packaging-pouches.png' },
-          { label: 'Envelopes', img: 'assets/main-segment/packaging/packaging-envelopes.avif' },
-          { label: 'Food Packaging', img: 'assets/main-segment/packaging/packaging-food-packaging.avif' },
-          { label: 'Containers', img: 'https://cdn-pim.packhelp.com/assets/be49ccf1-03f1-468f-821f-d3158a705a20/17249-packaging-containters?w=1112&h=800&fit=min&auto=format' },
-          { label: 'Samples', img: 'https://cdn-pim.packhelp.com/assets/10cdb256-3433-490f-a59b-6e0820ba985a/488281-sample?w=1112&h=800&fit=min&auto=format' },
-          { label: 'Bundles', img: 'assets/main-segment/packaging/packaging-bundles.avif' }
+          { key: 'boxes', label: 'Boxes', img: 'assets/packaging/Boxes.png' },
+          { label: 'Mailing Bags', img: 'assets/packaging/Mailing%20Bags.png' },
+          { label: 'Product Bags', img: 'assets/packaging/Product%20Bags.png' },
+          { label: 'Carrier Bags', img: 'assets/packaging/Carrier%20Bags.png' },
+          { label: 'Accessories', img: 'assets/packaging/Accessories.png' },
+          { label: 'Packaging Tubes', img: 'assets/packaging/Packaging%20Tubes.png' },
+          { label: 'Pouches', img: 'assets/packaging/Pouches.png' },
+          { label: 'Envelopes', img: 'assets/packaging/Envelopes.png' },
+          { label: 'Food Packaging', img: 'assets/packaging/Food%20Packaging.png' },
+          { label: 'Containers', img: 'assets/packaging/Containers.png' },
+          { label: 'Samples', img: 'assets/packaging/Samples.png' },
+          { label: 'Bundles', img: 'assets/packaging/Bundles.png' }
         ]
       },
       boxes: {
@@ -1947,6 +2249,24 @@
     var descToggle = document.getElementById('pkgDescToggle');
     var productGrid = document.getElementById('pkgProductGrid');
     var defaultProductGridHTML = productGrid.innerHTML;
+
+    // Category product lists (boxesProducts & co.) mostly don't carry their
+    // own photo -- reuse whatever the root "Packaging" grid already has for
+    // a product of the same name instead of showing a blank tile.
+    var rootProductImages = (function () {
+      var temp = document.createElement('div');
+      temp.innerHTML = defaultProductGridHTML;
+      var map = {};
+      temp.querySelectorAll('.product-card').forEach(function (card) {
+        var nameEl = card.querySelector('.product-card-name');
+        var imgEl = card.querySelector('.product-card-img');
+        if (nameEl && imgEl) {
+          map[nameEl.textContent.trim()] = imgEl.getAttribute('src');
+        }
+      });
+      return map;
+    })();
+
     var quickBoxBannerHTML =
       '<div class="quick-box-banner">' +
         '<div class="quick-box-banner-copy">' +
@@ -1966,17 +2286,163 @@
             '<span class="dimension-field-label">Height</span>' +
             '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="height"><span class="dimension-unit">cm</span></span>' +
           '</label>' +
-          '<button type="submit" class="btn-pill lg">Start now</button>' +
+          '<button type="submit" class="btn-pill lg">Build your box</button>' +
         '</form>' +
       '</div>';
+
+    // Alternative to the full-width banner above: a single tile, same size
+    // as a regular product card, meant to sit as the last tile of the
+    // grid's first row instead of breaking out into its own row. Layout
+    // matches Figma node 6976:575 (real dimension inputs + two rotated
+    // product photos peeking off the bottom edge, not just static copy).
+    var quickBoxTileHTML =
+      '<div class="promo-card promo-build-box">' +
+        '<div class="quick-box-tile-copy">' +
+          '<p class="promo-card-eyebrow">Skip the catalog</p>' +
+          '<h3 class="quick-box-banner-heading">Build any box type</h3>' +
+        '</div>' +
+        '<form class="quick-box-tile-form" action="build-your-box.html">' +
+          '<div class="quick-box-tile-dims">' +
+            '<label class="dimension-field">' +
+              '<span class="dimension-field-label">Width</span>' +
+              '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="width"><span class="dimension-unit">cm</span></span>' +
+            '</label>' +
+            '<label class="dimension-field">' +
+              '<span class="dimension-field-label">Length</span>' +
+              '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="length"><span class="dimension-unit">cm</span></span>' +
+            '</label>' +
+            '<label class="dimension-field">' +
+              '<span class="dimension-field-label">Height</span>' +
+              '<span class="dimension-input-wrap"><input type="number" class="dimension-input" name="height"><span class="dimension-unit">cm</span></span>' +
+            '</label>' +
+          '</div>' +
+          '<button type="submit" class="btn-pill md quick-box-tile-btn">Build your box</button>' +
+        '</form>' +
+        '<div class="quick-box-tile-art">' +
+          '<div class="quick-box-tile-art-mailer-wrap"><img src="assets/figma-assets/quick-box-tile-mailer-box.png" alt=""></div>' +
+          '<div class="quick-box-tile-art-cube-wrap"><img src="assets/figma-assets/quick-box-tile-cube-box.png" alt=""></div>' +
+        '</div>' +
+      '</div>';
+
+    var buildBoxStyle = localStorage.getItem('buildBoxStyle') === 'tile' ? 'tile' : 'banner';
+
+    // Alternative tile hover style (gear panel): 'gallery' (default) is the
+    // lifestyle-photo crossfade below; 'cycle' instead swaps the plain
+    // product shot through its own angle variants (data-hover-cycle) --
+    // only wired up for "Custom Mailer Box" as an example.
+    var tileHoverStyle = localStorage.getItem('tileHoverStyle') === 'cycle' ? 'cycle' : 'gallery';
+    document.body.classList.toggle('pkg-tile-hover-cycle', tileHoverStyle === 'cycle');
+
+    // Opt-in per card via data-gallery="[...]" on .product-card-media --
+    // crossfades the plain product cutout for a real lifestyle photo on
+    // hover, with prev/next controls to page through the set. Re-run after
+    // every productGrid.innerHTML replacement since that wipes out any
+    // previously-attached listeners along with the old DOM nodes.
+    function initProductGalleries() {
+      productGrid.querySelectorAll('.product-card-media[data-gallery]').forEach(function (media) {
+        var gallery = JSON.parse(media.getAttribute('data-gallery'));
+        if (!gallery.length) { return; }
+
+        var galleryImg = document.createElement('img');
+        galleryImg.className = 'product-card-gallery-img';
+        galleryImg.alt = '';
+        media.appendChild(galleryImg);
+
+        var idx = 0;
+        function show(i) {
+          idx = (i + gallery.length) % gallery.length;
+          galleryImg.src = gallery[idx];
+        }
+
+        media.closest('.product-card').addEventListener('mouseenter', function () {
+          // the cycle style (see initProductHoverCycle) takes over for
+          // whichever card opts into it via data-hover-cycle
+          if (media.hasAttribute('data-hover-cycle') && tileHoverStyle === 'cycle') { return; }
+          show(0);
+        });
+
+        if (gallery.length > 1) {
+          var prevBtn = document.createElement('button');
+          prevBtn.type = 'button';
+          prevBtn.className = 'product-card-gallery-nav prev';
+          prevBtn.setAttribute('aria-label', 'Previous photo');
+          prevBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>';
+
+          var nextBtn = document.createElement('button');
+          nextBtn.type = 'button';
+          nextBtn.className = 'product-card-gallery-nav next';
+          nextBtn.setAttribute('aria-label', 'Next photo');
+          nextBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+
+          prevBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); show(idx - 1); });
+          nextBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); show(idx + 1); });
+
+          media.appendChild(prevBtn);
+          media.appendChild(nextBtn);
+        }
+      });
+    }
+
+    // Cycle style (see comment on tileHoverStyle above): swaps
+    // .product-card-img itself through data-hover-cycle's frame list on an
+    // interval while hovered, same mechanic as the hoverImages cycling
+    // renderProducts() already does for category product cards, just
+    // driven by a data attribute so it works on the static default grid.
+    function initProductHoverCycle() {
+      productGrid.querySelectorAll('.product-card-media[data-hover-cycle]').forEach(function (media) {
+        var frames = JSON.parse(media.getAttribute('data-hover-cycle'));
+        if (!frames.length) { return; }
+
+        var img = media.querySelector('.product-card-img');
+        var originalSrc = img.src;
+        var timer = null;
+        var idx = 0;
+        var card = media.closest('.product-card');
+
+        card.addEventListener('mouseenter', function () {
+          if (tileHoverStyle !== 'cycle') { return; }
+          // frame 0 is already showing (it's originalSrc) -- jump straight
+          // to frame 1 on hover instead of waiting a full interval to see
+          // any change at all, then keep cycling from there.
+          idx = 1;
+          img.src = frames[idx % frames.length];
+          idx++;
+          timer = setInterval(function () {
+            img.src = frames[idx % frames.length];
+            idx++;
+          }, 700);
+        });
+
+        card.addEventListener('mouseleave', function () {
+          clearInterval(timer);
+          img.src = originalSrc;
+        });
+      });
+    }
+
+    initProductGalleries();
+    initProductHoverCycle();
 
     function renderProducts(products) {
       if (!products) {
         productGrid.innerHTML = defaultProductGridHTML;
+        initProductGalleries();
+        initProductHoverCycle();
         return;
       }
 
-      var cardsHTML = products.map(function (product) {
+      // Fill in a photo from the root grid where the category's own entry
+      // has none, then float the photographed products to the front so the
+      // first row isn't mostly blank tiles.
+      var enrichedProducts = products.map(function (product) {
+        if (product.img) { return product; }
+        var fallbackImg = rootProductImages[product.name];
+        return fallbackImg ? Object.assign({}, product, { img: fallbackImg }) : product;
+      });
+      var sortedProducts = enrichedProducts.filter(function (p) { return p.img; })
+        .concat(enrichedProducts.filter(function (p) { return !p.img; }));
+
+      var cardsHTML = sortedProducts.map(function (product) {
         var mediaImg = product.img
           ? '<img class="product-card-img" src="' + product.img + '" alt="">'
           : '';
@@ -1989,7 +2455,13 @@
           '</div>';
       });
 
-      if (cardsHTML.length > 4) {
+      if (buildBoxStyle === 'tile') {
+        if (cardsHTML.length >= 3) {
+          cardsHTML.splice(3, 0, quickBoxTileHTML);
+        } else {
+          cardsHTML.push(quickBoxTileHTML);
+        }
+      } else if (cardsHTML.length > 4) {
         cardsHTML.splice(4, 0, quickBoxBannerHTML);
       } else {
         cardsHTML.push(quickBoxBannerHTML);
@@ -1998,7 +2470,7 @@
       productGrid.innerHTML = cardsHTML.join('');
 
       var cards = productGrid.querySelectorAll('.product-card');
-      products.forEach(function (product, i) {
+      sortedProducts.forEach(function (product, i) {
         if (!product.hoverImages || !product.hoverImages.length) { return; }
 
         var img = cards[i].querySelector('.product-card-img');
@@ -2018,6 +2490,9 @@
           img.src = product.img;
         });
       });
+
+      initProductGalleries();
+      initProductHoverCycle();
     }
 
     function renderHeader(node) {
@@ -2078,6 +2553,15 @@
       }
     }
 
+    // Two interchangeable back-tile designs, switchable from the gear
+    // settings panel:
+    // - "icon" (default): circular up-arrow badge (matches IKEA's
+    //   category-nav "up a level" tile), no divider, plain "All X" label.
+    // - "classic": the original design -- a real photo of the parent
+    //   category, a divider separating it from the sibling tiles, and a
+    //   small back-arrow before the label.
+    var backTileStyle = localStorage.getItem('backTileStyle') === 'classic' ? 'classic' : 'icon';
+
     function renderTiles(tiles, currentKey) {
       if (!tiles.length) {
         tilesSection.style.display = 'none';
@@ -2085,10 +2569,35 @@
       }
       tilesSection.style.display = '';
       strip.innerHTML = tiles.map(function (tile) {
-        var activeClass = tile.key && tile.key === currentKey ? ' active' : '';
+        if (tile.divider) {
+          return '<div class="thumb-strip-divider"></div>';
+        }
         var keyAttr = tile.key ? ' data-key="' + tile.key + '"' : '';
+        if (tile.back) {
+          if (backTileStyle === 'classic') {
+            var backImgAttr = tile.img ? ' style="--thumb-img:url(\'' + tile.img + '\')"' : '';
+            return '<a class="thumb-item thumb-item-back" href="#"' + keyAttr + '>' +
+              '<div class="thumb-photo thumb-photo-back"' + backImgAttr + '></div>' +
+              '<span class="thumb-caption thumb-back-caption">' +
+                '<svg class="thumb-back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>' +
+                tile.label +
+              '</span>' +
+              '</a>';
+          }
+          return '<a class="thumb-item thumb-item-back" href="#"' + keyAttr + '>' +
+            '<div class="thumb-photo thumb-photo-back">' +
+              '<span class="thumb-back-circle">' +
+                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="m13 7.83 5.59 5.59L20 12l-8-8-8 8 1.41 1.41L11 7.83V20h9v-2h-7V7.83z"/></svg>' +
+              '</span>' +
+            '</div>' +
+            '<span class="thumb-caption">' + tile.label + '</span>' +
+            '</a>';
+        }
+        var activeClass = (tile.key && tile.key === currentKey) || tile.active ? ' active' : '';
         var imgAttr = tile.img ? ' style="--thumb-img:url(\'' + tile.img + '\')"' : '';
-        return '<a class="thumb-item' + activeClass + '" href="#"' + keyAttr + '>' +
+        var useCaseAttr = tile.useCase ? ' data-usecase="1"' : '';
+        var industryAttr = tile.industry ? ' data-industry="1"' : '';
+        return '<a class="thumb-item' + activeClass + '" href="#"' + keyAttr + useCaseAttr + industryAttr + '>' +
           '<div class="thumb-photo"' + imgAttr + '></div>' +
           '<span class="thumb-caption">' + tile.label + '</span>' +
           '</a>';
@@ -2109,8 +2618,44 @@
           }
           tiles.forEach(function (t) { t.classList.remove('active'); });
           tile.classList.add('active');
+          if (tile.hasAttribute('data-usecase')) {
+            var label = tile.querySelector('.thumb-caption').textContent.trim();
+            selectUseCase(label);
+          } else if (tile.hasAttribute('data-industry')) {
+            var industryLabel = tile.querySelector('.thumb-caption').textContent.trim();
+            selectIndustry(industryLabel);
+          }
         });
       });
+    }
+
+    // Clicking a "Use case" tile retitles the page to match it and checks
+    // the corresponding checkbox in the "Use case" filter panel (clearing
+    // any other use-case checkbox first -- a tile click means "show me
+    // exactly this", not "add this to my existing filters").
+    function selectUseCase(label) {
+      titleEl.textContent = label + ' packaging';
+      var useCasePanel = document.getElementById('useCaseFilterPanel');
+      if (!useCasePanel) { return; }
+      useCasePanel.querySelectorAll('.filter-checkbox').forEach(function (row) {
+        var input = row.querySelector('input[type="checkbox"]');
+        var shouldCheck = row.textContent.trim() === label;
+        if (input.checked !== shouldCheck) {
+          input.checked = shouldCheck;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+
+    // Clicking an "Industries" browse tile checks the matching radio in the
+    // "Industry" filter panel, which in turn (see the industry `change`
+    // listener below) retitles the page and swaps the strip over to that
+    // industry's use-case tiles.
+    function selectIndustry(label) {
+      var match = allIndustryTiles.filter(function (t) { return t.label === label; })[0];
+      if (!match || match.input.checked) { return; }
+      match.input.checked = true;
+      match.input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     // "Size" and "Type" only make sense once you're looking at actual boxes
@@ -2125,47 +2670,225 @@
 
     var currentKey = 'root';
 
+    // A category's own thumbnail photo only exists as a tile entry inside
+    // ITS parent's tiles list (nodes don't carry a picture of themselves) --
+    // so to show a photo on a back tile pointing at `key`, look it up in
+    // the tiles list one level further up, keyed by `ancestorKey`. Only
+    // needed for the "classic" back-tile style.
+    function findTileImg(key, ancestorKey) {
+      var ancestor = categoryTree[ancestorKey];
+      if (!ancestor) { return null; }
+      var match = ancestor.tiles.filter(function (t) { return t.key === key; })[0];
+      return match ? match.img : null;
+    }
+
+    // Every non-root category gets a "back up" tile prepended to its own
+    // tile strip -- labelled "All <parent category's name>" and pointing at
+    // the parent crumb's key. Leaf categories (empty tiles: []) show their
+    // own siblings instead of nothing, borrowed from the parent's tile
+    // list, with the current leaf itself picked up as "active" by the
+    // normal key match. The divider (and the back tile's photo, looked up
+    // one level further up) only apply in the "classic" back-tile style.
+    function buildTilesWithBack(node, key) {
+      var breadcrumb = node.breadcrumb;
+      if (breadcrumb.length < 2) { return node.tiles; }
+      var parentCrumb = breadcrumb[breadcrumb.length - 2];
+      var backTile = { key: parentCrumb.key, label: 'All ' + parentCrumb.label, back: true };
+      if (backTileStyle === 'classic') {
+        var grandparentCrumb = breadcrumb.length >= 3 ? breadcrumb[breadcrumb.length - 3] : null;
+        backTile.img = grandparentCrumb ? findTileImg(parentCrumb.key, grandparentCrumb.key) : null;
+      }
+      var parentNode = categoryTree[parentCrumb.key];
+      var siblingTiles = node.tiles.length ? node.tiles : (parentNode ? parentNode.tiles : []);
+      var prefix = backTileStyle === 'classic' ? [backTile, { divider: true }] : [backTile];
+      return prefix.concat(siblingTiles);
+    }
+
     function goTo(key) {
       var node = categoryTree[key];
       if (!node) { return; }
       currentKey = key;
       renderHeader(node);
       renderBreadcrumb(node.breadcrumb);
-      renderTiles(node.tiles, key);
+      renderTiles(buildTilesWithBack(node, key), key);
       renderProducts(node.products);
       updateFilterVisibility(key);
     }
 
     // Same use-case strip for every industry for now -- swapped in for the
     // regular category tiles whenever an Industry filter is active, and
-    // titleEl gets a "<Industry> packaging" title to match.
+    // titleEl gets a "<Industry> packaging" title to match. A toggle lets
+    // the "Categories" view (the normal strip for whatever category was
+    // active before the industry filter was applied) stay reachable
+    // instead of being replaced outright.
     var industryUseCaseTiles = [
-      { label: 'T-shirt', img: 'assets/packaging/T-shirt.png' },
-      { label: 'Shoes', img: 'assets/packaging/Shoes.png' },
-      { label: 'Scarf', img: 'assets/packaging/Scarf.png' },
-      { label: 'Hoodie', img: 'assets/packaging/Hoodie.png' },
-      { label: 'Socks', img: 'assets/packaging/Socks.png' },
-      { label: 'Underwear', img: 'assets/packaging/Underwear.png' },
-      { label: 'Lingerie', img: 'assets/packaging/Lingerie.png' }
+      { label: 'T-shirt', img: 'assets/packaging/T-shirt.png', useCase: true },
+      { label: 'Shoes', img: 'assets/packaging/Shoes.png', useCase: true },
+      { label: 'Scarf', img: 'assets/packaging/Scarf.png', useCase: true },
+      { label: 'Hoodie', img: 'assets/packaging/Hoodie.png', useCase: true },
+      { label: 'Socks', img: 'assets/packaging/Socks.png', useCase: true },
+      { label: 'Underwear', img: 'assets/packaging/Underwear.png', useCase: true },
+      { label: 'Lingerie', img: 'assets/packaging/Lingerie.png', useCase: true }
     ];
+
+    // Every industry from the "Industry" filter panel (skipping "Any"),
+    // reusing its already-real preview image -- this is what the
+    // "Industries" browse tab shows, and what a tile click there checks.
+    var allIndustryTiles = Array.prototype.slice.call(document.querySelectorAll('input[name="industry"]:not([data-any])')).map(function (input) {
+      var label = input.closest('label');
+      return { label: label.textContent.trim(), img: label.getAttribute('data-preview-img'), input: input };
+    });
+
+    // Two switchable nav variants (gear panel): 'always' (default) keeps the
+    // Categories/Industries toggle permanently visible above the strip,
+    // letting you browse all industries even with no filter active. 'legacy'
+    // is the original behavior -- toggle only appears once an Industry
+    // filter is active, offering just Use case/Categories.
+    var navToggleStyle = localStorage.getItem('navToggleStyle') === 'legacy' ? 'legacy' : 'always';
+    var activeIndustryLabel = null;
+
+    var industryStripToggle = document.getElementById('industryStripToggle');
+    var industryStripIndicator = document.getElementById('industryStripIndicator');
+    var industryStripOptions = industryStripToggle.querySelectorAll('.toggle-option');
+    var industryStripIndustriesOption = document.getElementById('industryStripIndustriesOption');
+    var industryStripUseCaseOption = document.getElementById('industryStripUseCaseOption');
+
+    function moveIndustryStripIndicator(el) {
+      industryStripIndicator.style.width = el.offsetWidth + 'px';
+      industryStripIndicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    }
+
+    function renderStripMode(mode) {
+      if (mode === 'use-case') {
+        renderTiles(industryUseCaseTiles, null);
+      } else if (mode === 'industries') {
+        renderTiles(allIndustryTiles.map(function (t) { return { label: t.label, img: t.img, industry: true, active: t.label === activeIndustryLabel }; }), null);
+      } else {
+        var node = categoryTree[currentKey];
+        renderTiles(buildTilesWithBack(node, currentKey), currentKey);
+      }
+    }
+
+    // Keeps the toggle's visibility and its second option's label/target in
+    // sync with the current style + whether an industry filter is active.
+    // Does not touch which option is marked active -- callers decide that.
+    function syncIndustryToggle() {
+      if (navToggleStyle === 'legacy') {
+        industryStripToggle.hidden = !activeIndustryLabel;
+        industryStripIndustriesOption.hidden = true;
+        industryStripUseCaseOption.hidden = false;
+      } else {
+        industryStripToggle.hidden = false;
+        industryStripIndustriesOption.hidden = false;
+        industryStripUseCaseOption.hidden = !activeIndustryLabel;
+      }
+    }
+
+    industryStripOptions.forEach(function (option) {
+      option.addEventListener('click', function () {
+        if (option.classList.contains('active')) { return; }
+        industryStripOptions.forEach(function (o) { o.classList.remove('active'); });
+        option.classList.add('active');
+        moveIndustryStripIndicator(option);
+        renderStripMode(option.getAttribute('data-target'));
+      });
+    });
 
     document.querySelectorAll('input[name="industry"]').forEach(function (input) {
       input.addEventListener('change', function () {
         if (!input.checked) { return; }
         if (input.hasAttribute('data-any')) {
+          activeIndustryLabel = null;
+          syncIndustryToggle();
+          industryStripOptions.forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-target') === 'categories'); });
+          moveIndustryStripIndicator(industryStripToggle.querySelector('.toggle-option.active'));
           goTo(currentKey);
           return;
         }
-        var industryLabel = input.closest('label').textContent.trim();
-        titleEl.textContent = industryLabel + ' packaging';
-        renderTiles(industryUseCaseTiles, null);
+        activeIndustryLabel = input.closest('label').textContent.trim();
+        titleEl.textContent = activeIndustryLabel + ' packaging';
+        syncIndustryToggle();
+        industryStripOptions.forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-target') === 'use-case'); });
+        moveIndustryStripIndicator(industryStripToggle.querySelector('.toggle-option.active'));
+        renderStripMode('use-case');
       });
     });
+
+    // Bridge for the site-settings gear panel's script to switch nav-toggle
+    // styles at runtime -- falls back to the Categories tab if the
+    // currently-active tab doesn't exist in the newly-selected style (no
+    // "Industries" browsing in legacy, no "Use cases" without an active
+    // industry filter).
+    window.phSetNavToggleStyle = function (style) {
+      navToggleStyle = style;
+      localStorage.setItem('navToggleStyle', style);
+      syncIndustryToggle();
+      var activeBtn = industryStripToggle.querySelector('.toggle-option.active');
+      var target = activeBtn ? activeBtn.getAttribute('data-target') : 'categories';
+      if ((style === 'legacy' && target === 'industries') || (target === 'use-case' && !activeIndustryLabel)) {
+        target = 'categories';
+        industryStripOptions.forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-target') === 'categories'); });
+      }
+      moveIndustryStripIndicator(industryStripToggle.querySelector('.toggle-option.active'));
+      renderStripMode(target);
+    };
 
     renderHeader(categoryTree.root);
     renderBreadcrumb(categoryTree.root.breadcrumb);
     bindTileClicks();
     updateFilterVisibility('root');
+    syncIndustryToggle();
+    moveIndustryStripIndicator(industryStripToggle.querySelector('.toggle-option.active'));
+
+    // Re-renders whichever tile strip is currently showing (category tiles
+    // or the industry use-case strip) without touching header/breadcrumb/
+    // products -- used when the back-tile style toggle changes.
+    function refreshTilesStrip() {
+      var activeBtn = industryStripToggle.hidden ? null : industryStripToggle.querySelector('.toggle-option.active');
+      renderStripMode(activeBtn ? activeBtn.getAttribute('data-target') : 'categories');
+    }
+
+    // Bridge for the site-settings gear panel's script (a separate IIFE
+    // further down the page) to switch back-tile styles at runtime.
+    window.phSetBackTileStyle = function (style) {
+      backTileStyle = style;
+      localStorage.setItem('backTileStyle', style);
+      refreshTilesStrip();
+    };
+
+    // Bridge for the site-settings gear panel's script to switch the
+    // "Build any box type" banner/tile style at runtime -- re-renders the
+    // current category's products (root has neither, so it's a no-op there).
+    window.phSetBuildBoxStyle = function (style) {
+      buildBoxStyle = style;
+      localStorage.setItem('buildBoxStyle', style);
+      renderProducts(categoryTree[currentKey].products);
+    };
+
+    // Filter pills style (gear panel): 'plain' is a pure CSS reskin.
+    function applyFilterPillsStyle(style) {
+      document.body.classList.toggle('pkg-filters-plain', style === 'plain');
+    }
+
+    var filterPillsStyle = localStorage.getItem('filterPillsStyle') || 'default';
+    applyFilterPillsStyle(filterPillsStyle);
+
+    // Bridge for the site-settings gear panel's script to switch the
+    // filter-pills style at runtime.
+    window.phSetFilterPillsStyle = function (style) {
+      filterPillsStyle = style;
+      localStorage.setItem('filterPillsStyle', style);
+      applyFilterPillsStyle(style);
+    };
+
+    // Bridge for the site-settings gear panel's script to switch the tile
+    // hover style at runtime -- both handlers already read tileHoverStyle
+    // live on every hover, so no re-render/rebind is needed here.
+    window.phSetTileHoverStyle = function (style) {
+      tileHoverStyle = style;
+      localStorage.setItem('tileHoverStyle', style);
+      document.body.classList.toggle('pkg-tile-hover-cycle', style === 'cycle');
+    };
   })();
 
   (function () {
@@ -2254,11 +2977,14 @@
         chip.addEventListener('click', function () {
           if (input.type === 'radio') {
             var anyInput = input.closest('.filter-panel').querySelector('input[data-any]');
-            if (anyInput) { anyInput.checked = true; }
+            if (anyInput) {
+              anyInput.checked = true;
+              anyInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
           } else {
             input.checked = false;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
           }
-          input.dispatchEvent(new Event('change', { bubbles: true }));
         });
 
         activeRow.appendChild(chip);
@@ -2307,6 +3033,57 @@
       <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
     </label>
   </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Classic back tile</p>
+      <p class="site-settings-desc">Show the back tile with divider, arrow and photo instead of the icon-only style</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleBackTileStyle">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Classic category navigation</p>
+      <p class="site-settings-desc">Hide the Categories/Industries toggle unless an Industry filter is active, instead of always showing it</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleNavToggleStyle">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">"Build any box type" as tile</p>
+      <p class="site-settings-desc">Show it as a single tile at the end of the first row instead of a full-width banner</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleBuildBoxStyle">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row site-settings-row-stack">
+    <div>
+      <p class="site-settings-label">Filter pills style</p>
+      <p class="site-settings-desc">Default bordered pills, or borderless bigger type</p>
+    </div>
+    <div class="toggle-switch site-settings-toggle-switch" id="filterPillsStyleSwitch">
+      <div class="toggle-indicator" id="filterPillsStyleIndicator"></div>
+      <button class="toggle-option active" data-value="default">Default</button>
+      <button class="toggle-option" data-value="plain">Plain</button>
+    </div>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Cycle photos on tile hover</p>
+      <p class="site-settings-desc">"Custom Mailer Box" cycles through its own photo angles on hover instead of crossfading to a lifestyle shot</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleTileHoverStyle">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
 </div>
 
 <script>
@@ -2337,6 +3114,59 @@
     fluidGridToggle.addEventListener('change', function () {
       applyFluidGrid(fluidGridToggle.checked);
       localStorage.setItem('gridFluidColumns', fluidGridToggle.checked ? '1' : '0');
+    });
+
+    var backTileStyleToggle = document.getElementById('toggleBackTileStyle');
+    backTileStyleToggle.checked = localStorage.getItem('backTileStyle') === 'classic';
+
+    backTileStyleToggle.addEventListener('change', function () {
+      window.phSetBackTileStyle(backTileStyleToggle.checked ? 'classic' : 'icon');
+    });
+
+    var navToggleStyleToggle = document.getElementById('toggleNavToggleStyle');
+    navToggleStyleToggle.checked = localStorage.getItem('navToggleStyle') === 'legacy';
+
+    navToggleStyleToggle.addEventListener('change', function () {
+      window.phSetNavToggleStyle(navToggleStyleToggle.checked ? 'legacy' : 'always');
+    });
+
+    var buildBoxStyleToggle = document.getElementById('toggleBuildBoxStyle');
+    buildBoxStyleToggle.checked = localStorage.getItem('buildBoxStyle') === 'tile';
+
+    buildBoxStyleToggle.addEventListener('change', function () {
+      window.phSetBuildBoxStyle(buildBoxStyleToggle.checked ? 'tile' : 'banner');
+    });
+
+    var filterPillsSwitch = document.getElementById('filterPillsStyleSwitch');
+    var filterPillsIndicator = document.getElementById('filterPillsStyleIndicator');
+    var filterPillsOptions = filterPillsSwitch.querySelectorAll('.toggle-option');
+
+    function moveFilterPillsIndicator(el) {
+      filterPillsIndicator.style.width = el.offsetWidth + 'px';
+      filterPillsIndicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    }
+
+    var savedFilterPillsStyle = localStorage.getItem('filterPillsStyle') || 'default';
+    filterPillsOptions.forEach(function (option) {
+      option.classList.toggle('active', option.getAttribute('data-value') === savedFilterPillsStyle);
+    });
+    moveFilterPillsIndicator(filterPillsSwitch.querySelector('.toggle-option.active'));
+
+    filterPillsOptions.forEach(function (option) {
+      option.addEventListener('click', function () {
+        if (option.classList.contains('active')) { return; }
+        filterPillsOptions.forEach(function (o) { o.classList.remove('active'); });
+        option.classList.add('active');
+        moveFilterPillsIndicator(option);
+        window.phSetFilterPillsStyle(option.getAttribute('data-value'));
+      });
+    });
+
+    var tileHoverStyleToggle = document.getElementById('toggleTileHoverStyle');
+    tileHoverStyleToggle.checked = localStorage.getItem('tileHoverStyle') === 'cycle';
+
+    tileHoverStyleToggle.addEventListener('change', function () {
+      window.phSetTileHoverStyle(tileHoverStyleToggle.checked ? 'cycle' : 'gallery');
     });
   })();
 </script>

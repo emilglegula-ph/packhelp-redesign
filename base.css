@@ -17,8 +17,20 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
+html {
+  /* clip, not hidden: `overflow-x: hidden` forces overflow-y to compute as
+     auto (per spec, when one axis is non-visible the other can't stay
+     visible), turning html/body into a nested scroll container that
+     silently breaks `position: sticky` for every descendant on every page
+     (found while building product_page.html -- build-your-box.html's own
+     .build-box-visual was already affected). `clip` suppresses overflow
+     without establishing a scrollport, so it doesn't have this side effect. */
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
+  overflow-x: clip;
   background: var(--color-bg-page);
   color: var(--color-text-primary);
   font-family: "ABC Favorit", sans-serif;

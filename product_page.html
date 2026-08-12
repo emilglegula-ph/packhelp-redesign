@@ -1,0 +1,2760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Custom Mailer Box — Packhelp</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  html { scroll-behavior: smooth; }
+
+  /* ---------- nav CTA avatars (page-local everywhere -- not in components.css) ---------- */
+  .cta-avatars { display: flex; margin-right: var(--space-3); }
+  .cta-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--color-bg-muted); border: 2px solid var(--color-accent); margin-left: -8px; }
+  .cta-avatar:first-child { margin-left: 0; }
+  .cta-avatar img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .cta-avatars.sm { margin-right: var(--space-2); }
+  .cta-avatars.sm .cta-avatar { width: 18px; height: 18px; border-width: 1.5px; }
+
+  /* ---------- nav responsive collapse (packaging.html pattern) -- this page
+     was missing it entirely, so the desktop nav-links never hid at narrow
+     widths, causing real horizontal page overflow below ~900px. ---------- */
+  @media (max-width: 900px) {
+    .nav-links.desktop-only { display: none; }
+    .nav-megamenu { display: none; }
+  }
+
+  /* ---------- PAGE CONTAINER ---------- */
+  /* Wider desktop breakpoint for this page, matching packaging.html --
+     nav itself is --max-w-lg globally (components.css) regardless. */
+  .container {
+    max-width: var(--max-w-lg);
+  }
+
+  /* ---------- ANNOUNCEMENT (copied from packaging.html) ---------- */
+  .announcement-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: 0.75rem 2rem calc(0.75rem + 20px);
+    background: var(--color-bg-accent-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .announcement-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(255,255,255,.5);
+    color: var(--color-text-primary);
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .announcement-copy:hover { background: rgba(255,255,255,.8); }
+  .announcement-copy svg { width: 14px; height: 14px; }
+
+  .pp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-8) var(--space-8) 0;
+    box-sizing: border-box;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .pp-breadcrumb a { color: var(--color-text-muted); text-decoration: none; }
+  .pp-breadcrumb a:hover { color: var(--color-text-primary); text-decoration: underline; }
+  .pp-breadcrumb span.current { color: var(--color-text-primary); }
+
+  /* ---------- two-column layout (mirrors .build-box-page) ---------- */
+  .pp-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    align-items: start;
+    gap: var(--space-14);
+    /* config column needs space-14 (56px) on BOTH sides -- the left side
+       already gets that from the gap above; padding-right matches it here
+       against the container edge (was space-8/32px, short by 24px). */
+    padding: var(--space-6) var(--space-14) var(--space-6) var(--space-8);
+    box-sizing: border-box;
+  }
+
+  /* ---------- left: sticky photo gallery -- two switchable layouts (gear
+     panel, see #toggleGalleryMode):
+     - default: vertical thumbnail column, OUTSIDE/left of the gray panel
+     - alt ("below"): thumbnails as a horizontal strip, visually part of
+       the same panel, stacked below the main image -- matching
+       packhelp.com's own product page layout
+     Both share one DOM (thumbs + panel as siblings inside the outer sticky
+     wrapper); only flex-direction/order/sizing changes between modes, no
+     node is ever moved. ---------- */
+  .pp-gallery-outer {
+    position: sticky;
+    top: var(--space-6);
+    height: calc(100vh - var(--space-6) * 2);
+    min-height: 420px;
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-4);
+  }
+
+  .pp-gallery {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    box-sizing: border-box;
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .pp-gallery-main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pp-gallery-main img {
+    /* width/height 100% (not max-width/max-height) so the image box always
+       fills the available space and object-fit does the scaling -- a bare
+       max-width/max-height never grows an image past its own intrinsic
+       pixel size, which left visible gaps around smaller source photos.
+       object-fit: cover (not contain) scales to the shorter dimension and
+       crops the rest, so the grey panel background never shows through
+       around the lifestyle photos. */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity .15s ease;
+  }
+
+  .pp-gallery-thumbs {
+    flex: 0 0 48px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+
+  .pp-gallery-thumbs::-webkit-scrollbar { display: none; }
+
+  .pp-gallery-thumb {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    /* border+padding reserved at all times (transparent when inactive) so
+       toggling .active never resizes the thumb or its image -- an inset
+       box-shadow here would sit flush against the image with zero gap and
+       get fully painted over by it (img is a child, always on top),
+       which is why only the very first thumb ever looked bordered. */
+    padding: 1px;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-surface);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s ease;
+  }
+
+  .pp-gallery-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+
+  .pp-gallery-thumb.active {
+    border-color: var(--gray-600);
+  }
+
+  /* alt mode: outer switches to column, thumbs become a horizontal strip
+     below the panel -- kept OUTSIDE the photo element (own gap, own
+     per-thumb background, full rounding on the panel) same as the default
+     vertical/left mode, not attached/seamless with the panel. */
+  .pp-gallery-outer.pp-gallery-mode-below { flex-direction: column; }
+  .pp-gallery-outer.pp-gallery-mode-below .pp-gallery { flex: 1; min-height: 0; order: 1; }
+  .pp-gallery-outer.pp-gallery-mode-below .pp-gallery-thumbs {
+    order: 2;
+    flex: 0 0 auto;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  @media (max-width: 900px) {
+    .pp-layout { grid-template-columns: 1fr; padding: var(--space-4); gap: var(--space-4); }
+    /* mobile always uses the "below" arrangement regardless of the
+       desktop gear-panel choice -- a slim vertical column reads poorly
+       next to a full-width mobile image. */
+    .pp-gallery-outer { position: static; height: 60vh; min-height: 360px; top: 0; flex-direction: column; }
+    .pp-gallery-outer .pp-gallery { flex: 1; min-height: 0; order: 1; }
+    .pp-gallery-outer .pp-gallery-thumbs {
+      order: 2;
+      flex: 0 0 auto;
+      flex-direction: row;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .pp-breadcrumb { padding: var(--space-6) var(--space-4) 0; }
+    .announcement-bar { padding: 0.75rem var(--space-4) calc(0.75rem + 20px); }
+  }
+
+  /* ---------- right: config column (reused build-box-* step patterns) ---------- */
+  .pp-config-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .pp-heading {
+    margin: 0 0 var(--space-2);
+    font-weight: 500;
+    font-size: 2.5rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  .pp-subheading {
+    margin: 0 0 var(--space-4);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* No border/line between steps -- copied from Build_your_box's actual
+     Sidebar.tsx, which separates OptionGroup sections with flex gap only,
+     never a divider line. */
+  .pp-step {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--space-10);
+  }
+
+  .pp-step:first-of-type { margin-top: 0; }
+
+  /* .pp-step's own display:flex (same specificity as the native [hidden]
+     UA rule) would otherwise beat it -- needed for the Foil step, hidden
+     unless Print colour mode is "Multicolour – premium". */
+  .pp-step[hidden] { display: none; }
+
+  /* ---------- field label + optional "Learn more" -- matches
+     Build_your_box/src/components/OptionGroup.tsx's title row exactly
+     (no description paragraph underneath, per the same source) ---------- */
+  .pp-step-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin: 0 0 var(--space-3);
+  }
+
+  .pp-step-header .pp-field-label { margin: 0; }
+
+  .pp-learn-more {
+    flex: none;
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,6,26,.25);
+    padding-bottom: 1px;
+    white-space: nowrap;
+  }
+
+  .pp-field-label {
+    margin: 0 0 var(--space-3);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.16;
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- Size -- standard bordered select, matching the site's
+     established "bordered field" input pattern (radius-sm, 1px border)
+     rather than a chip grid. ---------- */
+  .pp-select-wrap { position: relative; width: 100%; }
+
+  .pp-select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 40px 0 var(--space-4);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-page);
+    font: inherit;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .pp-select:hover { border-color: var(--color-border-hover); }
+  .pp-select:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-focus-ring); }
+
+  .pp-select-chevron {
+    position: absolute;
+    top: 50%;
+    right: var(--space-4);
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  /* ---------- Chip -- uniform option card, copied from the actual
+     Build_your_box React project (src/components/Chip.tsx), not the
+     build-your-box.html prototype's per-step card variants. Every option
+     type (size, material, colour, coverage, adhesive) uses this same
+     104x133 card; only the media area's content changes (photo/swatch/
+     empty). ---------- */
+  /* stretch, not flex-start: chips in a wrapped row all match the height
+     of that row's tallest chip (e.g. one with a 2-line label), instead of
+     each chip only being as tall as its own content. */
+  .pp-chip-group { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--space-2); }
+
+  /* ---------- default chip style: label sits below the image,
+     left-aligned, off the gray/white background -- the background +
+     active/hover states live on the media square, not the whole chip.
+     ---------- */
+  .pp-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: none;
+    width: 104px;
+    min-height: 133px;
+    box-sizing: border-box;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .pp-chip-media {
+    position: relative;
+    display: flex;
+    flex: none;
+    width: 104px;
+    height: 104px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--gray-100);
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .pp-chip:hover .pp-chip-media { background: var(--gray-300); }
+  .pp-chip.active .pp-chip-media,
+  .pp-chip.active:hover .pp-chip-media {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--gray-500), 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  .pp-chip-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pp-chip-media.pp-chip-media-icon img { width: 64px; height: auto; object-fit: contain; }
+
+  .pp-chip-label {
+    width: 100%;
+    padding: var(--space-2) 0 0;
+    font-size: 12px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .pp-chip.active .pp-chip-label { color: var(--color-text-primary); }
+
+  .pp-chip-label-sub { display: block; font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+  .pp-chip.active .pp-chip-label-sub { color: var(--gray-600); }
+
+  /* ---------- alternative chip style (opt-in via gear panel): label
+     centered on a gray/white chip background instead of below it --
+     the background + active/hover states move back onto the whole chip. ---------- */
+  body.pp-chip-label-on-bg .pp-chip { align-items: center; background: var(--gray-100); text-align: center; }
+  body.pp-chip-label-on-bg .pp-chip:hover { background: var(--gray-300); }
+  body.pp-chip-label-on-bg .pp-chip.active,
+  body.pp-chip-label-on-bg .pp-chip.active:hover {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--gray-500), 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  body.pp-chip-label-on-bg .pp-chip-media {
+    border-radius: 12px 12px 0 0;
+    background: none;
+    box-shadow: none;
+  }
+  body.pp-chip-label-on-bg .pp-chip:hover .pp-chip-media { background: none; }
+  body.pp-chip-label-on-bg .pp-chip.active .pp-chip-media,
+  body.pp-chip-label-on-bg .pp-chip.active:hover .pp-chip-media { background: none; box-shadow: none; }
+
+  body.pp-chip-label-on-bg .pp-chip-label { padding: 0 var(--space-1) var(--space-2); text-align: center; }
+
+
+  /* ---------- pill row -- text-only options, copied from FinishSection.tsx (used there for Goss/Matt) ---------- */
+  .pp-pill-group { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2); }
+
+  .pp-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    padding: 0 var(--space-4);
+    font-size: 15px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    background: var(--gray-100);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .pp-pill:hover { background: var(--gray-300); }
+
+  .pp-pill.active {
+    background: #fff;
+    border-color: var(--gray-500);
+    box-shadow: 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  /* ---------- quantity row list, copied from QuantitySection.tsx ---------- */
+  .pp-qty-list { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .pp-qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: var(--gray-100);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .pp-qty-row:hover { background: var(--gray-300); }
+
+  .pp-qty-row.active {
+    background: #fff;
+    border-color: var(--gray-500);
+    box-shadow: 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  .pp-qty-value { font-size: 15px; line-height: 1.32; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-qty-value-group { display: flex; align-items: center; gap: var(--space-2); }
+  .pp-qty-badge { flex: none; padding: 4px 8px; border-radius: 4px; background: var(--gray-200); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--gray-600); }
+  .pp-qty-prices { display: flex; align-items: baseline; gap: var(--space-6); white-space: nowrap; }
+  .pp-qty-unit { font-size: 13px; line-height: 1.32; letter-spacing: -0.02em; color: var(--gray-500); }
+  .pp-qty-total { font-size: 15px; line-height: 1.16; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+
+  /* ---------- "Other value" custom-quantity row, same tiles shape as
+     .pp-qty-row but expands a small form instead of just selecting. ---------- */
+  .pp-qty-other { border-radius: 8px; border: 1px solid transparent; background: var(--gray-100); transition: background-color .15s ease; }
+  .pp-qty-other.open,
+  .pp-qty-other.active {
+    background: #fff;
+    border-color: var(--gray-500);
+    box-shadow: 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  .pp-qty-other-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+    border: none;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .pp-qty-other-chevron { flex: none; width: 16px; height: 16px; color: var(--gray-500); transform: rotate(90deg); transition: transform .2s ease; }
+  .pp-qty-other.open .pp-qty-other-chevron { transform: rotate(-90deg); }
+
+  .pp-qty-other-form { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-4) var(--space-4); }
+  .pp-qty-other-form[hidden] { display: none; }
+
+  .pp-qty-other-input {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    box-sizing: border-box;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--gray-400);
+    border-radius: 8px;
+    background: #fff;
+    font: inherit;
+    font-size: 15px;
+    color: var(--color-text-primary);
+  }
+  .pp-qty-other-input:focus { outline: none; border-color: var(--gray-600); }
+
+  .pp-qty-other-apply {
+    flex: none;
+    height: 40px;
+    padding: 0 var(--space-4);
+    border: none;
+    border-radius: 8px;
+    background: rgba(0,0,0,.04);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .pp-qty-other-apply:hover { background: rgba(0,0,0,.08); }
+
+  /* ---------- alternative "input" quantity picker (opt-in via gear panel):
+     closed state looks like the Size <select> (bordered field, chevron) but
+     shows qty on the left and unit/total price on the right, matching the
+     horizontal picker's data. Clicking it re-uses the existing vertical
+     #ppQuantityGrid list as a floating dropdown instead of duplicating the
+     row markup a third time. ---------- */
+  /* ---------- gear-panel 3-way quantity style switch ---------- */
+  .pp-settings-row-stacked { flex-direction: column; align-items: stretch; }
+  .pp-qty-style-toggle { display: flex; width: 100%; margin-top: var(--space-3); }
+  .pp-qty-style-toggle .toggle-option { flex: 1; text-align: center; padding: var(--space-2) 0; font-size: 0.75rem; }
+
+  .pp-qty-input-wrap { position: relative; }
+
+  .pp-qty-input { display: none; }
+
+  body.pp-qty-style-input .pp-qty-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 40px 0 var(--space-4);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-page);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+
+  body.pp-qty-style-input .pp-qty-input:hover { border-color: var(--color-border-hover); }
+
+  .pp-qty-input-value { font-size: 15px; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-qty-input-prices { display: flex; align-items: baseline; gap: var(--space-6); white-space: nowrap; }
+  .pp-qty-input-unit { font-size: 13px; letter-spacing: -0.02em; color: var(--gray-500); }
+  .pp-qty-input-total { font-size: 15px; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+
+  body.pp-qty-style-input #ppQtyInputChevron { transition: transform .2s ease; }
+  body.pp-qty-style-input #ppQtyInputWrap.open #ppQtyInputChevron { transform: translateY(-50%) rotate(180deg); }
+
+  body.pp-qty-style-input #ppQuantityGrid { display: none; }
+
+  body.pp-qty-style-input #ppQtyInputWrap.open #ppQuantityGrid {
+    display: flex;
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    right: 0;
+    z-index: 10;
+    max-height: 320px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: var(--space-2);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+
+  /* ---------- alternative "horizontal" quantity picker (opt-in via gear
+     panel): 1/30/100/1000 + Other as cells of one segmented row, each cell
+     showing just qty + unit price -- no total, no badge (no room). ---------- */
+  .pp-qty-picker { display: none; }
+
+  body.pp-qty-horizontal #ppQuantityGrid { display: none; }
+  body.pp-qty-horizontal .pp-qty-picker { display: grid; position: relative; }
+
+  .pp-qty-picker {
+    grid-template-columns: repeat(5, 1fr);
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  /* Grid columns (not flex) so all 5 cells -- including the nested-button
+     "Other" cell -- get truly equal widths; flex:1 on a wrapper whose only
+     child is itself a flex item was quietly losing width to the plain
+     button cells despite matching flex-grow/shrink/basis on paper. Each
+     cell is its own rounded rectangle (same radius as .pp-chip-media),
+     separated by the grid gap, instead of one shared bordered container
+     with internal dividers. */
+  .pp-qty-cell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 64px;
+    box-sizing: border-box;
+    padding: 0 var(--space-2);
+    border: none;
+    border-radius: 8px;
+    background: var(--gray-100);
+    cursor: pointer;
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .pp-qty-cell:hover { background: var(--gray-300); }
+  .pp-qty-cell.active { background: #fff; box-shadow: inset 0 0 0 1px var(--gray-600); }
+
+  .pp-qty-cell-value { font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-qty-cell-unit { font-size: 12px; letter-spacing: -0.02em; color: var(--gray-500); }
+
+  .pp-qty-cell-other { min-width: 0; position: relative; display: flex; border-radius: 8px; overflow: hidden; transition: background-color .15s ease, box-shadow .15s ease; }
+  .pp-qty-cell-other.active { box-shadow: inset 0 0 0 1px var(--gray-600); }
+
+  .pp-qty-cell-other-btn {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    height: 64px;
+    box-sizing: border-box;
+    padding: 0 var(--space-2);
+    border: none;
+    background: var(--gray-100);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .pp-qty-cell-other:hover .pp-qty-cell-other-btn { background: var(--gray-300); }
+  .pp-qty-cell-other.active .pp-qty-cell-other-btn { background: #fff; }
+
+  .pp-qty-cell-other-arrow { flex: none; width: 16px; height: 16px; color: var(--gray-500); transition: transform .2s ease; }
+  .pp-qty-cell-other.open .pp-qty-cell-other-arrow { transform: rotate(180deg); }
+
+  .pp-qty-cell-other-popover {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 240px;
+    padding: var(--space-3);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+  .pp-qty-cell-other-popover[hidden] { display: none; }
+
+  /* ---------- USPs (tick list, cta-usps adapted for a light background) ---------- */
+  .pp-usps {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin: var(--space-2) 0 var(--space-10);
+    padding: 0;
+    list-style: none;
+  }
+
+  .pp-usps li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .pp-usp-check {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    color: var(--gray-600);
+  }
+
+  /* ---------- CTA area -- price/delivery row copied exactly from
+     Build_your_box/src/components/SummarySection.tsx ---------- */
+  .pp-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+    margin-top: var(--space-10);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--gray-300);
+  }
+
+  .pp-cta-price-row {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .pp-cta-delivery { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+
+  .pp-cta-delivery-to { display: flex; align-items: flex-start; gap: var(--space-1); font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-cta-delivery-to a { color: var(--color-text-primary); text-decoration: none; border-bottom: 1px solid rgba(0,6,26,.25); padding-bottom: 1px; }
+
+  .pp-cta-dates { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; list-style: none; font-size: 13px; letter-spacing: -0.02em; }
+  .pp-cta-dates li { display: flex; align-items: center; gap: var(--space-1); }
+  .pp-cta-date { position: relative; padding-left: 18px; line-height: 1.32; color: var(--color-text-primary); }
+  .pp-cta-date::before { content: ""; position: absolute; left: 0; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--color-text-primary); transform: translateY(-50%); }
+  .pp-cta-date-price { line-height: 1.32; color: var(--color-text-muted); }
+
+  .pp-cta-price-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: var(--space-1); white-space: nowrap; text-align: right; }
+  .pp-cta-price-label { font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-muted); }
+  .pp-cta-price-value { font-size: 32px; line-height: 1.08; font-weight: 500; letter-spacing: -0.03em; color: var(--color-text-primary); }
+
+  .pp-cta-buttons { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); width: 100%; }
+  .pp-cta-buttons .btn-pill { width: 100%; height: 48px; justify-content: center; }
+
+  .pp-dieline-link {
+    align-self: center;
+    margin-top: var(--space-2);
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,6,26,.25);
+    padding-bottom: 1px;
+  }
+
+  /* info rows -- table/accordion with a leading icon + trailing arrow,
+     replacing filler CTAs */
+  /* .pp-cta's own flex gap already puts space-6 (24px) between this and the
+     buttons group above -- this margin adds the remaining 16px to reach a
+     net 40px, rather than stacking a full 40px on top of that gap. */
+  .pp-info-rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* .pp-cta already puts a 24px (--space-6) flex gap between its children
+       -- this margin adds the remainder on top so the total visual gap
+       between the CTA buttons and this table is exactly --space-14 (56px). */
+    margin-top: var(--space-8);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .pp-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-5) 0;
+    border-top: 1px solid var(--color-border-default);
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    font: inherit;
+    text-align: left;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .pp-info-row-icon { flex: none; width: 18px; height: 18px; color: var(--color-text-primary); }
+
+  .pp-info-row-label { font-size: 0.9375rem; letter-spacing: -0.02em; }
+
+  /* same chevron as .pp-select-chevron, rotated to point right instead of down */
+  .pp-info-row-arrow { flex: none; width: 18px; height: 18px; margin-left: auto; color: var(--color-text-muted); transform: rotate(-90deg); }
+  .pp-info-row-arrow-external { flex: none; width: 16px; height: 16px; margin-left: auto; color: var(--color-text-muted); }
+
+  /* ---------- "Pairs well with..." mini related-products block, toggled from
+     the gear panel ("Related products under config"). Hidden by default;
+     body.pp-show-pairs-well reveals it -- same body-class-driven show/hide
+     convention as the other gear-panel toggles on this page, so no [hidden]
+     cascade pitfall to worry about. Reuses the .category-item/.category-thumb/
+     .category-title/.category-desc tile pattern from the bottom carousels,
+     just laid out as a static 2-up grid instead of a horizontal scroll. ---------- */
+  .pp-pairs-well { display: none; width: 100%; margin-top: var(--space-14); }
+  body.pp-show-pairs-well .pp-pairs-well { display: block; }
+  .pp-pairs-heading { margin: 0 0 var(--space-5); font-size: 1.375rem; font-weight: 500; letter-spacing: -0.03em; color: var(--color-text-primary); }
+  .pp-pairs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+  .pp-pairs-grid .category-item { width: auto; }
+  .pp-pairs-grid .category-thumb { height: auto; aspect-ratio: 1; }
+
+  /* ---------- sticky summary bar (build-box-sticky-summary, verbatim) ---------- */
+  /* ---------- sticky bar -- copied exactly from
+     Build_your_box/src/components/StickyDeliveryBar.tsx: h-72px, rounded-t-2xl
+     (16px), border-x/border-t grey-300, bg-white/80 + blur(4px), upward
+     shadow. Visible by default (from first paint), only hidden once the CTA
+     block scrolls into view -- not gated behind "scrolled past the header"
+     like the old build-your-box.html sticky-summary. ---------- */
+  .pp-sticky-summary {
+    position: fixed;
+    bottom: 0;
+    z-index: 60;
+    box-sizing: border-box;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 0 var(--space-4);
+    background: rgba(255, 255, 255, 0.80);
+    border: 1px solid var(--gray-300);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -5px 16px rgba(47,47,47,.06);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition: opacity .3s ease, transform .3s ease;
+  }
+
+  .pp-sticky-summary.pp-hidden { opacity: 0; transform: translateY(100%); pointer-events: none; }
+
+  .pp-sticky-summary-group { display: flex; flex-direction: column; gap: var(--space-1); }
+  .pp-sticky-summary-label { font-size: 13px; line-height: 1.32; letter-spacing: -0.02em; color: var(--gray-600); }
+  .pp-sticky-summary-value { font-size: 13px; line-height: 1.32; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-sticky-summary-link { text-decoration: none; border-bottom: 1px solid rgba(0,6,26,.25); padding-bottom: 1px; width: fit-content; }
+  .pp-sticky-summary-price { font-size: 17px; line-height: 1.16; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .pp-sticky-summary-right { display: flex; align-items: center; gap: var(--space-6); }
+  .pp-sticky-summary-price-group { text-align: right; }
+
+  @media (max-width: 900px) { .pp-sticky-summary { display: none; } }
+
+  /* ---------- contact modal ---------- */
+  .pp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 6, 26, .45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+  }
+
+  .pp-modal-backdrop.open { opacity: 1; visibility: visible; }
+
+  .pp-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 201;
+    width: min(420px, calc(100vw - var(--space-8)));
+    box-sizing: border-box;
+    padding: var(--space-8);
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-surface);
+    box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    transform: translate(-50%, -50%) scale(.96);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+  }
+
+  .pp-modal-backdrop.open + .pp-modal,
+  .pp-modal.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .pp-modal-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .pp-modal-close svg { width: 16px; height: 16px; }
+
+  .pp-modal-title { margin: 0 0 var(--space-2); font-size: 1.25rem; font-weight: 500; letter-spacing: -0.03em; color: var(--color-text-primary); }
+  .pp-modal-desc { margin: 0 0 var(--space-6); font-size: 0.875rem; letter-spacing: -0.02em; line-height: 1.4; color: var(--color-text-muted); }
+
+  .pp-modal-options { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .pp-modal-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: 12px;
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: background-color .15s ease;
+  }
+
+  .pp-modal-option:hover { background: var(--color-bg-muted-hover); }
+
+  .pp-modal-option-icon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-bg-surface);
+    color: var(--color-accent);
+  }
+
+  .pp-modal-option-icon svg { width: 18px; height: 18px; }
+
+  .pp-modal-option-text { display: flex; flex-direction: column; gap: 2px; }
+  .pp-modal-option-label { font-size: 0.9375rem; letter-spacing: -0.02em; }
+  .pp-modal-option-value { font-size: 0.8125rem; letter-spacing: -0.02em; color: var(--color-text-muted); }
+
+  @media (max-width: 700px) {
+    .pp-layout { padding: var(--space-4); }
+  }
+
+  /* ---------- specification / FAQ section ---------- */
+  .pp-spec-section { margin: var(--space-40) 0 0; padding: 0 var(--space-8); }
+
+  .pp-spec-tabs { margin-bottom: var(--space-10); }
+
+  .pp-spec-panel { display: none; }
+  .pp-spec-panel.active { display: block; }
+
+  .pp-spec-groups { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-8) var(--space-12); max-width: none; }
+
+  .pp-spec-group-title { margin: 0 0 var(--space-4); font-size: 1.0625rem; font-weight: 500; letter-spacing: -0.02em; color: var(--color-text-primary); }
+
+  .pp-spec-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .pp-spec-list li { display: flex; flex-direction: row; align-items: center; gap: var(--space-3); }
+  .pp-spec-thumb { flex: none; width: 72px; height: 72px; border-radius: 12px; overflow: hidden; background: var(--gray-100); }
+  .pp-spec-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pp-spec-text { display: flex; flex-direction: column; gap: 2px; }
+  .pp-spec-term { font-size: 13px; font-weight: 400; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-spec-desc { font-size: 0.8125rem; letter-spacing: -0.02em; line-height: 1.4; color: var(--color-text-muted); max-width: 42ch; }
+
+  /* ---------- Specification tab: real key/value table, copied from
+     packhelp.com's own product spec table ---------- */
+  .pp-spec-table { display: flex; flex-direction: column; width: 100%; }
+
+  /* ---------- cap the spec table at 10 rows, reveal the rest via "Show
+     more" -- applies identically in both the horizontal and vertical spec
+     layouts since they share this same markup. ---------- */
+  .pp-spec-table .pp-spec-row:nth-child(n+11) { display: none; }
+  .pp-spec-table.pp-spec-expanded .pp-spec-row:nth-child(n+11) { display: flex; }
+
+  /* Rows only carry a top border, so the last visible row before "Show
+     more" needs its own bottom border -- otherwise the table just stops
+     with no divider above the button. */
+  .pp-spec-table:not(.pp-spec-expanded) .pp-spec-row:nth-child(10) { border-bottom: 1px solid var(--color-border-default); }
+
+  .pp-spec-show-more {
+    margin-top: var(--space-3);
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,6,26,.25);
+    padding-bottom: 1px;
+    cursor: pointer;
+  }
+  .pp-spec-show-more[hidden] { display: none; }
+
+  .pp-spec-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-6);
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .pp-spec-row-label { flex: 0 0 380px; font-size: 15px; letter-spacing: -0.02em; color: var(--color-text-muted); }
+  .pp-spec-row-value { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 15px; letter-spacing: -0.02em; line-height: 1.4; color: var(--color-text-primary); }
+  .pp-spec-row-value strong { font-weight: inherit; }
+  .pp-spec-row-value.pp-spec-row-value-inline { flex-direction: row; align-items: baseline; gap: var(--space-2); }
+
+  .pp-spec-tags { flex: 1; display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; font-size: 15px; letter-spacing: -0.02em; line-height: 1.4; color: var(--color-text-primary); }
+  .pp-spec-tag { padding-right: 4px; }
+  .pp-spec-tag::after { content: ","; }
+  .pp-spec-tag:last-child { padding-right: 0; }
+  .pp-spec-tag:last-child::after { content: ""; }
+
+  @media (max-width: 700px) {
+    .pp-spec-row { flex-direction: column; gap: var(--space-1); }
+    .pp-spec-row-label { flex: none; }
+  }
+
+  /* ---------- Product description tab ---------- */
+  .pp-description-list { display: flex; flex-direction: column; gap: var(--space-8); max-width: 720px; }
+  .pp-description-item h3 { margin: 0 0 var(--space-2); font-size: 17px; font-weight: 500; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-description-item p { margin: 0; font-size: 13px; line-height: 1.5; letter-spacing: -0.02em; color: var(--color-text-muted); }
+
+  /* ---------- FAQ accordion, copied exactly from index.html's .faq-section
+     pattern (card style + grid-template-rows:0fr trick, not the max-height/
+     border-divider version this page had before). ---------- */
+  .pp-faq-list { max-width: 720px; display: flex; flex-direction: column; gap: var(--space-4); }
+
+  .faq-item { border-radius: var(--radius-md); background: var(--color-bg-muted); overflow: hidden; }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-5) var(--space-6);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: 0.9375rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .faq-chevron { flex: none; width: 20px; height: 20px; transition: transform 0.25s ease; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+  .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+  .faq-answer-inner { overflow: hidden; }
+  .faq-answer p {
+    margin: 0;
+    padding: 0 var(--space-6) var(--space-5);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.32;
+    color: var(--color-text-primary);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .faq-item.open .faq-answer { grid-template-rows: 1fr; }
+  .faq-item.open .faq-answer p { opacity: 1; transform: translateY(0); transition-delay: 0.15s; }
+
+  @media (max-width: 700px) {
+    .pp-spec-groups { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- alternative spec layout (opt-in via gear panel): vertical
+     tabs on the left (large font, active black / inactive gray, stacked),
+     content in the right column, 50/50 split. Reuses the same #ppSpecToggle
+     markup/JS -- only the currently .active panel is display:block, so with
+     the others display:none the section has exactly 2 grid children (tabs +
+     active panel) and they land in col 1 / col 2 automatically. ---------- */
+  body.pp-spec-vertical .pp-spec-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  body.pp-spec-vertical #ppSpecToggle.toggle-switch {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  body.pp-spec-vertical #ppSpecToggle .toggle-indicator { display: none; }
+
+  body.pp-spec-vertical #ppSpecToggle .toggle-option {
+    padding: 0;
+    font-size: 32px;
+    line-height: 1.25;
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    color: var(--gray-400);
+    text-align: left;
+  }
+
+  body.pp-spec-vertical #ppSpecToggle .toggle-option.active { color: var(--color-text-primary); }
+
+  body.pp-spec-vertical .pp-spec-groups { grid-template-columns: 1fr; }
+  body.pp-spec-vertical .pp-spec-desc { max-width: none; }
+
+  @media (max-width: 900px) {
+    body.pp-spec-vertical .pp-spec-section { grid-template-columns: 1fr; }
+    body.pp-spec-vertical #ppSpecToggle.toggle-switch { flex-direction: row; flex-wrap: wrap; gap: var(--space-5); }
+  }
+
+  /* ---------- bottom carousels (Related products / Alternatives / Merchandise) ----------
+     .category-item/.category-thumb/.category-title/.category-desc + .scroll-carousel,
+     copied from industries.html -- same tile component as the rest of the site, kept
+     inside .container (unlike industries.html's full-bleed .categories-section) so it
+     stays aligned with the gallery/config column and spec section above it. */
+  /* True full-bleed (industries.html's .categories-section pattern), not just
+     inset-to-container -- the section breaks out of .container to 100vw so
+     the scrollable grid can use the whole viewport width on wide screens
+     instead of stopping at the container's edge with unused space beside it.
+     Uses --max-w-lg (not industries.html's --max-w) to match THIS page's own
+     container width. */
+  .pp-carousel-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: var(--space-40) 0 0;
+  }
+
+  /* .reveal.is-visible also sets `transform` on this same element, and
+     transforms don't merge across separate rules -- whichever wins by
+     specificity replaces the -50% recentring outright, shifting all
+     full-bleed carousel content ~50vw right once revealed. Compose both
+     explicitly, exactly like industries.html's own
+     .categories-section.reveal fix. */
+  .pp-carousel-section.reveal {
+    transform: translateX(-50%) translateY(-16px);
+  }
+
+  .pp-carousel-section.reveal.is-visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .pp-carousel-heading {
+    margin: 0 0 var(--space-6);
+    padding-left: calc((100vw - min(100vw, var(--max-w-lg))) / 2 + 2rem);
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  /* ---------- scroll carousel mechanism, copied verbatim from industries.html
+     (base rules were missing here entirely -- nav buttons were rendering with no
+     positioning/appearance CSS at all beyond a stray top offset). ---------- */
+  .scroll-carousel { position: relative; }
+
+  .scroll-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .scroll-carousel-nav.prev { left: var(--space-4); }
+  .scroll-carousel-nav.next { right: var(--space-4); }
+  .scroll-carousel-nav svg { width: 20px; height: 20px; }
+
+  .scroll-carousel-nav::after { content: ""; position: absolute; inset: -8px; }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav { display: flex; }
+
+  .scroll-carousel.has-overflow .scroll-carousel-nav[disabled] {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Padding lives on the scroll container itself, sized the same
+     viewport-relative way as the heading, so the initial view aligns with
+     it on the left and scrolling reaches the mirrored inset on the right --
+     using the section's full 100vw scroll range instead of stopping at
+     .container's edge with unused space beside it. */
+  .categories-grid {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding: 0 calc((100vw - min(100vw, var(--max-w-lg))) / 2 + 2rem) var(--space-2);
+  }
+
+  /* ---------- product tiles -- industries.html's .category-item square-thumb
+     pattern (320px, background-size: cover) ---------- */
+  .category-item { flex: 0 0 auto; width: 320px; color: inherit; text-decoration: none; display: block; }
+
+  .category-thumb {
+    position: relative;
+    height: 320px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--color-bg-muted);
+  }
+
+  .category-thumb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--thumb-img);
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.4s ease;
+  }
+
+  .category-item:hover .category-thumb::before { transform: scale(1.08); }
+
+  .category-title { margin: var(--space-4) 0 var(--space-1); font-size: 0.9375rem; line-height: 1.16; letter-spacing: -0.02em; font-weight: 500; color: var(--color-text-primary); }
+  .category-desc { margin: 0; font-size: 0.8125rem; letter-spacing: -0.02em; line-height: 1.32; color: var(--color-text-muted); }
+
+  .pp-carousel-section .scroll-carousel-nav { top: 160px; }
+
+  @media (max-width: 700px) {
+    .pp-carousel-heading { padding-left: var(--space-4); }
+    .categories-grid { padding: 0 var(--space-4) var(--space-2); }
+    .pp-spec-section { padding: 0 var(--space-4); }
+  }
+
+  /* ---------- editor section (statement-section, copied from index.html) ---------- */
+  .statement-section { padding: var(--space-40) var(--space-8) var(--space-24); }
+
+  .statement {
+    flex-shrink: 0;
+    max-width: 80%;
+    margin: var(--space-6) 0 0;
+    text-align: left;
+    font-weight: 450;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  /* Video placeholder -- this is the actual current default state of
+     index.html's editor section (its "Video section" site-settings toggle
+     defaults to checked), not the 4-tile bento grid it replaces. */
+  .statement-video-placeholder { margin-top: var(--space-12); }
+
+  .statement-video-mock {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 640px;
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-accent-subtle);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1400px;
+  }
+
+  @media (min-width: 1440px) {
+    .statement-video-mock {
+      padding-top: 160px;
+    }
+  }
+
+  .statement-video-inner {
+    position: relative;
+    z-index: 1;
+    width: 77%;
+    aspect-ratio: 1792 / 1080;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    transform-style: preserve-3d;
+    transform: rotateX(4deg) rotateY(4deg);
+    will-change: transform;
+  }
+
+  .statement-video-placeholder.is-settled .statement-video-inner {
+    animation: statementVideoBreathe 10s ease-in-out infinite;
+  }
+
+  @keyframes statementVideoBreathe {
+    0%   { transform: rotateX(4deg)  rotateY(4deg); }
+    25%  { transform: rotateX(4deg)  rotateY(-4deg); }
+    50%  { transform: rotateX(-4deg) rotateY(-4deg); }
+    75%  { transform: rotateX(-4deg) rotateY(4deg); }
+    100% { transform: rotateX(4deg)  rotateY(4deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .statement-video-placeholder.is-settled .statement-video-inner {
+      animation: none;
+      transform: rotateX(2deg) rotateY(2deg);
+    }
+  }
+
+  .statement-video-inner video { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+  @media (max-width: 700px) {
+    .statement { font-size: 1.5rem; line-height: 1.32; letter-spacing: -0.02em; }
+    .statement-section > .btn-pill.lg { width: 100%; }
+  }
+
+  .deco-square { display: inline-block; position: relative; width: 64px; height: 0; vertical-align: middle; margin: 0 var(--space-2); }
+  .deco-square:hover { z-index: 9999; }
+  .statement-section:has(.deco-square:hover) { transform: none; }
+
+  .deco-square::before {
+    content: ""; position: absolute; top: 50%; left: 50%; width: 64px; height: 64px;
+    background-color: var(--gray-300); background-image: var(--deco-img); background-size: cover; background-position: center;
+    border-radius: var(--radius-sm); transform: translate(-50%, -50%) rotate(-8deg); transition: width .3s ease, height .3s ease, transform .3s ease;
+  }
+  .deco-square:hover::before { width: 200px; height: 200px; transform: translate(-50%, -50%) rotate(0deg); }
+
+  /* ---------- generic scroll reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(-16px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* ---------- footer (site-footer, copied from packaging.html) ---------- */
+  .site-footer { position: relative; padding: var(--space-16) 0 0; margin: var(--space-16) 0 0; }
+  .site-footer::before { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; transform: translateX(-50%); border-top: 1px solid var(--color-border-default); }
+  .footer-inner { padding: 0 var(--space-8); box-sizing: border-box; display: flex; flex-wrap: wrap; gap: var(--space-12); justify-content: space-between; }
+  .footer-left { flex: 0 1 420px; max-width: 460px; }
+  .footer-logo { display: inline-flex; }
+  .footer-logo img { height: 26px; width: auto; }
+  .footer-newsletter-copy { margin: var(--space-5) 0 0; font-size: 0.9375rem; letter-spacing: -0.02em; line-height: 1.32; color: var(--color-text-muted); }
+  .footer-newsletter { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
+  .footer-newsletter-btn { flex: 0 0 auto; }
+  .footer-badges { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-6); }
+  .footer-badge { display: flex; padding: var(--space-2); border: 1px solid var(--color-border-hover); border-radius: var(--radius-sm); }
+  .footer-badge img { height: 44px; width: auto; }
+  .footer-links { display: flex; flex: 0 1 auto; gap: var(--space-14); }
+  .footer-col { width: 200px; flex: 0 0 auto; }
+  .footer-col-group { display: flex; flex-direction: column; gap: var(--space-10); }
+  .footer-col-title { margin: 0 0 1rem; font-size: 0.8125rem; line-height: 1.32; letter-spacing: -0.02em; color: var(--color-text-muted); }
+  .footer-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+  .footer-col a { color: var(--color-text-primary); text-decoration: none; font-size: 0.9375rem; line-height: 1.32; letter-spacing: -0.02em; }
+  .footer-col a:hover { text-decoration: underline; }
+  .footer-bottom { position: relative; margin-top: var(--space-14); }
+  .footer-bottom::before { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; transform: translateX(-50%); border-top: 1px solid var(--color-border-default); }
+  .footer-bottom-inner { padding: var(--space-6) var(--space-8); box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; font-size: 0.8125rem; line-height: 1; letter-spacing: -0.02em; color: var(--color-text-muted); }
+
+  @media (max-width: 700px) {
+    .site-footer { padding: 3rem 0 0; }
+    .footer-inner { padding: 0 var(--space-4); }
+    .footer-bottom-inner { padding: 1.5rem var(--space-4); }
+    .footer-newsletter { flex-direction: column; align-items: stretch; }
+    .footer-links { flex-wrap: wrap; gap: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="announcement-bar">
+  <span>The more products you add, the more you save. Code: <strong>BUNDLEUP</strong></span>
+  <button class="announcement-copy" aria-label="Copy code">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+</div>
+
+<div class="container">
+<div id="ph-nav-wrapper"></div>
+<script src="nav-header.js"></script>
+
+<nav class="pp-breadcrumb reveal">
+  <a href="index.html">Packhelp</a>
+  <span>/</span>
+  <a href="packaging.html">Packaging</a>
+  <span>/</span>
+  <a href="packaging.html">Boxes</a>
+  <span>/</span>
+  <a href="packaging.html">Mailer Boxes</a>
+  <span>/</span>
+  <span class="current">Custom Mailer Box</span>
+</nav>
+
+<div class="pp-layout">
+  <div class="pp-gallery-outer" id="ppGalleryOuter">
+    <div class="pp-gallery-thumbs" id="ppGalleryThumbs">
+      <button class="pp-gallery-thumb active" data-index="0" data-fit="contain"><img src="assets/product-page/first_photo.png" alt="Custom Mailer Box"></button>
+      <button class="pp-gallery-thumb" data-index="1"><img src="assets/packaging/mailer_box_gallery_1.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="2"><img src="assets/packaging/mailer_box_gallery_2.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="3"><img src="assets/packaging/mailer_box_gallery_3.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="4"><img src="assets/packaging/mailer_box_gallery_4.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="5"><img src="assets/packaging/mailer_box_gallery_5.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="6"><img src="assets/packaging/mailer_box_gallery_6.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="7"><img src="assets/packaging/mailer_box_gallery_7.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="8"><img src="assets/packaging/mailer_box_gallery_8.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="9"><img src="assets/packaging/mailer_box_gallery_9.avif" alt=""></button>
+    </div>
+    <div class="pp-gallery" id="ppGallery">
+      <div class="pp-gallery-main">
+        <img id="ppGalleryMainImg" src="assets/product-page/first_photo.png" alt="Custom Mailer Box" style="object-fit: contain;">
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-config-col" id="ppConfigCol">
+
+    <h1 class="pp-heading reveal">Custom Mailer Box</h1>
+    <p class="pp-subheading reveal">A fully customisable mailer box with a choice of material, print and finish, from subtle tones to vivid colours and premium matte or gloss. Design yours online.</p>
+
+    <ul class="pp-usps">
+      <li><svg class="pp-usp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>3D editor</li>
+      <li><svg class="pp-usp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Eco-friendly</li>
+      <li><svg class="pp-usp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Made in EU</li>
+    </ul>
+
+    <section class="pp-step" id="ppStepQuantity">
+      <h3 class="pp-field-label">Quantity</h3>
+      <div class="pp-qty-input-wrap" id="ppQtyInputWrap">
+      <button type="button" class="pp-qty-input" id="ppQtyInputBtn">
+        <span class="pp-qty-input-value" id="ppQtyInputValue">30</span>
+        <span class="pp-qty-input-prices">
+          <span class="pp-qty-input-unit" id="ppQtyInputUnit">€1.13/piece</span>
+          <span class="pp-qty-input-total" id="ppQtyInputTotal">€33.95</span>
+        </span>
+        <svg class="pp-select-chevron" id="ppQtyInputChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="pp-qty-list" id="ppQuantityGrid">
+        <button class="pp-qty-row" data-qty="1" data-unit="17.13" data-total="17.13">
+          <span class="pp-qty-value-group">
+            <span class="pp-qty-value">1</span>
+            <span class="pp-qty-badge">Prototype</span>
+          </span>
+          <span class="pp-qty-prices">
+            <span class="pp-qty-unit">€17.13/piece</span>
+            <span class="pp-qty-total">€17.13</span>
+          </span>
+        </button>
+        <button class="pp-qty-row active" data-qty="30" data-unit="1.13" data-total="33.95">
+          <span class="pp-qty-value">30</span>
+          <span class="pp-qty-prices">
+            <span class="pp-qty-unit">€1.13/piece</span>
+            <span class="pp-qty-total">€33.95</span>
+          </span>
+        </button>
+        <button class="pp-qty-row" data-qty="120" data-unit="0.74" data-total="88.56">
+          <span class="pp-qty-value">120</span>
+          <span class="pp-qty-prices">
+            <span class="pp-qty-unit">€0.74/piece</span>
+            <span class="pp-qty-total">€88.56</span>
+          </span>
+        </button>
+        <button class="pp-qty-row" data-qty="500" data-unit="0.47" data-total="233.70">
+          <span class="pp-qty-value">500</span>
+          <span class="pp-qty-prices">
+            <span class="pp-qty-unit">€0.47/piece</span>
+            <span class="pp-qty-total">€233.70</span>
+          </span>
+        </button>
+        <button class="pp-qty-row" data-qty="1000" data-unit="0.42" data-total="418.20">
+          <span class="pp-qty-value">1000</span>
+          <span class="pp-qty-prices">
+            <span class="pp-qty-unit">€0.42/piece</span>
+            <span class="pp-qty-total">€418.20</span>
+          </span>
+        </button>
+        <div class="pp-qty-other" id="ppQtyOther">
+          <button type="button" class="pp-qty-other-toggle" id="ppQtyOtherToggle">
+            <span class="pp-qty-value">Other value</span>
+            <svg class="pp-qty-other-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          <form class="pp-qty-other-form" id="ppQtyOtherForm" hidden>
+            <input type="number" min="1" class="pp-qty-other-input" id="ppQtyOtherInput" placeholder="Quantity">
+            <button type="submit" class="pp-qty-other-apply">Apply</button>
+          </form>
+        </div>
+      </div>
+      </div>
+
+      <div class="pp-qty-picker" id="ppQtyPicker">
+        <button class="pp-qty-cell" data-qty="1" data-unit="17.13" data-total="17.13">
+          <span class="pp-qty-cell-value">1</span>
+          <span class="pp-qty-cell-unit">€17.13/pc</span>
+        </button>
+        <button class="pp-qty-cell active" data-qty="30" data-unit="1.13" data-total="33.95">
+          <span class="pp-qty-cell-value">30</span>
+          <span class="pp-qty-cell-unit">€1.13/pc</span>
+        </button>
+        <button class="pp-qty-cell" data-qty="100" data-unit="0.83" data-total="83.00">
+          <span class="pp-qty-cell-value">100</span>
+          <span class="pp-qty-cell-unit">€0.83/pc</span>
+        </button>
+        <button class="pp-qty-cell" data-qty="1000" data-unit="0.42" data-total="418.20">
+          <span class="pp-qty-cell-value">1000</span>
+          <span class="pp-qty-cell-unit">€0.42/pc</span>
+        </button>
+        <div class="pp-qty-cell-other" id="ppQtyPickerOther">
+          <button type="button" class="pp-qty-cell-other-btn" id="ppQtyPickerOtherBtn">
+            <span class="pp-qty-cell-value">Other</span>
+            <svg class="pp-qty-cell-other-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <form class="pp-qty-cell-other-popover" id="ppQtyPickerOtherForm" hidden>
+            <input type="number" min="1" class="pp-qty-other-input" id="ppQtyPickerOtherInput" placeholder="Quantity">
+            <button type="submit" class="pp-qty-other-apply">Apply</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="pp-step" id="ppStepSize">
+      <h3 class="pp-field-label">Size</h3>
+      <div class="pp-select-wrap">
+        <select class="pp-select" id="ppSizeSelect">
+          <option value="F23 (9.2 × 9.2 × 5 cm)">F23 — 9.2 × 9.2 × 5 cm</option>
+          <option value="F33 (11.8 × 14 × 8 cm)">F33 — 11.8 × 14 × 8 cm</option>
+          <option value="F45 (23.1 × 14 × 8 cm)">F45 — 23.1 × 14 × 8 cm</option>
+          <option value="F56 (26 × 20 × 10.5 cm)">F56 — 26 × 20 × 10.5 cm</option>
+          <option value="F71 (35 × 26 × 10 cm)">F71 — 35 × 26 × 10 cm</option>
+          <option value="F79 (36.4 × 31.4 × 12.5 cm)">F79 — 36.4 × 31.4 × 12.5 cm</option>
+        </select>
+        <svg class="pp-select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </section>
+
+    <section class="pp-step" id="ppStepPrintColour">
+      <div class="pp-step-header">
+        <h3 class="pp-field-label">Print colour mode</h3>
+        <a href="#ppSpecSection" class="pp-learn-more">Learn more</a>
+      </div>
+      <div class="pp-chip-group" id="ppPrintColourGroup">
+        <button class="pp-chip active" data-value="One Colour">
+          <span class="pp-chip-media"><img src="assets/product-page/One%20Colour.png" alt=""></span>
+          <span class="pp-chip-label">One Colour</span>
+        </button>
+        <button class="pp-chip" data-value="White Colour">
+          <span class="pp-chip-media"><img src="assets/product-page/White%20Colour.png" alt=""></span>
+          <span class="pp-chip-label">White Colour</span>
+        </button>
+        <button class="pp-chip" data-value="Multicolour – muted">
+          <span class="pp-chip-media"><img src="assets/product-page/Multicolour%20%E2%80%93%20muted.png" alt=""></span>
+          <span class="pp-chip-label">Multicolour – muted</span>
+        </button>
+        <button class="pp-chip" data-value="Multicolour – saturated">
+          <span class="pp-chip-media"><img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt=""></span>
+          <span class="pp-chip-label">Multicolour – saturated</span>
+        </button>
+        <button class="pp-chip" data-value="Multicolour – premium">
+          <span class="pp-chip-media"><img src="assets/product-page/Multicolour%20%E2%80%93%20premium.png" alt=""></span>
+          <span class="pp-chip-label">Multicolour – premium</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="pp-step" id="ppStepMaterialColour">
+      <div class="pp-step-header">
+        <h3 class="pp-field-label">Material colour</h3>
+        <a href="#ppSpecSection" class="pp-learn-more">Learn more</a>
+      </div>
+      <div class="pp-chip-group">
+        <button class="pp-chip active" data-value="Kraft">
+          <span class="pp-chip-media"><img src="assets/build/material-kraft.png" alt=""></span>
+          <span class="pp-chip-label">Kraft</span>
+        </button>
+        <button class="pp-chip" data-value="White">
+          <span class="pp-chip-media"><img src="assets/build/material-white.png" alt=""></span>
+          <span class="pp-chip-label">White</span>
+        </button>
+        <button class="pp-chip" data-value="White - Brown">
+          <span class="pp-chip-media"><img src="assets/build/material-white-premium.png" alt=""></span>
+          <span class="pp-chip-label">White - Brown</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="pp-step" id="ppStepPrintCoverage">
+      <div class="pp-step-header">
+        <h3 class="pp-field-label">Print coverage</h3>
+        <a href="#ppSpecSection" class="pp-learn-more">Learn more</a>
+      </div>
+      <div class="pp-chip-group">
+        <button class="pp-chip active" data-value="Outside">
+          <span class="pp-chip-media"><img src="assets/product-page/Outside.png" alt=""></span>
+          <span class="pp-chip-label">Outside</span>
+        </button>
+        <button class="pp-chip" data-value="Outside + Inside">
+          <span class="pp-chip-media"><img src="assets/product-page/Outside_inside.png" alt=""></span>
+          <span class="pp-chip-label">Outside + Inside</span>
+        </button>
+        <button class="pp-chip" data-value="Inside">
+          <span class="pp-chip-media"><img src="assets/product-page/Inside.png" alt=""></span>
+          <span class="pp-chip-label">Inside</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="pp-step" id="ppStepFoil" hidden>
+      <div class="pp-step-header">
+        <h3 class="pp-field-label">Foil</h3>
+        <a href="#ppSpecSection" class="pp-learn-more">Learn more</a>
+      </div>
+      <div class="pp-pill-group">
+        <button class="pp-pill active" data-value="None">None</button>
+        <button class="pp-pill" data-value="Glossy foil">Glossy foil</button>
+        <button class="pp-pill" data-value="Matte foil">Matte foil</button>
+      </div>
+    </section>
+
+    <section class="pp-step" id="ppStepAdhesive">
+      <div class="pp-step-header">
+        <h3 class="pp-field-label">Adhesive strip</h3>
+        <a href="#ppSpecSection" class="pp-learn-more">Learn more</a>
+      </div>
+      <div class="pp-chip-group">
+        <button class="pp-chip" data-value="None">
+          <span class="pp-chip-media"><img src="assets/build/adhesive-double.png" alt=""></span>
+          <span class="pp-chip-label">None</span>
+        </button>
+        <button class="pp-chip active" data-value="Single">
+          <span class="pp-chip-media"><img src="assets/build/adhesive-single.png" alt=""></span>
+          <span class="pp-chip-label">Single</span>
+        </button>
+        <button class="pp-chip" data-value="Double">
+          <span class="pp-chip-media"><img src="assets/build/adhesive-none.png" alt=""></span>
+          <span class="pp-chip-label">Double</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="pp-cta" id="ppCta">
+      <div class="pp-cta-price-row">
+        <div class="pp-cta-delivery">
+          <div class="pp-cta-delivery-to">
+            <span>Delivery to:</span>
+            <a href="#">United Kingdom, SW1A 1AA</a>
+          </div>
+          <ul class="pp-cta-dates">
+            <li><span class="pp-cta-date">20 April</span><span class="pp-cta-date-price">Free</span></li>
+            <li><span class="pp-cta-date">24 April</span><span class="pp-cta-date-price">+ €12.80</span></li>
+            <li><span class="pp-cta-date">28 April</span><span class="pp-cta-date-price">+ €32.50</span></li>
+          </ul>
+        </div>
+        <div class="pp-cta-price-group">
+          <span class="pp-cta-price-label" id="ppCtaPriceLabel">Netto / 500 pieces</span>
+          <span class="pp-cta-price-value" id="ppCtaPriceValue">€233.70</span>
+        </div>
+      </div>
+
+      <div class="pp-cta-buttons">
+        <button type="button" class="btn-pill lg">Customize design</button>
+        <button type="button" class="btn-pill lg secondary">Add to cart and design later</button>
+        <a href="build-your-box.html" class="pp-dieline-link">Design on a dieline (AI, PDF)</a>
+      </div>
+
+      <div class="pp-info-rows">
+        <button type="button" class="pp-info-row" id="ppContactAdvisorBtn">
+          <svg class="pp-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span class="pp-info-row-label">Contact packaging advisors</span>
+          <svg class="pp-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <a href="#ppSpecSection" class="pp-info-row" id="ppSpecLink">
+          <svg class="pp-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+          <span class="pp-info-row-label">Specification</span>
+          <svg class="pp-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </a>
+        <a href="sample-packs.html" class="pp-info-row" target="_blank" rel="noopener">
+          <svg class="pp-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.29 7 12 12l8.71-5"/><path d="M12 22V12"/></svg>
+          <span class="pp-info-row-label">Sample packs</span>
+          <svg class="pp-info-row-arrow-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="pp-pairs-well" id="ppPairsWell">
+      <h2 class="pp-pairs-heading">Pairs well with...</h2>
+      <div class="pp-pairs-grid">
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Tissue%20Paper.png')"></div>
+          <h3 class="category-title">Custom Tissue Paper</h3>
+          <p class="category-desc">Price from €0.08</p>
+        </a>
+        <a href="packaging.html" class="category-item">
+          <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Mailer%20Box%20Inserts.png')"></div>
+          <h3 class="category-title">Custom Mailer Box Inserts</h3>
+          <p class="category-desc">Price from €0.28</p>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="pp-sticky-summary" id="ppStickySummary">
+  <div class="pp-sticky-summary-group">
+    <span class="pp-sticky-summary-label">Delivery</span>
+    <a href="#" class="pp-sticky-summary-value pp-sticky-summary-link">20-28 April</a>
+  </div>
+  <div class="pp-sticky-summary-right">
+    <div class="pp-sticky-summary-group pp-sticky-summary-price-group">
+      <span class="pp-sticky-summary-label" id="ppStickyPriceLabel">Netto / 500 pieces</span>
+      <span class="pp-sticky-summary-price" id="ppStickyPriceValue">€233.70</span>
+    </div>
+    <a href="#" class="btn-pill lg">Customize design</a>
+  </div>
+</div>
+
+<div class="pp-modal-backdrop" id="ppModalBackdrop"></div>
+<div class="pp-modal" id="ppModal" role="dialog" aria-label="Contact a packaging advisor">
+  <button type="button" class="pp-modal-close" id="ppModalClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <p class="pp-modal-title">Talk to a packaging advisor</p>
+  <p class="pp-modal-desc">Questions about sizing, materials or bulk pricing? Our team replies fast.</p>
+  <div class="pp-modal-options">
+    <a href="get-a-quote.html" class="pp-modal-option">
+      <span class="pp-modal-option-icon">
+        <span class="cta-avatars sm"><span class="cta-avatar"><img src="assets/expert-01.png" alt=""></span></span>
+      </span>
+      <span class="pp-modal-option-text">
+        <span class="pp-modal-option-label">Book an expert call</span>
+        <span class="pp-modal-option-value">30 min, free consultation</span>
+      </span>
+    </a>
+    <a href="#" class="pp-modal-option">
+      <span class="pp-modal-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+      <span class="pp-modal-option-text">
+        <span class="pp-modal-option-label">Start a live chat</span>
+        <span class="pp-modal-option-value">Usually replies in minutes</span>
+      </span>
+    </a>
+    <a href="mailto:advisory@packhelp.com" class="pp-modal-option">
+      <span class="pp-modal-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg></span>
+      <span class="pp-modal-option-text">
+        <span class="pp-modal-option-label">Email advisory</span>
+        <span class="pp-modal-option-value">advisory@packhelp.com</span>
+      </span>
+    </a>
+    <a href="tel:+442037693028" class="pp-modal-option">
+      <span class="pp-modal-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+      <span class="pp-modal-option-text">
+        <span class="pp-modal-option-label">Call us</span>
+        <span class="pp-modal-option-value">+44 20 3769 3028</span>
+      </span>
+    </a>
+  </div>
+</div>
+
+<section class="pp-spec-section reveal" id="ppSpecSection">
+  <div class="toggle-switch pp-spec-tabs" id="ppSpecToggle">
+    <div class="toggle-indicator" id="ppSpecIndicator"></div>
+    <button class="toggle-option active" data-target="spec">Specification</button>
+    <button class="toggle-option" data-target="options">Options</button>
+    <button class="toggle-option" data-target="description">Product description</button>
+    <button class="toggle-option" data-target="faq">Popular questions</button>
+  </div>
+
+  <div class="pp-spec-panel active" id="ppSpecPanelSpec">
+    <div class="pp-spec-table">
+      <div class="pp-spec-row">
+        <span class="pp-spec-row-label">Data for current product configuration</span>
+        <span class="pp-spec-row-value pp-spec-row-value-inline"><strong>Custom Mailer Box</strong><span class="pp-spec-sub">F23 (9.2 x 9.2 x 5 cm)</span></span>
+      </div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Material</span><span class="pp-spec-row-value">Corrugated cardboard</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Material colour</span><span class="pp-spec-row-value">Kraft</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Print colour mode</span><span class="pp-spec-row-value">One Colour</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Print coverage</span><span class="pp-spec-row-value">Outside</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Foil</span><span class="pp-spec-row-value">None</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Adhesive strip</span><span class="pp-spec-row-value">None</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Raw material</span><span class="pp-spec-row-value">Corrugated cardboard flute E</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Weight</span><span class="pp-spec-row-value">0.02 kg</span></div>
+      <div class="pp-spec-row">
+        <span class="pp-spec-row-label">Eco properties</span>
+        <ul class="pp-spec-tags">
+          <li class="pp-spec-tag">Biodegradable material</li>
+          <li class="pp-spec-tag">Made in Europe</li>
+          <li class="pp-spec-tag">Plastic-free</li>
+          <li class="pp-spec-tag">Recyclable</li>
+          <li class="pp-spec-tag">Recycled content</li>
+          <li class="pp-spec-tag">Responsible sourcing</li>
+        </ul>
+      </div>
+      <div class="pp-spec-row">
+        <span class="pp-spec-row-label">Certifications</span>
+        <ul class="pp-spec-tags">
+          <li class="pp-spec-tag">Made for recycling</li>
+          <li class="pp-spec-tag">FSC</li>
+        </ul>
+      </div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Grammage</span><span class="pp-spec-row-value">438 gsm</span></div>
+      <div class="pp-spec-row">
+        <span class="pp-spec-row-label">Parcel size</span>
+        <ul class="pp-spec-tags">
+          <li class="pp-spec-tag">InPost Size A</li>
+          <li class="pp-spec-tag">Royal Mail Size Small</li>
+          <li class="pp-spec-tag">DPD Size S</li>
+          <li class="pp-spec-tag">Pocztex Size S</li>
+          <li class="pp-spec-tag">Vinted GO Up to 0.5 kg</li>
+          <li class="pp-spec-tag">DHL BOX 24/7 Size XS</li>
+        </ul>
+      </div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Box size</span><span class="pp-spec-row-value">Small</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Dimensional tolerance</span><span class="pp-spec-row-value">±2-4mm</span></div>
+      <div class="pp-spec-row"><span class="pp-spec-row-label">Variant SKU</span><span class="pp-spec-row-value">box--mailer-box--23--cardboard-natural--print-monochrome--foil-none</span></div>
+    </div>
+    <button type="button" class="pp-spec-show-more" id="ppSpecShowMore">Show more</button>
+  </div>
+
+  <div class="pp-spec-panel" id="ppSpecPanelDescription">
+    <div class="pp-description-list">
+      <div class="pp-description-item">
+        <h3>Protect your products with robust materials</h3>
+        <p>Your custom mailer box is constructed from corrugated cardboard, available in kraft, white, or a white-brown combination. For enhanced durability, options include corrugated bleached cardboard and corrugated cardboard coated. This range of materials, with grammages from 358 gsm to 510 gsm, provides a sturdy enclosure for your items during transit, ensuring they arrive securely.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Create a memorable unboxing experience</h3>
+        <p>Customise the interior of your mailer box to extend your brand's presence. With print coverage options for the inside, outside, or both, you can apply your design across all visible surfaces. Choose between multicolour muted, saturated, or premium printing to match your brand's aesthetic, making every unboxing a distinctive moment for your customers.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Sizes to fit your specific needs</h3>
+        <p>Available in small, medium, and large, these mailer boxes are designed to accommodate a variety of products. Each box maintains a dimensional tolerance of ±2-4mm, ensuring a consistent fit for your items. Furthermore, all sizes are engineered to fit standard courier and parcel-locker dimensions, simplifying your shipping logistics.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Enhance your design with professional finishes</h3>
+        <p>Apply a glossy or matte foil finish to your mailer box to give it a distinct look. These finishes add a layer of visual texture and can highlight specific elements of your design, creating a polished presentation.</p>
+      </div>
+      <div class="pp-description-item">
+        <h3>Secure your contents with reliable closures</h3>
+        <p>For added security and convenience, custom mailer boxes can be equipped with a single or double adhesive strip. This feature provides a strong seal for transit and offers an easy-open solution for recipients.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-spec-panel" id="ppSpecPanelOptions">
+    <div class="pp-spec-groups">
+      <div class="pp-spec-group">
+        <h3 class="pp-spec-group-title">Material</h3>
+        <ul class="pp-spec-list">
+          <li><span class="pp-spec-thumb"><img src="assets/build/material-kraft.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Corrugated cardboard</span><span class="pp-spec-desc">Durable and lightweight, composed of layers of paper connected by a corrugated insert. Excellent cushioning and crush resistance.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/build/material-white.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Corrugated bleached cardboard</span><span class="pp-spec-desc">A bright, elegant surface with high crush resistance — accepts print very well, for high colour intensity.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/build/material-white-premium.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Corrugated cardboard, coated</span><span class="pp-spec-desc">A protective surface layer improves resistance to moisture, dirt and mechanical damage during transport.</span></span></li>
+        </ul>
+      </div>
+      <div class="pp-spec-group">
+        <h3 class="pp-spec-group-title">Print colour mode</h3>
+        <ul class="pp-spec-list">
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/One%20Colour.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">One Colour</span><span class="pp-spec-desc">A single CMYK colour keeps costs low — perfect for minimalist designs.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/White%20Colour.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">White Colour</span><span class="pp-spec-desc">White ink via UV printing, ideal for strong contrast on kraft cardboard.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20muted.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Multicolour – muted</span><span class="pp-spec-desc">The most affordable multicolour option — soft, slightly faded tones for a natural, rustic style.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Multicolour – saturated</span><span class="pp-spec-desc">Affordable multicolour printing on bleached cardboard with good colour accuracy.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20premium.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Multicolour – premium</span><span class="pp-spec-desc">Our top-tier print on coated cardboard — sharp, high-definition results, even for photographic imagery.</span></span></li>
+        </ul>
+      </div>
+      <div class="pp-spec-group">
+        <h3 class="pp-spec-group-title">Print coverage</h3>
+        <ul class="pp-spec-list">
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/Outside.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Outside</span><span class="pp-spec-desc">Print is made on the outside of the box.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/Outside_inside.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Outside + Inside</span><span class="pp-spec-desc">Print is made on both the outside and the inside.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/product-page/Inside.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Inside</span><span class="pp-spec-desc">Print is made on the inside only.</span></span></li>
+        </ul>
+      </div>
+      <div class="pp-spec-group">
+        <h3 class="pp-spec-group-title">Adhesive strip</h3>
+        <ul class="pp-spec-list">
+          <li><span class="pp-spec-thumb"><img src="assets/build/adhesive-none.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">None</span><span class="pp-spec-desc">The box closes with tucked flaps only, no adhesive strip.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/build/adhesive-single.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Single adhesive strip</span><span class="pp-spec-desc">A secure closure for single-use shipping.</span></span></li>
+          <li><span class="pp-spec-thumb"><img src="assets/build/adhesive-double.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Double adhesive strip</span><span class="pp-spec-desc">A second strip makes returns easy — reseal securely for send-back items.</span></span></li>
+        </ul>
+      </div>
+      <div class="pp-spec-group">
+        <h3 class="pp-spec-group-title">Foil</h3>
+        <ul class="pp-spec-list">
+          <li><span class="pp-spec-thumb"></span><span class="pp-spec-text"><span class="pp-spec-term">Glossy foil</span><span class="pp-spec-desc">An intense shine that boosts contrast and highlights key elements of your design.</span></span></li>
+          <li><span class="pp-spec-thumb"></span><span class="pp-spec-text"><span class="pp-spec-term">Matte foil</span><span class="pp-spec-desc">A subtle, gloss-free finish for a refined, premium look.</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-spec-panel" id="ppSpecPanelFaq">
+    <div class="pp-faq-list">
+      <div class="faq-item">
+        <button class="faq-question">Is it possible to print on the inside of a Custom Mailer Box?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — you can print on the inside of your box using our online editor. Only outside is available in all variants; Outside + Inside is available across most variants, and Only Inside is available in all variants except Multicolour – saturated.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">Does the price include the cost of my design (logo and graphics)?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — the price includes printing your design, including logos and graphics, though it may vary depending on the chosen print variant. Special finishes such as hot-stamping, embossing/debossing or UV varnish are coming soon.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">Can Custom Mailer Boxes be used to ship products?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — our Custom Mailer Boxes are designed for shipping and transport. They're durable and available in different sizes to suit a wide range of products. Optional adhesive strips provide secure closure for both shipping and returns.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">Can I order a Custom Mailer Box in custom sizes?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — we offer the most popular standard sizes on the market, but you can design any custom size directly in our online editor or using a dieline. Please note custom sizes may have bigger minimum order quantities.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">Are Custom Mailer Boxes environmentally friendly?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Custom Mailer Boxes without any add-ons are environmentally friendly — partially made of recycled cardboard, making them biodegradable and recyclable. Additional finishes such as UV or foil may change these properties.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">What are the standard sizes recommended for clothing?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Choose F79 (36.4 × 31.4 × 12.5 cm) for larger garments like blouses, trousers or jackets, or F71 (35 × 26 × 10 cm) for smaller pieces. Always measure your products first — you can order a sample pack to double-check dimensions.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">Is there any difference in printing technique for different order quantities?<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Yes — the printing technique is adjusted to the ordered quantity to keep production efficient. For example, smaller quantities of white print on kraft use UV printing, while larger quantities use flexographic printing, which produces softer whites.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pp-carousel-section reveal">
+  <h2 class="pp-carousel-heading">Related products</h2>
+  <div class="scroll-carousel">
+    <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <div class="categories-grid">
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Mailer%20Box%20Inserts.png')"></div>
+        <h3 class="category-title">Custom Mailer Box Inserts</h3>
+        <p class="category-desc">From €0.28 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Recycled%20Poly%20Mailer.png')"></div>
+        <h3 class="category-title">Custom Recycled Poly Mailer</h3>
+        <p class="category-desc">From €0.42 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Paper%20Mailer%20Bag.png')"></div>
+        <h3 class="category-title">Custom Paper Mailer Bag</h3>
+        <p class="category-desc">From €0.35 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Tissue%20Paper.png')"></div>
+        <h3 class="category-title">Custom Tissue Paper</h3>
+        <p class="category-desc">From €0.08 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Frosted%20Ziplock%20Bag.png')"></div>
+        <h3 class="category-title">Custom Frosted Ziplock Bag</h3>
+        <p class="category-desc">From €0.22 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Paper%20Adhesive%20Tape.png')"></div>
+        <h3 class="category-title">Custom Paper Adhesive Tape</h3>
+        <p class="category-desc">From €0.15 piece</p>
+      </a>
+    </div>
+    <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<section class="pp-carousel-section reveal">
+  <h2 class="pp-carousel-heading">Alternatives</h2>
+  <div class="scroll-carousel">
+    <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <div class="categories-grid">
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Snap%20Lock%20Product%20Box.png')"></div>
+        <h3 class="category-title">Custom Snap Lock Product Box</h3>
+        <p class="category-desc">From €0.71 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Phone%20Shipping%20Box-1.png')"></div>
+        <h3 class="category-title">Custom Phone Shipping Box</h3>
+        <p class="category-desc">From €0.85 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Cardboard%20Tube%20Box%20with%20Metal%20Lid.png')"></div>
+        <h3 class="category-title">Custom Cardboard Tube Box</h3>
+        <p class="category-desc">From €1.15 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Phone%20Shipping%20Box.png')"></div>
+        <h3 class="category-title">Custom Shipping Box</h3>
+        <p class="category-desc">From €0.62 piece</p>
+      </a>
+      <a href="packaging.html" class="category-item">
+        <div class="category-thumb" style="--thumb-img:url('assets/packaging/Custom%20Cotton%20Bag.png')"></div>
+        <h3 class="category-title">Custom Cotton Bag</h3>
+        <p class="category-desc">From €1.05 piece</p>
+      </a>
+    </div>
+    <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<section class="pp-carousel-section reveal">
+  <h2 class="pp-carousel-heading">Merchandise</h2>
+  <div class="scroll-carousel">
+    <button class="scroll-carousel-nav prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <div class="categories-grid">
+      <a href="packaging.html" class="category-item pp-nav-tile">
+        <div class="category-thumb" style="--thumb-img:url('assets/merch/hr/hr-apparel.png')"></div>
+        <h3 class="category-title">Apparel</h3>
+      </a>
+      <a href="packaging.html" class="category-item pp-nav-tile">
+        <div class="category-thumb" style="--thumb-img:url('assets/merch/hr/hr-bag.png')"></div>
+        <h3 class="category-title">Bags</h3>
+      </a>
+      <a href="packaging.html" class="category-item pp-nav-tile">
+        <div class="category-thumb" style="--thumb-img:url('assets/merch/hr/hr-drinkware.png')"></div>
+        <h3 class="category-title">Drinkware</h3>
+      </a>
+      <a href="packaging.html" class="category-item pp-nav-tile">
+        <div class="category-thumb" style="--thumb-img:url('assets/merch/hr/hr-notebook.png')"></div>
+        <h3 class="category-title">Notebooks</h3>
+      </a>
+      <a href="packaging.html" class="category-item pp-nav-tile">
+        <div class="category-thumb" style="--thumb-img:url('assets/merch/hr/hr-tech.png')"></div>
+        <h3 class="category-title">Tech</h3>
+      </a>
+    </div>
+    <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<section class="statement-section reveal">
+  <p class="statement">The world's easiest way to design<span class="deco-square" style="--deco-img:url('assets/main-segment/packaging/packaging-boxes.avif')"></span>custom packaging. Paper, size<span class="deco-square" style="--deco-img:url('assets/custom-packaging/ecommerce/ecommerce-bags.avif')"></span>brand colour, your logo, a live 3D preview. Everything you need to go from a blank box<span class="deco-square" style="--deco-img:url('assets/custom-packaging/food/food-pouches.jpg')"></span>to a shelf-ready package, in one editor.</p>
+
+  <a href="build-your-box.html" class="btn-pill lg" style="margin-top: var(--space-8);">Open the editor<svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+
+  <div class="statement-video-placeholder" id="ppStatementVideo">
+    <div class="statement-video-mock">
+      <div class="statement-video-inner">
+        <video src="assets/editor/editor-anim-web.mp4" autoplay muted loop playsinline></video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <a href="index.html" class="footer-logo" aria-label="Packhelp"><img src="assets/logo-packhelp.1iheyVke.svg" alt="Packhelp"></a>
+
+      <p class="footer-newsletter-copy">Don't miss out – get 15% off your first order when you join the newsletter.</p>
+
+      <form class="footer-newsletter">
+        <input type="email" class="footer-newsletter-input" placeholder="Your email" required>
+        <button type="submit" class="btn-pill md footer-newsletter-btn">Sign up</button>
+      </form>
+
+      <div class="footer-badges">
+        <span class="footer-badge"><img src="https://zapakuj.to/_astro/fsc-badge.CT_C2C6x.svg" alt="FSC certified"></span>
+        <span class="footer-badge"><img src="https://zapakuj.to/_astro/esg-badge-yellow-black.C3wtyeOu.svg" alt="ESG badge"></span>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-col-group">
+        <div class="footer-col">
+          <p class="footer-col-title">Contact &amp; Help</p>
+          <ul>
+            <li><a href="contact.html">Contact us</a></li>
+            <li><a href="#">Send us a brief</a></li>
+            <li><a href="#">Help</a></li>
+            <li><a href="#">Return policy</a></li>
+            <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="press.html">Press</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Company</p>
+          <ul>
+            <li><a href="press.html">Press</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col-group">
+        <div class="footer-col">
+          <p class="footer-col-title">Sustainability</p>
+          <ul>
+            <li><a href="#">Sustainability Hub</a></li>
+            <li><a href="#">Our Progress Reports</a></li>
+            <li><a href="#">Responsible Supply Chain</a></li>
+            <li><a href="#">Eco badge</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-col-title">Resources</p>
+          <ul>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Terms of service</a></li>
+            <li><a href="#">Privacy policy</a></li>
+            <li><a href="#">Whistleblowing policy</a></li>
+            <li><a href="#">Sitemap</a></li>
+            <li><a href="#">Cookie settings</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <p class="footer-col-title">Connect</p>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">X</a></li>
+          <li><a href="#">Pinterest</a></li>
+          <li><a href="#">Tiktok</a></li>
+          <li><a href="#">Linkedin</a></li>
+          <li><a href="#">Youtube</a></li>
+          <li><a href="#">Facebook</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <span>Copyright Packhelp 2026</span>
+      <span>Business Hours Monday - Friday 8:00-15:00</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<button id="siteSettingsBtn" class="site-settings-btn" aria-label="Site settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div id="siteSettingsPanel" class="site-settings-panel">
+  <p class="site-settings-title">Page customization</p>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Thumbnails below preview</p>
+      <p class="site-settings-desc">Show gallery thumbnails as a strip below the preview instead of a column on the left</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleGalleryMode">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Label on chip background</p>
+      <p class="site-settings-desc">Show option labels centered on the chip's gray/white background instead of left-aligned below the image</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleChipLabelStyle">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Vertical specification tabs</p>
+      <p class="site-settings-desc">Show the spec section tabs as a large stacked list on the left, with content in a 50/50 column on the right</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleSpecLayout">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+  <div class="site-settings-row pp-settings-row-stacked">
+    <div>
+      <p class="site-settings-label">Quantity picker style</p>
+      <p class="site-settings-desc">Choose how the quantity step is displayed</p>
+    </div>
+    <div class="toggle-switch pp-qty-style-toggle" id="ppQtyStyleToggle">
+      <div class="toggle-indicator" id="ppQtyStyleIndicator"></div>
+      <button type="button" class="toggle-option active" data-value="list">List</button>
+      <button type="button" class="toggle-option" data-value="horizontal">Horizontal</button>
+      <button type="button" class="toggle-option" data-value="input">Input</button>
+    </div>
+  </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Related products under config</p>
+      <p class="site-settings-desc">Show a "Pairs well with..." mini-section with two related products below the configurator and options table</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="toggleRelatedUnderConfig">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('siteSettingsBtn');
+    var panel = document.getElementById('siteSettingsPanel');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!panel.contains(e.target) && e.target !== btn) {
+        panel.classList.remove('open');
+      }
+    });
+
+    var galleryModeToggle = document.getElementById('toggleGalleryMode');
+    var galleryOuter = document.getElementById('ppGalleryOuter');
+
+    function applyGalleryMode(below) {
+      galleryOuter.classList.toggle('pp-gallery-mode-below', below);
+      galleryModeToggle.checked = below;
+      if (window.ppResizeGallery) { window.ppResizeGallery(); }
+    }
+
+    applyGalleryMode(localStorage.getItem('galleryMode') === 'below');
+
+    galleryModeToggle.addEventListener('change', function () {
+      applyGalleryMode(galleryModeToggle.checked);
+      localStorage.setItem('galleryMode', galleryModeToggle.checked ? 'below' : 'left');
+    });
+
+    var chipLabelToggle = document.getElementById('toggleChipLabelStyle');
+
+    function applyChipLabelStyle(onBg) {
+      document.body.classList.toggle('pp-chip-label-on-bg', onBg);
+      chipLabelToggle.checked = onBg;
+    }
+
+    applyChipLabelStyle(localStorage.getItem('chipLabelStyle') === 'on-bg');
+
+    chipLabelToggle.addEventListener('change', function () {
+      applyChipLabelStyle(chipLabelToggle.checked);
+      localStorage.setItem('chipLabelStyle', chipLabelToggle.checked ? 'on-bg' : 'below');
+    });
+
+    var specLayoutToggle = document.getElementById('toggleSpecLayout');
+
+    function applySpecLayout(vertical) {
+      document.body.classList.toggle('pp-spec-vertical', vertical);
+      specLayoutToggle.checked = vertical;
+    }
+
+    applySpecLayout(localStorage.getItem('specLayout') === 'vertical');
+
+    specLayoutToggle.addEventListener('change', function () {
+      applySpecLayout(specLayoutToggle.checked);
+      localStorage.setItem('specLayout', specLayoutToggle.checked ? 'vertical' : 'horizontal');
+    });
+
+    var qtyStyleToggle = document.getElementById('ppQtyStyleToggle');
+    var qtyStyleIndicator = document.getElementById('ppQtyStyleIndicator');
+    var qtyStyleOptions = qtyStyleToggle.querySelectorAll('.toggle-option');
+
+    function moveQtyStyleIndicator(el) {
+      qtyStyleIndicator.style.width = el.offsetWidth + 'px';
+      qtyStyleIndicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    }
+
+    function applyQtyStyle(style) {
+      document.body.classList.toggle('pp-qty-horizontal', style === 'horizontal');
+      document.body.classList.toggle('pp-qty-style-input', style === 'input');
+      qtyStyleOptions.forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-value') === style); });
+      var activeOption = qtyStyleToggle.querySelector('.toggle-option.active');
+      if (activeOption) { moveQtyStyleIndicator(activeOption); }
+    }
+
+    qtyStyleOptions.forEach(function (option) {
+      option.addEventListener('click', function () {
+        var value = option.getAttribute('data-value');
+        applyQtyStyle(value);
+        localStorage.setItem('qtyStyle', value);
+      });
+    });
+
+    applyQtyStyle(localStorage.getItem('qtyStyle') || 'list');
+
+    var relatedUnderConfigToggle = document.getElementById('toggleRelatedUnderConfig');
+
+    function applyRelatedUnderConfig(show) {
+      document.body.classList.toggle('pp-show-pairs-well', show);
+      relatedUnderConfigToggle.checked = show;
+    }
+
+    applyRelatedUnderConfig(localStorage.getItem('relatedUnderConfig') !== 'off');
+
+    relatedUnderConfigToggle.addEventListener('change', function () {
+      applyRelatedUnderConfig(relatedUnderConfigToggle.checked);
+      localStorage.setItem('relatedUnderConfig', relatedUnderConfigToggle.checked ? 'on' : 'off');
+    });
+  })();
+</script>
+
+<script>
+  // ---------- generic scroll reveal ----------
+  (function () {
+    var targets = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+
+  // ---------- editor video: starts the subtle 3D "breathe" rotation only
+  // once actually scrolled into view (copied from index.html) ----------
+  (function () {
+    var wrap = document.getElementById('ppStatementVideo');
+    if (!wrap) { return; }
+    var settled = false;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !settled) {
+          settled = true;
+          wrap.classList.add('is-settled');
+          observer.unobserve(wrap);
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(wrap);
+  })();
+
+  // ---------- gallery: size to fit the viewport from the very first paint,
+  // not just once scrolled/pinned. A fixed `height: calc(100vh - 48px)` only
+  // fits once the sticky element is actually pinned at top:24 -- at scroll 0
+  // its natural (unpinned) position sits below the nav+breadcrumb, so a
+  // fixed height overflows the viewport bottom until you scroll a bit.
+  // Instead, re-measure the gallery's LIVE top on every scroll (position:
+  // sticky keeps this accurate whether it's still unpinned in normal flow
+  // or already clamped at top:24) and size the height so its bottom lands
+  // exactly space-6 above the viewport bottom in both states -- this is
+  // what lets it grow as the page scrolls and its pinned top position frees
+  // up more room, instead of staying frozen at the pre-scroll height. ----------
+  (function () {
+    var gallery = document.getElementById('ppGalleryOuter');
+    var layout = document.querySelector('.pp-layout');
+    if (!gallery || !layout) { return; }
+
+    function sizeGallery() {
+      if (window.innerWidth <= 900) { gallery.style.height = ''; return; }
+      // Read the gallery's LIVE top position (not a once-computed, scroll-
+      // independent offset) -- position:sticky clamps this to var(--space-6)
+      // once pinned, so re-reading it on every scroll is what lets the
+      // height grow to fill the extra room that opens up above it as the
+      // page scrolls, instead of staying frozen at the pre-scroll height.
+      // Once scrolled past the end of its own sticky container the element
+      // un-pins and its top goes negative as it scrolls off-screen with the
+      // page -- clamp to the pinned top offset so height never keeps
+      // inflating past what the viewport can actually show.
+      var currentTop = Math.max(gallery.getBoundingClientRect().top, 24);
+      var height = window.innerHeight - currentTop - 24;
+      gallery.style.height = Math.max(height, 420) + 'px';
+    }
+
+    // Recompute on scroll too (rAF-throttled), not just resize -- guards
+    // against any drift between the once-measured offset and reality (e.g.
+    // a late web-font swap reflowing the nav/breadcrumb above the gallery
+    // after this script's first run), so it keeps fitting the viewport
+    // throughout scrolling, not only at initial load.
+    var scheduled = false;
+    function scheduleSizeGallery() {
+      if (scheduled) { return; }
+      scheduled = true;
+      requestAnimationFrame(function () {
+        scheduled = false;
+        sizeGallery();
+      });
+    }
+
+    window.addEventListener('resize', scheduleSizeGallery);
+    window.addEventListener('scroll', scheduleSizeGallery, { passive: true });
+    window.addEventListener('load', sizeGallery);
+    window.ppResizeGallery = sizeGallery;
+    sizeGallery();
+  })();
+
+  // ---------- gallery: thumbnail hover swaps main image ----------
+  (function () {
+    var mainImg = document.getElementById('ppGalleryMainImg');
+    var thumbs = document.querySelectorAll('.pp-gallery-thumb');
+    thumbs.forEach(function (thumb) {
+      thumb.addEventListener('mouseenter', function () {
+        thumbs.forEach(function (t) { t.classList.remove('active'); });
+        thumb.classList.add('active');
+        mainImg.src = thumb.querySelector('img').src;
+        mainImg.alt = thumb.querySelector('img').alt;
+        // The plain studio product shot (data-fit="contain") must always
+        // stay fully visible; lifestyle photos fill edge-to-edge (cover,
+        // the default) with no grey letterboxing.
+        mainImg.style.objectFit = thumb.getAttribute('data-fit') || 'cover';
+      });
+    });
+  })();
+
+  // ---------- generic single-select card groups (Size/Print/Foil/Adhesive) ----------
+  (function () {
+    var groups = document.querySelectorAll('.pp-chip-group, .pp-pill-group');
+    groups.forEach(function (group) {
+      var cards = group.querySelectorAll('button');
+      cards.forEach(function (card) {
+        card.addEventListener('click', function () {
+          cards.forEach(function (c) { c.classList.remove('active'); });
+          card.classList.add('active');
+        });
+      });
+    });
+  })();
+
+  // ---------- Foil only applies to "Multicolour – premium" print -- hidden
+  // the rest of the time instead of always shown. ----------
+  (function () {
+    var printColourGroup = document.getElementById('ppPrintColourGroup');
+    var foilStep = document.getElementById('ppStepFoil');
+    if (!printColourGroup || !foilStep) { return; }
+
+    printColourGroup.querySelectorAll('button').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        foilStep.hidden = chip.getAttribute('data-value') !== 'Multicolour – premium';
+      });
+    });
+  })();
+
+  // ---------- quantity step drives the CTA + sticky bar price ----------
+  // Two representations share one selection state: the default stacked
+  // list (#ppQuantityGrid) and the alt horizontal picker (#ppQtyPicker,
+  // opt-in via gear panel). Both exist in the DOM at once (CSS just shows
+  // one), so every action below updates cards/other-widgets in BOTH at
+  // the same time, keeping them in sync whichever one is visible.
+  (function () {
+    var cards = document.querySelectorAll('#ppQuantityGrid .pp-qty-row');
+    var otherRow = document.getElementById('ppQtyOther');
+    var otherToggle = document.getElementById('ppQtyOtherToggle');
+    var otherForm = document.getElementById('ppQtyOtherForm');
+    var otherInput = document.getElementById('ppQtyOtherInput');
+
+    var cells = document.querySelectorAll('#ppQtyPicker .pp-qty-cell');
+    var cellOther = document.getElementById('ppQtyPickerOther');
+    var cellOtherBtn = document.getElementById('ppQtyPickerOtherBtn');
+    var cellOtherForm = document.getElementById('ppQtyPickerOtherForm');
+    var cellOtherInput = document.getElementById('ppQtyPickerOtherInput');
+
+    var inputWrap = document.getElementById('ppQtyInputWrap');
+    var inputBtn = document.getElementById('ppQtyInputBtn');
+    var inputValueEl = document.getElementById('ppQtyInputValue');
+    var inputUnitEl = document.getElementById('ppQtyInputUnit');
+    var inputTotalEl = document.getElementById('ppQtyInputTotal');
+
+    var ctaLabel = document.getElementById('ppCtaPriceLabel');
+    var ctaValue = document.getElementById('ppCtaPriceValue');
+    var stickyLabel = document.getElementById('ppStickyPriceLabel');
+    var stickyValue = document.getElementById('ppStickyPriceValue');
+
+    var tiers = Array.prototype.map.call(cards, function (card) {
+      return { qty: Number(card.getAttribute('data-qty')), unit: Number(card.getAttribute('data-unit')) };
+    }).sort(function (a, b) { return a.qty - b.qty; });
+
+    function rateForQuantity(qty) {
+      if (qty <= tiers[0].qty) { return tiers[0].unit; }
+      var last = tiers[tiers.length - 1];
+      if (qty >= last.qty) { return last.unit; }
+      for (var i = 0; i < tiers.length - 1; i++) {
+        var a = tiers[i], b = tiers[i + 1];
+        if (qty >= a.qty && qty <= b.qty) {
+          var t = (qty - a.qty) / (b.qty - a.qty);
+          return a.unit + (b.unit - a.unit) * t;
+        }
+      }
+      return last.unit;
+    }
+
+    function setPrice(qty, total) {
+      var label = 'Netto / ' + qty + ' pieces';
+      var value = '€' + total;
+      ctaLabel.textContent = label;
+      ctaValue.textContent = value;
+      stickyLabel.textContent = label;
+      stickyValue.textContent = value;
+    }
+
+    function updateInputDisplay(qty, unit, total) {
+      inputValueEl.textContent = qty;
+      inputUnitEl.textContent = '€' + Number(unit).toFixed(2) + '/piece';
+      inputTotalEl.textContent = '€' + total;
+    }
+
+    function findUnitForQty(qty) {
+      var match = tiers.filter(function (t) { return t.qty === Number(qty); })[0];
+      return match ? match.unit : rateForQuantity(Number(qty));
+    }
+
+    function clearActive() {
+      cards.forEach(function (c) { c.classList.remove('active'); });
+      cells.forEach(function (c) { c.classList.remove('active'); });
+      otherRow.classList.remove('active', 'open');
+      otherForm.hidden = true;
+      cellOther.classList.remove('active', 'open');
+      cellOtherForm.hidden = true;
+      inputWrap.classList.remove('open');
+    }
+
+    function selectTier(qty, total) {
+      clearActive();
+      cards.forEach(function (c) { if (c.getAttribute('data-qty') === String(qty)) { c.classList.add('active'); } });
+      cells.forEach(function (c) { if (c.getAttribute('data-qty') === String(qty)) { c.classList.add('active'); } });
+      setPrice(qty, total);
+      updateInputDisplay(qty, findUnitForQty(qty), total);
+    }
+
+    function selectCustom(qty) {
+      var unit = rateForQuantity(qty);
+      var total = (qty * unit).toFixed(2);
+      clearActive();
+      otherRow.classList.add('active');
+      cellOther.classList.add('active');
+      setPrice(qty, total);
+      updateInputDisplay(qty, unit, total);
+    }
+
+    cards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        selectTier(card.getAttribute('data-qty'), card.getAttribute('data-total'));
+      });
+    });
+
+    cells.forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        selectTier(cell.getAttribute('data-qty'), cell.getAttribute('data-total'));
+      });
+    });
+
+    otherToggle.addEventListener('click', function () {
+      var open = otherRow.classList.toggle('open');
+      otherForm.hidden = !open;
+      if (open) { otherInput.focus(); }
+    });
+
+    otherForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var qty = Math.round(Number(otherInput.value));
+      if (!isFinite(qty) || qty <= 0) { return; }
+      selectCustom(qty);
+    });
+
+    cellOtherBtn.addEventListener('click', function () {
+      var open = cellOther.classList.toggle('open');
+      cellOtherForm.hidden = !open;
+      if (open) { cellOtherInput.focus(); }
+    });
+
+    cellOtherForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var qty = Math.round(Number(cellOtherInput.value));
+      if (!isFinite(qty) || qty <= 0) { return; }
+      selectCustom(qty);
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!cellOther.contains(e.target) && cellOther.classList.contains('open')) {
+        cellOther.classList.remove('open');
+        cellOtherForm.hidden = true;
+      }
+    });
+
+    inputBtn.addEventListener('click', function () {
+      inputWrap.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!inputWrap.contains(e.target) && inputWrap.classList.contains('open')) {
+        inputWrap.classList.remove('open');
+      }
+    });
+  })();
+
+  // ---------- sticky summary bar: aligned to config column, visible from the
+  // very first paint (matching Build_your_box's StickyDeliveryBar, whose
+  // "visible" state defaults to true until the real summary section is
+  // observed in view) -- only hides once the CTA block (Add to cart) itself
+  // scrolls into the viewport. ----------
+  (function () {
+    var summaryBar = document.getElementById('ppStickySummary');
+    var configCol = document.getElementById('ppConfigCol');
+    var cta = document.getElementById('ppCta');
+    if (!summaryBar || !configCol || !cta) { return; }
+
+    function positionBar() {
+      var rect = configCol.getBoundingClientRect();
+      summaryBar.style.left = rect.left + 'px';
+      summaryBar.style.width = rect.width + 'px';
+    }
+
+    function onScroll() {
+      var ctaReached = cta.getBoundingClientRect().top <= window.innerHeight;
+      summaryBar.classList.toggle('pp-hidden', ctaReached);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function () { positionBar(); onScroll(); });
+
+    positionBar();
+    onScroll();
+  })();
+
+  // ---------- contact packaging advisors modal ----------
+  (function () {
+    var openBtn = document.getElementById('ppContactAdvisorBtn');
+    var backdrop = document.getElementById('ppModalBackdrop');
+    var modal = document.getElementById('ppModal');
+    var closeBtn = document.getElementById('ppModalClose');
+    if (!openBtn || !backdrop || !modal) { return; }
+
+    function open() {
+      backdrop.classList.add('open');
+      modal.classList.add('open');
+    }
+    function close() {
+      backdrop.classList.remove('open');
+      modal.classList.remove('open');
+    }
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { close(); }
+    });
+  })();
+
+  // ---------- specification / FAQ toggle ----------
+  (function () {
+    var toggle = document.getElementById('ppSpecToggle');
+    var indicator = document.getElementById('ppSpecIndicator');
+    var options = toggle.querySelectorAll('.toggle-option');
+    var panels = {
+      spec: document.getElementById('ppSpecPanelSpec'),
+      description: document.getElementById('ppSpecPanelDescription'),
+      options: document.getElementById('ppSpecPanelOptions'),
+      faq: document.getElementById('ppSpecPanelFaq')
+    };
+
+    function moveIndicator(el) {
+      indicator.style.width = el.offsetWidth + 'px';
+      indicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    }
+
+    options.forEach(function (option) {
+      option.addEventListener('click', function () {
+        if (option.classList.contains('active')) { return; }
+        options.forEach(function (o) { o.classList.remove('active'); });
+        option.classList.add('active');
+        moveIndicator(option);
+        var target = option.getAttribute('data-target');
+        Object.keys(panels).forEach(function (key) {
+          panels[key].classList.toggle('active', key === target);
+        });
+      });
+    });
+
+    moveIndicator(toggle.querySelector('.toggle-option.active'));
+  })();
+
+  // ---------- FAQ accordion (grid-template-rows:0fr trick, same as index.html) ----------
+  (function () {
+    document.querySelectorAll('.faq-item').forEach(function (item) {
+      item.querySelector('.faq-question').addEventListener('click', function () {
+        var isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(function (openItem) {
+          if (openItem !== item) { openItem.classList.remove('open'); }
+        });
+        item.classList.toggle('open', !isOpen);
+      });
+    });
+  })();
+
+  // ---------- spec table: cap at 10 rows, "Show more" reveals the rest ----------
+  (function () {
+    var table = document.querySelector('.pp-spec-table');
+    var showMore = document.getElementById('ppSpecShowMore');
+    if (!table || !showMore) { return; }
+    if (table.querySelectorAll('.pp-spec-row').length <= 10) { showMore.hidden = true; return; }
+    showMore.addEventListener('click', function () {
+      table.classList.add('pp-spec-expanded');
+      showMore.hidden = true;
+    });
+  })();
+
+  // ---------- scroll-carousels (prev/next, disabled at ends) ----------
+  (function () {
+    var carousels = document.querySelectorAll('.scroll-carousel');
+
+    Array.prototype.forEach.call(carousels, function (carousel) {
+      var prevBtn = carousel.querySelector('.scroll-carousel-nav.prev');
+      var nextBtn = carousel.querySelector('.scroll-carousel-nav.next');
+      var track = carousel.querySelector('.categories-grid');
+      if (!prevBtn || !nextBtn || !track) { return; }
+
+      function updateNavState() {
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        prevBtn.disabled = track.scrollLeft <= 0;
+        nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+      }
+
+      function checkOverflow() {
+        var overflowing = track.scrollWidth > track.clientWidth + 1;
+        carousel.classList.toggle('has-overflow', overflowing);
+        updateNavState();
+      }
+
+      prevBtn.addEventListener('click', function () {
+        track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+      nextBtn.addEventListener('click', function () {
+        track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+
+      track.addEventListener('scroll', updateNavState, { passive: true });
+      window.addEventListener('resize', checkOverflow);
+      checkOverflow();
+    });
+  })();
+</script>
+
+</body>
+</html>
