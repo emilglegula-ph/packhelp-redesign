@@ -121,12 +121,103 @@
   }
 
   .pp-gallery-main {
+    position: relative;
     flex: 1;
     min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
+  /* ---------- IKEA-style hotspot pin on lifestyle photos (not the plain
+     studio shot at index 0) -- position set per-thumb via data-pin-x/-y
+     (see JS), hover reveals a popover with a single "apply" link. ---------- */
+  .pp-gallery-pin {
+    position: absolute;
+    z-index: 3;
+    transform: translate(-50%, -50%);
+  }
+
+  .pp-gallery-pin[hidden] { display: none; }
+
+  .pp-gallery-pin-dot {
+    position: relative;
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    cursor: pointer;
+  }
+
+  .pp-gallery-pin-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--rich-blue);
+    transform: translate(-50%, -50%);
+  }
+
+  .pp-gallery-pin-dot::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.85);
+    animation: ppGalleryPinPulse 2.2s ease-out infinite;
+  }
+
+  @keyframes ppGalleryPinPulse {
+    0% { transform: scale(.6); opacity: .9; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  .pp-gallery-pin-popover {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + var(--space-3));
+    z-index: 4;
+    transform: translateY(-50%) translateX(-6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+
+  /* flip to the left when the pin sits in the right half of the photo, so
+     the popover never runs past the gallery's edge (see JS) */
+  .pp-gallery-pin.pp-gallery-pin-flip .pp-gallery-pin-popover {
+    left: auto;
+    right: calc(100% + var(--space-3));
+    transform: translateY(-50%) translateX(6px);
+  }
+
+  .pp-gallery-pin:hover .pp-gallery-pin-popover,
+  .pp-gallery-pin-dot:focus-visible ~ .pp-gallery-pin-popover {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .pp-gallery-pin-link {
+    display: block;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .pp-gallery-pin-link:hover { background: var(--gray-100); }
 
   .pp-gallery-main img {
     /* width/height 100% (not max-width/max-height) so the image box always
@@ -781,11 +872,14 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    box-sizing: border-box;
     /* .pp-cta already puts a 24px (--space-6) flex gap between its children
        -- this margin adds the remainder on top so the total visual gap
        between the CTA buttons and this table is exactly --space-14 (56px). */
     margin-top: var(--space-8);
-    border-bottom: 1px solid var(--color-border-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .pp-info-row {
@@ -795,7 +889,7 @@
     gap: var(--space-3);
     width: 100%;
     box-sizing: border-box;
-    padding: var(--space-5) 0;
+    padding: var(--space-5);
     border-top: 1px solid var(--color-border-default);
     background: none;
     border-left: none;
@@ -806,6 +900,10 @@
     color: var(--color-text-primary);
     text-decoration: none;
     cursor: pointer;
+  }
+
+  .pp-info-row:first-child {
+    border-top: none;
   }
 
   .pp-info-row-icon { flex: none; width: 18px; height: 18px; color: var(--color-text-primary); }
@@ -1429,19 +1527,25 @@
   <div class="pp-gallery-outer" id="ppGalleryOuter">
     <div class="pp-gallery-thumbs" id="ppGalleryThumbs">
       <button class="pp-gallery-thumb active" data-index="0" data-fit="contain"><img src="assets/product-page/first_photo.png" alt="Custom Mailer Box"></button>
-      <button class="pp-gallery-thumb" data-index="1"><img src="assets/packaging/mailer_box_gallery_1.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="2"><img src="assets/packaging/mailer_box_gallery_2.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="3"><img src="assets/packaging/mailer_box_gallery_3.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="4"><img src="assets/packaging/mailer_box_gallery_4.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="5"><img src="assets/packaging/mailer_box_gallery_5.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="6"><img src="assets/packaging/mailer_box_gallery_6.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="7"><img src="assets/packaging/mailer_box_gallery_7.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="8"><img src="assets/packaging/mailer_box_gallery_8.avif" alt=""></button>
-      <button class="pp-gallery-thumb" data-index="9"><img src="assets/packaging/mailer_box_gallery_9.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="1" data-pin-x="55" data-pin-y="45"><img src="assets/packaging/mailer_box_gallery_1.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="2" data-pin-x="35" data-pin-y="20"><img src="assets/packaging/mailer_box_gallery_2.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="3" data-pin-x="45" data-pin-y="78"><img src="assets/packaging/mailer_box_gallery_3.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="4" data-pin-x="35" data-pin-y="55"><img src="assets/packaging/mailer_box_gallery_4.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="5" data-pin-x="40" data-pin-y="45"><img src="assets/packaging/mailer_box_gallery_5.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="6" data-pin-x="35" data-pin-y="45"><img src="assets/packaging/mailer_box_gallery_6.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="7" data-pin-x="60" data-pin-y="45"><img src="assets/packaging/mailer_box_gallery_7.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="8" data-pin-x="30" data-pin-y="40"><img src="assets/packaging/mailer_box_gallery_8.avif" alt=""></button>
+      <button class="pp-gallery-thumb" data-index="9" data-pin-x="50" data-pin-y="45"><img src="assets/packaging/mailer_box_gallery_9.avif" alt=""></button>
     </div>
     <div class="pp-gallery" id="ppGallery">
       <div class="pp-gallery-main">
         <img id="ppGalleryMainImg" src="assets/product-page/first_photo.png" alt="Custom Mailer Box" style="object-fit: contain;">
+        <div class="pp-gallery-pin" id="ppGalleryPin" hidden>
+          <span class="pp-gallery-pin-dot" tabindex="0"></span>
+          <span class="pp-gallery-pin-popover">
+            <a href="#" class="pp-gallery-pin-link">Apply this configuration</a>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -2413,7 +2517,27 @@
   // ---------- gallery: thumbnail hover swaps main image ----------
   (function () {
     var mainImg = document.getElementById('ppGalleryMainImg');
+    var pin = document.getElementById('ppGalleryPin');
     var thumbs = document.querySelectorAll('.pp-gallery-thumb');
+
+    // IKEA-style hotspot pin -- only the lifestyle photos (data-pin-x/-y
+    // set on their thumb) get one; the plain studio shot at index 0 never
+    // does, per the request that prompted this.
+    function updatePin(thumb) {
+      var x = thumb.getAttribute('data-pin-x');
+      var y = thumb.getAttribute('data-pin-y');
+      if (!x || !y) {
+        pin.hidden = true;
+        return;
+      }
+      pin.style.left = x + '%';
+      pin.style.top = y + '%';
+      // flip the popover to the left once the pin is far enough right that
+      // it would otherwise overflow past the gallery's edge
+      pin.classList.toggle('pp-gallery-pin-flip', parseFloat(x) > 60);
+      pin.hidden = false;
+    }
+
     thumbs.forEach(function (thumb) {
       thumb.addEventListener('mouseenter', function () {
         thumbs.forEach(function (t) { t.classList.remove('active'); });
@@ -2424,6 +2548,7 @@
         // stay fully visible; lifestyle photos fill edge-to-edge (cover,
         // the default) with no grey letterboxing.
         mainImg.style.objectFit = thumb.getAttribute('data-fit') || 'cover';
+        updatePin(thumb);
       });
     });
   })();
