@@ -31,6 +31,10 @@
   /* ---- primitives: red ---- */
   --red-500: #8A140C; /* Red */
 
+  /* ---- primitives: olive ---- */
+  --olive-100: #E5E9D6; /* Olive Light */
+  --olive-600: #5C6B3F; /* Olive */
+
   /* ---- primitives: yellow ---- */
   --yellow-light: #F7F2BE; /* Yellow light */
 
@@ -47,6 +51,7 @@
   --color-bg-muted-hover:   var(--gray-200);
   --color-bg-accent-subtle: var(--blue-100); /* light blue tint: announcement bar, marquee, gradients */
   --color-bg-accent-faint:  var(--blue-50); /* faintest blue tint: active tab/icon bg, chat bubble, chip */
+  --color-bg-olive-subtle:  var(--olive-100); /* light olive tint: announcement bar / promo tile alt palette */
   --color-bg-inverse:       var(--rich-blue); /* dark surfaces, e.g. the CTA mockup card */
   --color-bg-notice:        var(--yellow-light); /* pale yellow note/callout background */
 

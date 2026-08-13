@@ -23,7 +23,7 @@
     justify-content: center;
     gap: var(--space-3);
     padding: 0.75rem 2rem calc(0.75rem + 20px);
-    background: var(--color-bg-accent-subtle);
+    background: var(--color-bg-olive-subtle);
     font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
@@ -256,6 +256,13 @@
     color: var(--color-text-muted);
     cursor: pointer;
     transition: background-color .15s ease, color .15s ease;
+  }
+
+  /* .pkg-view-option's own display:inline-flex above would otherwise beat
+     the [hidden] attribute's UA-stylesheet display:none (documented
+     pitfall -- see CLAUDE.md). */
+  .pkg-view-option[hidden] {
+    display: none;
   }
 
   .pkg-view-option svg {
@@ -863,13 +870,12 @@
     width: 56px;
     height: 56px;
     border-radius: var(--radius-full);
-    background: var(--white);
     color: #484848;
   }
 
   .thumb-back-circle svg {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
   }
 
   .thumb-strip-divider {
@@ -994,10 +1000,12 @@
   /* Promo tiles get an explicit cell instead of flowing with the
      product cards, so they always land as the last tile of their
      row regardless of how many columns are active -- the dense
-     auto-flow above backfills every other cell around them. */
+     auto-flow above backfills every other cell around them. Rows 3
+     and 5 (not 2 and 4) because row 1 is now always spoken for by the
+     "Build any box type" tile (see insertBuildBoxTile). */
   .promo-wallet {
     grid-column: -2 / -1;
-    grid-row: 2 / 3;
+    grid-row: 3 / 4;
   }
 
   /* Extra .promo-card in the selector for specificity -- .promo-card's own
@@ -1005,19 +1013,19 @@
      bare .promo-wallet) would otherwise win on source order and silently
      override this. */
   .promo-card.promo-wallet {
-    background: var(--color-bg-accent-subtle);
+    background: var(--color-bg-olive-subtle);
     padding: var(--space-8);
   }
 
   .promo-wallet .promo-card-text {
-    font-size: 1.75rem;
+    font-size: clamp(1.25rem, 1.5vw + 0.85rem, 1.75rem);
     line-height: 1.08;
     letter-spacing: -0.05em;
   }
 
   .promo-samples {
     grid-column: -2 / -1;
-    grid-row: 4 / 5;
+    grid-row: 5 / 6;
   }
 
   /* Same treatment as .promo-wallet (32px padding, 28px heading-style
@@ -1028,7 +1036,7 @@
   }
 
   .promo-samples .promo-card-text {
-    font-size: 1.75rem;
+    font-size: clamp(1.25rem, 1.5vw + 0.85rem, 1.75rem);
     line-height: 1.08;
     letter-spacing: -0.05em;
   }
@@ -1168,19 +1176,27 @@
   }
 
   /* ---------- List view (product view switcher, "list" option) -- rows
-     with a large thumbnail + name/price/description + extra info, closer
-     to a marketplace listing (Allegro/RTV EURO AGD style) than a photo
-     grid. The extra content (.product-card-list-extra: description, the
-     4-field spec line, eco-property chips) is injected once per card in
-     JS (injectListDetails) with invented, varied placeholder data -- one
-     product's description is real Packhelp copy (see the function), the
-     rest follow the same voice -- and simply hidden via CSS outside this
-     mode. Promo tiles don't translate to a row layout, so they're hidden
-     here instead. ---------- */
+     matching Figma "Reb 24 - Shop listing" node 9873:8 exactly: a 240px
+     photo, a title+description+CTA column that grows to fill spare width,
+     then a fixed-width Spec table and a fixed-width Pricing table, each
+     divider-lined. The extra content (.product-card-list-extra) is
+     injected once per card in JS (injectListDetails) with invented,
+     varied placeholder data -- one product's description is real Packhelp
+     copy (see the function), the rest follow the same voice -- and simply
+     hidden via CSS outside this mode. Promo tiles don't translate to a
+     row layout, so they're hidden here instead. ---------- */
+  /* Continuous table now (Figma node 9880:97377), not spaced-out bordered
+     cards: no gap between rows, and the container's own border-bottom
+     closes the table off -- each row only needs a border-top, which
+     doubles as the "line before the first row" too. Simpler and more
+     robust than trying to single out the last .product-card for its own
+     border-bottom (the grid mixes <a> and <div> tags for that class, so
+     neither :last-child nor :last-of-type reliably lands on it). */
   body.pkg-view-list #pkgProductGrid {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: 0;
+    border-bottom: 1px solid var(--color-border-default);
   }
 
   body.pkg-view-list #pkgProductGrid .promo-card,
@@ -1191,31 +1207,34 @@
   body.pkg-view-list #pkgProductGrid .product-card {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    gap: var(--space-5);
-    padding: var(--space-4);
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-4) var(--space-10) var(--space-4) 0;
     box-sizing: border-box;
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--radius-md);
-    transition: border-color .15s ease;
+    border: none;
+    border-top: 1px solid var(--color-border-default);
+    border-radius: 0;
+    background: none;
+    transition: background-color .15s ease;
   }
 
   body.pkg-view-list #pkgProductGrid .product-card:hover {
-    border-color: var(--color-border-hover);
+    background: var(--color-bg-muted);
   }
 
   body.pkg-view-list #pkgProductGrid .product-card-media {
     flex: none;
-    width: 220px;
-    height: 220px;
+    width: 248px;
+    height: 248px;
+    border-radius: 12px;
     margin-bottom: 0;
   }
 
   /* The real name+price block stays in the DOM (grid view still uses it
      as-is) but is hidden here -- list view builds its own title/price
-     out of the same text in the 3-column layout below instead of moving
-     these nodes around (which would have to be un-done again every time
-     the view switches back to grid). */
+     out of the same text in the layout below instead of moving these
+     nodes around (which would have to be un-done again every time the
+     view switches back to grid). */
   body.pkg-view-list #pkgProductGrid .product-card-info {
     display: none;
   }
@@ -1224,116 +1243,115 @@
     display: none;
   }
 
-  /* Everything outside the photo splits into three equal columns: title
-     + description, then every product aspect (spec fields + eco props),
-     then a mini price list + CTA through to the product page. */
   body.pkg-view-list #pkgProductGrid .product-card-list-extra {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-10);
     flex: 1;
     min-width: 0;
-    padding-top: var(--space-2);
   }
 
-  .product-card-list-col {
+  .product-card-list-col-title {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    align-items: flex-start;
+    gap: var(--space-4);
+    flex: 1;
     min-width: 0;
+  }
+
+  .product-card-list-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    width: 100%;
   }
 
   .product-card-list-title {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 20px;
     font-weight: 500;
-    letter-spacing: -0.03em;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
     color: var(--color-text-primary);
   }
 
   .product-card-desc {
     margin: 0;
-    font-size: 0.9375rem;
-    line-height: 1.45;
-    letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
-  }
-
-  .product-card-list-details {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-4);
-  }
-
-  .product-card-list-detail {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-
-  .product-card-list-detail-label {
-    font-size: 0.6875rem;
+    font-size: 15px;
+    line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
   }
 
-  .product-card-list-detail-value {
-    font-size: 0.8125rem;
+  .product-card-list-col-aspects,
+  .product-card-list-col-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 0;
+    max-width: 320px;
+  }
+
+  .product-card-list-col-label {
+    margin: 0;
+    font-size: 13px;
     letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .product-card-list-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  .product-card-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border-default);
+    font-size: 13px;
+    letter-spacing: -0.02em;
+  }
+
+  .product-card-list-row-label {
+    flex: none;
+    color: var(--color-text-muted);
+  }
+
+  .product-card-list-row-value {
     color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: right;
   }
 
   .product-card-eco-props {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .product-card-eco-prop {
-    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
+    gap: var(--space-1);
   }
 
-  .product-card-eco-prop svg {
-    width: 14px;
-    height: 14px;
+  .product-card-eco-badge {
+    display: flex;
     flex: none;
-    color: var(--color-accent);
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full);
+    background: var(--olive-600);
   }
 
-  .product-card-mini-pricing {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding-bottom: var(--space-2);
-    border-bottom: 1px solid var(--color-border-default);
-  }
-
-  .product-card-mini-price-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-2);
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-  }
-
-  .product-card-mini-price-qty {
-    color: var(--color-text-secondary);
-  }
-
-  .product-card-mini-price-value {
-    font-weight: 500;
-    color: var(--color-text-primary);
-    white-space: nowrap;
+  .product-card-eco-badge svg {
+    width: 11px;
+    height: 11px;
+    color: var(--white);
   }
 
   .product-card-list-cta {
@@ -1342,12 +1360,12 @@
 
   @media (max-width: 1100px) {
     body.pkg-view-list #pkgProductGrid .product-card-list-extra {
-      grid-template-columns: 1fr 1fr;
+      flex-wrap: wrap;
       row-gap: var(--space-5);
     }
 
-    body.pkg-view-list #pkgProductGrid .product-card-list-col-price {
-      grid-column: 1 / -1;
+    .product-card-list-col-title {
+      flex-basis: 100%;
     }
   }
 
@@ -1362,12 +1380,10 @@
       aspect-ratio: 16 / 9;
     }
 
-    body.pkg-view-list #pkgProductGrid .product-card-list-extra {
-      grid-template-columns: 1fr;
-    }
-
-    body.pkg-view-list #pkgProductGrid .product-card-list-col-price {
-      grid-column: auto;
+    .product-card-list-col-aspects,
+    .product-card-list-col-price {
+      max-width: none;
+      flex-basis: 100%;
     }
   }
 
@@ -1377,6 +1393,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: flex-end;
     padding: var(--space-5);
     box-sizing: border-box;
     border-radius: var(--radius-md);
@@ -1404,7 +1421,7 @@
      product-card instead of breaking out into its own full-width row. */
   .promo-build-box {
     overflow: hidden;
-    padding: var(--space-8) var(--space-8) 0;
+    padding: var(--space-8);
     background: var(--color-bg-accent-faint);
   }
 
@@ -1731,10 +1748,6 @@
     .promo-card-eyebrow {
       display: none;
     }
-
-    .promo-card-text {
-      font-size: 1rem;
-    }
   }
 </style>
 </head>
@@ -2053,13 +2066,13 @@
 
     <div class="pkg-view-switcher" id="pkgViewSwitcher">
       <button class="pkg-view-option active" data-view="grid-4" aria-label="4 per row" title="4 per row">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
+        <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M627-520h133v-160H627v160Zm-214 0h133v-160H413v160Zm-213 0h133v-160H200v160Zm0 240h133v-160H200v160Zm213 0h133v-160H413v160Zm214 0h133v-160H627v160Zm-507 0v-400q0-33 23.5-56.5T200-760h560q33 0 56.5 23.5T840-680v400q0 33-23.5 56.5T760-200H200q-33 0-56.5-23.5T120-280Z"/></svg>
       </button>
-      <button class="pkg-view-option" data-view="grid-5" aria-label="5 per row" title="5 per row">
+      <button class="pkg-view-option" data-view="grid-5" aria-label="5 per row" title="5 per row" hidden>
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4.5v4.5H4V4zm5.75 0h4.5v4.5h-4.5V4zM15.5 4H20v4.5h-4.5V4zM4 9.75h4.5v4.5H4v-4.5zm5.75 0h4.5v4.5h-4.5v-4.5zm5.75 0H20v4.5h-4.5v-4.5zM4 15.5h4.5V20H4v-4.5zm5.75 0h4.5V20h-4.5v-4.5zm5.75 0H20V20h-4.5v-4.5z"/></svg>
       </button>
       <button class="pkg-view-option" data-view="list" aria-label="List view" title="List view">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 14h4v-4H4v4zm0 5h4v-4H4v4zM4 9h4V5H4v4zm5 5h12v-4H9v4zm0 5h12v-4H9v4zM9 5v4h12V5H9z"/></svg>
+        <svg viewBox="0 -960 960 960" fill="currentColor"><path d="M360-240h440v-107H360v107ZM160-613h120v-107H160v107Zm0 187h120v-107H160v107Zm0 186h120v-107H160v107Zm200-186h440v-107H360v107Zm0-187h440v-107H360v107ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Z"/></svg>
       </button>
     </div>
 
@@ -2693,7 +2706,7 @@
         '</div>' +
       '</div>';
 
-    var buildBoxStyle = localStorage.getItem('buildBoxStyle') === 'tile' ? 'tile' : 'banner';
+    var buildBoxStyle = localStorage.getItem('buildBoxStyle') === 'banner' ? 'banner' : 'tile';
 
     // Alternative tile hover style (gear panel): 'gallery' (default) is the
     // lifestyle-photo crossfade below; 'cycle' instead swaps the plain
@@ -2811,41 +2824,45 @@
 
     var listViewProfiles = [
       {
-        minQty: 1, sizes: '5 + custom size', addons: 'Adhesive strip', delivery: '3 September',
+        minQty: '1 piece', sizes: '5 standard + custom size', addons: 'Adhesive strip', delivery: '3 September',
         desc: 'A fully customisable mailer box with a choice of material, print and finish, from subtle tones to vivid colours and premium matte or gloss. Design yours online, print your logo edge to edge, and ship it flat until the moment it’s needed.',
         eco: ['Biodegradable material', 'Made in Europe', 'Recyclable']
       },
       {
-        minQty: 30, sizes: '3 standard sizes', addons: 'Tissue paper, Ribbon', delivery: '10 September',
+        minQty: '30 pieces', sizes: '3 standard sizes', addons: 'Tissue paper, Ribbon', delivery: '10 September',
         desc: 'Lightweight protection that still looks like a gift when it lands on the doorstep. Self-sealing strip for quick packing, water-resistant film that shrugs off a rainy delivery, and a print area wide enough for your whole brand story.',
         eco: ['Plastic-free', 'Recyclable', 'Responsible sourcing']
       },
       {
-        minQty: 50, sizes: '4 + custom size', addons: 'Foil stamping', delivery: '5 September',
+        minQty: '50 pieces', sizes: '4 standard + custom size', addons: 'Foil stamping', delivery: '5 September',
         desc: 'Tissue-thin, brand-thick — wraps every unboxing in your colours. Choose one shade or run a full-bleed pattern across the sheet, then pair it with a ribbon or sticker seal for a finish that photographs well on its own.',
         eco: ['Recycled content', 'Made in Europe', 'Biodegradable material']
       },
       {
-        minQty: 10, sizes: '6 standard sizes', addons: 'None', delivery: '28 August',
+        minQty: '10 pieces', sizes: '6 standard sizes', addons: 'None', delivery: '28 August',
         desc: 'A tape that seals boxes shut and signs them with your logo at the same time. Runs on any standard tape gun, holds through the whole delivery chain, and turns a plain shipping carton into one more branded touchpoint.',
         eco: ['Plastic-free', 'Responsible sourcing', 'Recyclable']
       },
       {
-        minQty: 100, sizes: '2 + custom size', addons: 'Adhesive strip, Insert', delivery: '15 September',
+        minQty: '100 pieces', sizes: '2 standard + custom size', addons: 'Adhesive strip, Insert', delivery: '15 September',
         desc: 'Room for inserts, thank-you cards, and everything else that turns a delivery into an unboxing. Cut to fit your box exactly, printed on both sides if you need it, and shipped flat-packed alongside the rest of your order.',
         eco: ['Made in Europe', 'Recycled content', 'Responsible sourcing']
       },
       {
-        minQty: 25, sizes: '5 standard sizes', addons: 'Matte lamination', delivery: '2 September',
+        minQty: '25 pieces', sizes: '5 standard sizes', addons: 'Matte lamination', delivery: '2 September',
         desc: 'Built for the trip from warehouse to doorstep, printed with your brand along the way. Double-walled where it counts, tested against drops and compression, and still light enough to keep postage costs down.',
         eco: ['Biodegradable material', 'Plastic-free', 'Recyclable']
       },
       {
-        minQty: 1, sizes: 'Custom size only', addons: 'None', delivery: '20 August',
+        minQty: '1 piece', sizes: 'Custom size only', addons: 'None', delivery: '20 August',
         desc: 'Snap-lock simplicity for products that deserve better than a plain bag. No tape or glue needed to assemble, a flat blank for cheap storage, and a lid that clicks shut for a retail-ready finish.',
         eco: ['Recycled content', 'Made in Europe', 'Plastic-free']
       }
     ];
+
+    function listRowHTML(label, value) {
+      return '<div class="product-card-list-row"><span class="product-card-list-row-label">' + label + '</span><span class="product-card-list-row-value">' + value + '</span></div>';
+    }
 
     function injectListDetails(root) {
       var cards = (root || productGrid).querySelectorAll('.product-card');
@@ -2855,7 +2872,7 @@
 
         // Read straight off the card's own (real) name/price instead of
         // moving those nodes -- grid view still needs them exactly where
-        // they are, and this keeps the mini price tiers grounded in each
+        // they are, and this keeps the price tiers grounded in each
         // product's actual base price rather than another invented number.
         var nameEl = card.querySelector('.product-card-name');
         var priceEl = card.querySelector('.product-card-price');
@@ -2863,43 +2880,51 @@
         var name = nameEl.textContent.trim();
         var basePrice = parseFloat((priceEl.textContent.match(/[\d.]+/) || ['0'])[0]);
 
+        var ecoBadgesHTML = profile.eco.map(function (prop) {
+          return '<span class="product-card-eco-badge" title="' + prop + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' + ecoPropIcons[prop] + '</svg></span>';
+        }).join('');
+
         var titleColHTML =
-          '<div class="product-card-list-col product-card-list-col-title">' +
-            '<h3 class="product-card-list-title">' + name + '</h3>' +
-            '<p class="product-card-desc">' + profile.desc + '</p>' +
-          '</div>';
-
-        var aspectsColHTML =
-          '<div class="product-card-list-col product-card-list-col-aspects">' +
-            '<div class="product-card-list-details">' +
-              '<div class="product-card-list-detail"><span class="product-card-list-detail-label">Minimum quantity</span><span class="product-card-list-detail-value">' + profile.minQty + '</span></div>' +
-              '<div class="product-card-list-detail"><span class="product-card-list-detail-label">Sizes</span><span class="product-card-list-detail-value">' + profile.sizes + '</span></div>' +
-              '<div class="product-card-list-detail"><span class="product-card-list-detail-label">Addons</span><span class="product-card-list-detail-value">' + profile.addons + '</span></div>' +
-              '<div class="product-card-list-detail"><span class="product-card-list-detail-label">Delivery from</span><span class="product-card-list-detail-value">' + profile.delivery + '</span></div>' +
+          '<div class="product-card-list-col-title">' +
+            '<div class="product-card-list-title-group">' +
+              '<h3 class="product-card-list-title">' + name + '</h3>' +
+              '<p class="product-card-desc">' + profile.desc + '</p>' +
             '</div>' +
-            '<div class="product-card-eco-props">' + profile.eco.map(function (prop) {
-              return '<span class="product-card-eco-prop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + ecoPropIcons[prop] + '</svg>' + prop + '</span>';
-            }).join('') + '</div>' +
+            '<button type="button" class="btn-pill md product-card-list-cta">View product</button>' +
           '</div>';
 
-        // Mini price list: three tiers derived from the card's own base
-        // price (no per-product tier data exists yet) -- a prototype-run
-        // premium at qty 1, the base "from" price at a mid quantity, and a
-        // bulk discount, the same shape as the real quantity picker on
-        // product_page.html.
+        var specColHTML =
+          '<div class="product-card-list-col-aspects">' +
+            '<p class="product-card-list-col-label">Spec</p>' +
+            '<div class="product-card-list-table">' +
+              listRowHTML('Minimum quantity', profile.minQty) +
+              listRowHTML('Sizes', profile.sizes) +
+              listRowHTML('Addons', profile.addons) +
+              listRowHTML('Eco properties', '<span class="product-card-eco-props">' + ecoBadgesHTML + '</span>') +
+              listRowHTML('Delivery from', profile.delivery) +
+            '</div>' +
+          '</div>';
+
+        // Pricing table: five tiers derived from the card's own base price
+        // (no per-product tier data exists yet), the same shape as the
+        // real quantity picker on product_page.html -- a prototype-run
+        // premium at qty 1, the base "from" price settling in by 30-100,
+        // a bulk discount at 1000, and "Get a quote" past that.
         var priceColHTML =
-          '<div class="product-card-list-col product-card-list-col-price">' +
-            '<div class="product-card-mini-pricing">' +
-              '<div class="product-card-mini-price-row"><span class="product-card-mini-price-qty">1 pc</span><span class="product-card-mini-price-value">€' + (basePrice * 3.2).toFixed(2) + '</span></div>' +
-              '<div class="product-card-mini-price-row"><span class="product-card-mini-price-qty">30 pcs</span><span class="product-card-mini-price-value">€' + basePrice.toFixed(2) + '/pc</span></div>' +
-              '<div class="product-card-mini-price-row"><span class="product-card-mini-price-qty">250 pcs</span><span class="product-card-mini-price-value">€' + (basePrice * 0.7).toFixed(2) + '/pc</span></div>' +
+          '<div class="product-card-list-col-price">' +
+            '<p class="product-card-list-col-label">Pricing</p>' +
+            '<div class="product-card-list-table">' +
+              listRowHTML('1 pc', '€' + (basePrice * 3.2).toFixed(2) + ' piece') +
+              listRowHTML('30 pcs', '€' + basePrice.toFixed(2) + ' piece') +
+              listRowHTML('100 pcs', '€' + (basePrice * 0.85).toFixed(2) + ' piece') +
+              listRowHTML('1000 pcs', '€' + (basePrice * 0.7).toFixed(2) + ' piece') +
+              listRowHTML('5000 pcs', 'Get a quote') +
             '</div>' +
-            '<button type="button" class="btn-pill sm product-card-list-cta">View product</button>' +
           '</div>';
 
         var details = document.createElement('div');
         details.className = 'product-card-list-extra';
-        details.innerHTML = titleColHTML + aspectsColHTML + priceColHTML;
+        details.innerHTML = titleColHTML + specColHTML + priceColHTML;
         card.appendChild(details);
 
         // A real <a> here would be invalid nested inside the ~4 cards
@@ -2947,9 +2972,31 @@
         .concat(enriched.filter(function (p) { return !p.img; }));
     }
 
+    // Shared by both branches of renderProducts below so the "Build any
+    // box type" tile/banner lands in the same spot (last of the first
+    // row) in every category, root included.
+    function insertBuildBoxTile(cardsHTML) {
+      var tileHTML = buildBoxStyle === 'tile' ? quickBoxTileHTML : quickBoxBannerHTML;
+      if (buildBoxStyle === 'tile') {
+        if (cardsHTML.length >= 3) {
+          cardsHTML.splice(3, 0, tileHTML);
+        } else {
+          cardsHTML.push(tileHTML);
+        }
+      } else if (cardsHTML.length > 4) {
+        cardsHTML.splice(4, 0, tileHTML);
+      } else {
+        cardsHTML.push(tileHTML);
+      }
+    }
+
     function renderProducts(products) {
       if (!products) {
-        productGrid.innerHTML = defaultProductGridHTML;
+        var temp = document.createElement('div');
+        temp.innerHTML = defaultProductGridHTML;
+        var rootCardsHTML = Array.prototype.map.call(temp.children, function (el) { return el.outerHTML; });
+        insertBuildBoxTile(rootCardsHTML);
+        productGrid.innerHTML = rootCardsHTML.join('');
         initProductGalleries();
         initProductHoverCycle();
         injectListDetails();
@@ -2958,18 +3005,7 @@
 
       var sortedProducts = enrichAndSortProducts(products);
       var cardsHTML = sortedProducts.map(productCardHTML);
-
-      if (buildBoxStyle === 'tile') {
-        if (cardsHTML.length >= 3) {
-          cardsHTML.splice(3, 0, quickBoxTileHTML);
-        } else {
-          cardsHTML.push(quickBoxTileHTML);
-        }
-      } else if (cardsHTML.length > 4) {
-        cardsHTML.splice(4, 0, quickBoxBannerHTML);
-      } else {
-        cardsHTML.push(quickBoxBannerHTML);
-      }
+      insertBuildBoxTile(cardsHTML);
 
       productGrid.innerHTML = cardsHTML.join('');
 
@@ -3344,6 +3380,10 @@
     updateFilterVisibility('root');
     syncIndustryToggle();
     moveIndustryStripIndicator(industryStripToggle.querySelector('.toggle-option.active'));
+    // The static grid markup doesn't include the "Build any box type"
+    // tile/banner -- re-run it through renderProducts once so root gets
+    // one too, same as every other category.
+    renderProducts(categoryTree.root.products);
 
     // Re-renders whichever tile strip is currently showing (category tiles
     // or the industry use-case strip) without touching header/breadcrumb/
@@ -3726,7 +3766,7 @@
     });
 
     var buildBoxStyleToggle = document.getElementById('toggleBuildBoxStyle');
-    buildBoxStyleToggle.checked = localStorage.getItem('buildBoxStyle') === 'tile';
+    buildBoxStyleToggle.checked = localStorage.getItem('buildBoxStyle') !== 'banner';
 
     buildBoxStyleToggle.addEventListener('change', function () {
       window.phSetBuildBoxStyle(buildBoxStyleToggle.checked ? 'tile' : 'banner');

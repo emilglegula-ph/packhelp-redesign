@@ -397,7 +397,7 @@
     height: 48px;
     box-sizing: border-box;
     padding: 0 40px 0 var(--space-4);
-    border: 1px solid var(--gray-300);
+    border: 1px solid var(--gray-400);
     border-radius: var(--radius-sm);
     background: var(--color-bg-page);
     font: inherit;
@@ -730,7 +730,7 @@
     align-items: center;
     justify-content: center;
     gap: 2px;
-    height: 64px;
+    height: 72px;
     box-sizing: border-box;
     padding: 0 var(--space-2);
     border: none;
@@ -756,7 +756,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--space-1);
-    height: 64px;
+    height: 72px;
     box-sizing: border-box;
     padding: 0 var(--space-2);
     border: none;
@@ -792,8 +792,8 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: var(--space-5);
-    margin: var(--space-2) 0 var(--space-10);
+    gap: var(--space-2);
+    margin: 0 0 var(--space-10);
     padding: 0;
     list-style: none;
   }
@@ -802,15 +802,19 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    font-size: 15px;
+    background-color: var(--gray-200);
+    border-radius: 200px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 400;
     letter-spacing: -0.02em;
     color: var(--gray-600);
   }
 
   .pp-usp-check {
     flex: none;
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     color: var(--gray-600);
   }
 
@@ -1081,10 +1085,21 @@
 
   .pp-spec-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
   .pp-spec-list li { display: flex; flex-direction: row; align-items: center; gap: var(--space-3); }
-  .pp-spec-thumb { flex: none; width: 72px; height: 72px; border-radius: 12px; overflow: hidden; background: var(--gray-100); }
-  .pp-spec-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  /* overflow: visible (not hidden) + position/z-index so the hover zoom
+     below can visibly grow past this box into neighbouring rows instead
+     of just cropping tighter into the same 72px frame. The scale transform
+     goes on this wrapper (not just the <img>) so its own gray-100
+     background scales right along with it -- scaling only the image left
+     its transparent-PNG padding showing whatever sits behind the thumb
+     once enlarged, since the background stayed pinned at 72px. */
+  .pp-spec-thumb { flex: none; width: 72px; height: 72px; border-radius: 12px; overflow: visible; background: var(--gray-100); position: relative; z-index: 1; transition: transform .3s ease, box-shadow .3s ease; }
+  .pp-spec-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; position: relative; }
+  /* Same "zoom out from an inline thumbnail" manoeuvre as .deco-square on
+     index.html, adapted from a background-image pseudo-element to a real
+     <img> -- scale factor (72px -> ~200px) matches its ~64px -> 200px. */
+  .pp-spec-thumb:hover { z-index: 20; transform: scale(2.75); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
   .pp-spec-text { display: flex; flex-direction: column; gap: 2px; }
-  .pp-spec-term { font-size: 13px; font-weight: 400; letter-spacing: -0.02em; color: var(--color-text-primary); }
+  .pp-spec-term { font-size: 15px; font-weight: 400; letter-spacing: -0.02em; color: var(--color-text-primary); }
   .pp-spec-desc { font-size: 0.8125rem; letter-spacing: -0.02em; line-height: 1.4; color: var(--color-text-muted); max-width: 42ch; }
 
   /* ---------- Specification tab: real key/value table, copied from
@@ -1365,10 +1380,106 @@
 
   .pp-carousel-section .scroll-carousel-nav { top: 160px; }
 
+  /* ---------- brand gallery ("real brands in the wild") -----------------
+     Full-bleed outer wrapper (100vw, 12px side margins) with a grey-100
+     rounded box inside; the photo grid is capped at 1600px, matching the
+     rest of the page's content width, deliberately NOT var(--max-w-lg)
+     (1664px) -- 1600px is a fixed, explicit width for this section only. */
+  .pp-brands-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: var(--space-40) 0 0;
+    padding: 0 var(--space-3);
+    box-sizing: border-box;
+  }
+
+  .pp-brands-section.reveal { transform: translateX(-50%) translateY(-16px); }
+  .pp-brands-section.reveal.is-visible { transform: translateX(-50%) translateY(0); }
+
+  /* Grey background spans the section's full width (up to the 12px side
+     margins); the 1600px cap applies only to the heading/grid inside it. */
+  .pp-brands-bg {
+    padding: var(--space-12) clamp(20px, 2vw, var(--space-14));
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-2xl);
+    box-sizing: border-box;
+  }
+
+  .pp-brands-content { max-width: 1600px; margin: 0 auto; }
+
+  .pp-brands-heading {
+    max-width: 700px;
+    margin: 0 0 var(--space-12);
+    font-size: 3rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.06em;
+    color: var(--color-text-primary);
+  }
+
+  .pp-brands-grid { display: flex; gap: var(--space-4); }
+  .pp-brands-col { flex: 1 1 0; display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .pp-brands-photo {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .pp-brands-col-a .pp-brands-photo:first-child { aspect-ratio: 408 / 472; }
+  .pp-brands-col-a .pp-brands-photo:last-child { aspect-ratio: 408 / 364; }
+  .pp-brands-col-b .pp-brands-photo:first-child { aspect-ratio: 408 / 364; }
+  .pp-brands-col-b .pp-brands-photo:last-child { aspect-ratio: 408 / 472; }
+  .pp-brands-col-c .pp-brands-photo:first-child { aspect-ratio: 408 / 472; }
+  .pp-brands-col-c .pp-brands-photo:last-child { aspect-ratio: 408 / 364; }
+
+  .pp-brands-badge {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    height: 32px;
+    padding: 0 var(--space-3);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  }
+
+  .pp-brands-badge img { display: block; height: 14px; width: auto; }
+  .pp-brands-badge svg { width: 14px; height: 14px; flex: none; }
+
+  .pp-brands-badge span {
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .pp-brands-grid { flex-direction: column; }
+    .pp-brands-col { flex-direction: row; }
+    .pp-brands-col-a .pp-brands-photo:first-child,
+    .pp-brands-col-b .pp-brands-photo:first-child,
+    .pp-brands-col-c .pp-brands-photo:first-child,
+    .pp-brands-col-a .pp-brands-photo:last-child,
+    .pp-brands-col-b .pp-brands-photo:last-child,
+    .pp-brands-col-c .pp-brands-photo:last-child { aspect-ratio: 1 / 1; }
+  }
+
   @media (max-width: 700px) {
     .pp-carousel-heading { padding-left: var(--space-4); }
     .categories-grid { padding: 0 var(--space-4) var(--space-2); }
     .pp-spec-section { padding: 0 var(--space-4); }
+    .pp-brands-heading { font-size: 1.75rem; }
+    .pp-brands-col { flex-direction: column; }
   }
 
   /* ---------- editor section (statement-section, copied from index.html) ---------- */
@@ -1683,10 +1794,6 @@
           <span class="pp-chip-media"><img src="assets/product-page/White%20Colour.png" alt=""></span>
           <span class="pp-chip-label">White Colour</span>
         </button>
-        <button class="pp-chip" data-value="Multicolour – muted">
-          <span class="pp-chip-media"><img src="assets/product-page/Multicolour%20%E2%80%93%20muted.png" alt=""></span>
-          <span class="pp-chip-label">Multicolour – muted</span>
-        </button>
         <button class="pp-chip" data-value="Multicolour – saturated">
           <span class="pp-chip-media"><img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt=""></span>
           <span class="pp-chip-label">Multicolour – saturated</span>
@@ -1758,16 +1865,16 @@
         <a href="#ppSpecSection" class="pp-learn-more">Learn more</a>
       </div>
       <div class="pp-chip-group">
-        <button class="pp-chip" data-value="None">
-          <span class="pp-chip-media"><img src="assets/build/adhesive-double.png" alt=""></span>
+        <button class="pp-chip active" data-value="None">
+          <span class="pp-chip-media"><img src="assets/build/adhesive-none.png" alt=""></span>
           <span class="pp-chip-label">None</span>
         </button>
-        <button class="pp-chip active" data-value="Single">
+        <button class="pp-chip" data-value="Single">
           <span class="pp-chip-media"><img src="assets/build/adhesive-single.png" alt=""></span>
           <span class="pp-chip-label">Single</span>
         </button>
         <button class="pp-chip" data-value="Double">
-          <span class="pp-chip-media"><img src="assets/build/adhesive-none.png" alt=""></span>
+          <span class="pp-chip-media"><img src="assets/build/adhesive-double.png" alt=""></span>
           <span class="pp-chip-label">Double</span>
         </button>
       </div>
@@ -1991,7 +2098,6 @@
         <ul class="pp-spec-list">
           <li><span class="pp-spec-thumb"><img src="assets/product-page/One%20Colour.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">One Colour</span><span class="pp-spec-desc">A single CMYK colour keeps costs low — perfect for minimalist designs.</span></span></li>
           <li><span class="pp-spec-thumb"><img src="assets/product-page/White%20Colour.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">White Colour</span><span class="pp-spec-desc">White ink via UV printing, ideal for strong contrast on kraft cardboard.</span></span></li>
-          <li><span class="pp-spec-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20muted.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Multicolour – muted</span><span class="pp-spec-desc">The most affordable multicolour option — soft, slightly faded tones for a natural, rustic style.</span></span></li>
           <li><span class="pp-spec-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20saturated.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Multicolour – saturated</span><span class="pp-spec-desc">Affordable multicolour printing on bleached cardboard with good colour accuracy.</span></span></li>
           <li><span class="pp-spec-thumb"><img src="assets/product-page/Multicolour%20%E2%80%93%20premium.png" alt=""></span><span class="pp-spec-text"><span class="pp-spec-term">Multicolour – premium</span><span class="pp-spec-desc">Our top-tier print on coated cardboard — sharp, high-definition results, even for photographic imagery.</span></span></li>
         </ul>
@@ -2161,6 +2267,40 @@
   </div>
 </section>
 
+<section class="pp-brands-section reveal">
+  <div class="pp-brands-bg">
+   <div class="pp-brands-content">
+    <h2 class="pp-brands-heading">See how real brands bring their Mailer Box to life in the wild</h2>
+    <div class="pp-brands-grid">
+      <div class="pp-brands-col pp-brands-col-a">
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/kuyichi.jpg')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/kuyichi-logo.png" alt="Kuyichi"></span>
+        </div>
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/tan.jpg')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/tan-logo.png" alt="TAN"></span>
+        </div>
+      </div>
+      <div class="pp-brands-col pp-brands-col-b">
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/highsnobiety.jpg')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/highsnobiety-logo.png" alt="Highsnobiety"></span>
+        </div>
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/tricotsjeanmarc.jpg')">
+          <span class="pp-brands-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>@tricotsjeanmarc</span></span>
+        </div>
+      </div>
+      <div class="pp-brands-col pp-brands-col-c">
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/birdsocks.jpg')">
+          <span class="pp-brands-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>@birdsocks</span></span>
+        </div>
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/treps.jpg')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/treps-logo.png" alt="Treps"></span>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+</section>
+
 <section class="statement-section reveal">
   <p class="statement">The world's easiest way to design<span class="deco-square" style="--deco-img:url('assets/main-segment/packaging/packaging-boxes.avif')"></span>custom packaging. Paper, size<span class="deco-square" style="--deco-img:url('assets/custom-packaging/ecommerce/ecommerce-bags.avif')"></span>brand colour, your logo, a live 3D preview. Everything you need to go from a blank box<span class="deco-square" style="--deco-img:url('assets/custom-packaging/food/food-pouches.jpg')"></span>to a shelf-ready package, in one editor.</p>
 
@@ -2272,8 +2412,8 @@
   <p class="site-settings-title">Page customization</p>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Thumbnails below preview</p>
-      <p class="site-settings-desc">Show gallery thumbnails as a strip below the preview instead of a column on the left</p>
+      <p class="site-settings-label">Thumbnails as side column</p>
+      <p class="site-settings-desc">Show gallery thumbnails as a column on the left instead of a strip below the preview</p>
     </div>
     <label class="site-toggle">
       <input type="checkbox" id="toggleGalleryMode">
@@ -2292,8 +2432,8 @@
   </div>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Vertical specification tabs</p>
-      <p class="site-settings-desc">Show the spec section tabs as a large stacked list on the left, with content in a 50/50 column on the right</p>
+      <p class="site-settings-label">Horizontal specification tabs</p>
+      <p class="site-settings-desc">Show the spec section tabs in a horizontal row instead of a large stacked list on the left with content in a 50/50 column</p>
     </div>
     <label class="site-toggle">
       <input type="checkbox" id="toggleSpecLayout">
@@ -2307,15 +2447,15 @@
     </div>
     <div class="toggle-switch pp-qty-style-toggle" id="ppQtyStyleToggle">
       <div class="toggle-indicator" id="ppQtyStyleIndicator"></div>
-      <button type="button" class="toggle-option active" data-value="list">List</button>
-      <button type="button" class="toggle-option" data-value="horizontal">Horizontal</button>
+      <button type="button" class="toggle-option active" data-value="horizontal">Horizontal</button>
+      <button type="button" class="toggle-option" data-value="list">List</button>
       <button type="button" class="toggle-option" data-value="input">Input</button>
     </div>
   </div>
   <div class="site-settings-row">
     <div>
-      <p class="site-settings-label">Related products under config</p>
-      <p class="site-settings-desc">Show a "Pairs well with..." mini-section with two related products below the configurator and options table</p>
+      <p class="site-settings-label">Hide related products under config</p>
+      <p class="site-settings-desc">Hide the "Pairs well with..." mini-section with two related products below the configurator and options table</p>
     </div>
     <label class="site-toggle">
       <input type="checkbox" id="toggleRelatedUnderConfig">
@@ -2343,17 +2483,19 @@
     var galleryModeToggle = document.getElementById('toggleGalleryMode');
     var galleryOuter = document.getElementById('ppGalleryOuter');
 
-    function applyGalleryMode(below) {
-      galleryOuter.classList.toggle('pp-gallery-mode-below', below);
-      galleryModeToggle.checked = below;
+    // "below" is now the default -- the toggle instead opts INTO the old
+    // default (side column), so checked means side, unchecked means below.
+    function applyGalleryMode(side) {
+      galleryOuter.classList.toggle('pp-gallery-mode-below', !side);
+      galleryModeToggle.checked = side;
       if (window.ppResizeGallery) { window.ppResizeGallery(); }
     }
 
-    applyGalleryMode(localStorage.getItem('galleryMode') === 'below');
+    applyGalleryMode(localStorage.getItem('galleryMode') === 'side');
 
     galleryModeToggle.addEventListener('change', function () {
       applyGalleryMode(galleryModeToggle.checked);
-      localStorage.setItem('galleryMode', galleryModeToggle.checked ? 'below' : 'left');
+      localStorage.setItem('galleryMode', galleryModeToggle.checked ? 'side' : 'below');
     });
 
     var chipLabelToggle = document.getElementById('toggleChipLabelStyle');
@@ -2372,16 +2514,18 @@
 
     var specLayoutToggle = document.getElementById('toggleSpecLayout');
 
-    function applySpecLayout(vertical) {
-      document.body.classList.toggle('pp-spec-vertical', vertical);
-      specLayoutToggle.checked = vertical;
+    // Vertical is now the default -- the toggle instead opts INTO the old
+    // default (horizontal tabs), so checked means horizontal.
+    function applySpecLayout(horizontal) {
+      document.body.classList.toggle('pp-spec-vertical', !horizontal);
+      specLayoutToggle.checked = horizontal;
     }
 
-    applySpecLayout(localStorage.getItem('specLayout') === 'vertical');
+    applySpecLayout(localStorage.getItem('specLayout') === 'horizontal');
 
     specLayoutToggle.addEventListener('change', function () {
       applySpecLayout(specLayoutToggle.checked);
-      localStorage.setItem('specLayout', specLayoutToggle.checked ? 'vertical' : 'horizontal');
+      localStorage.setItem('specLayout', specLayoutToggle.checked ? 'horizontal' : 'vertical');
     });
 
     var qtyStyleToggle = document.getElementById('ppQtyStyleToggle');
@@ -2409,20 +2553,22 @@
       });
     });
 
-    applyQtyStyle(localStorage.getItem('qtyStyle') || 'list');
+    applyQtyStyle(localStorage.getItem('qtyStyle') || 'horizontal');
 
     var relatedUnderConfigToggle = document.getElementById('toggleRelatedUnderConfig');
 
-    function applyRelatedUnderConfig(show) {
-      document.body.classList.toggle('pp-show-pairs-well', show);
-      relatedUnderConfigToggle.checked = show;
+    // Shown by default -- the (now inverted) toggle hides it instead of
+    // showing it, so checked means hidden.
+    function applyRelatedUnderConfig(hide) {
+      document.body.classList.toggle('pp-show-pairs-well', !hide);
+      relatedUnderConfigToggle.checked = hide;
     }
 
-    applyRelatedUnderConfig(localStorage.getItem('relatedUnderConfig') !== 'off');
+    applyRelatedUnderConfig(localStorage.getItem('relatedUnderConfig') === 'hide');
 
     relatedUnderConfigToggle.addEventListener('change', function () {
       applyRelatedUnderConfig(relatedUnderConfigToggle.checked);
-      localStorage.setItem('relatedUnderConfig', relatedUnderConfigToggle.checked ? 'on' : 'off');
+      localStorage.setItem('relatedUnderConfig', relatedUnderConfigToggle.checked ? 'hide' : 'show');
     });
   })();
 </script>
