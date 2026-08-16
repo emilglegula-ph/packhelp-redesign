@@ -801,20 +801,12 @@
   .pp-usps li {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
     background-color: var(--gray-200);
     border-radius: 200px;
     padding: 4px 12px;
     font-size: 13px;
     font-weight: 400;
     letter-spacing: -0.02em;
-    color: var(--gray-600);
-  }
-
-  .pp-usp-check {
-    flex: none;
-    width: 12px;
-    height: 12px;
     color: var(--gray-600);
   }
 
@@ -1420,7 +1412,7 @@
   }
 
   .pp-brands-grid { display: flex; gap: var(--space-4); }
-  .pp-brands-col { flex: 1 1 0; display: flex; flex-direction: column; gap: var(--space-2); }
+  .pp-brands-col { flex: 1 1 0; display: flex; flex-direction: column; gap: var(--space-4); }
 
   .pp-brands-photo {
     position: relative;
@@ -1667,9 +1659,9 @@
     <p class="pp-subheading reveal">A fully customisable mailer box with a choice of material, print and finish, from subtle tones to vivid colours and premium matte or gloss. Design yours online.</p>
 
     <ul class="pp-usps">
-      <li><svg class="pp-usp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>3D editor</li>
-      <li><svg class="pp-usp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Eco-friendly</li>
-      <li><svg class="pp-usp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Made in EU</li>
+      <li>3D editor</li>
+      <li>Eco-friendly</li>
+      <li>Made in EU</li>
     </ul>
 
     <section class="pp-step" id="ppStepQuantity">
@@ -2162,6 +2154,40 @@
   </div>
 </section>
 
+<section class="pp-brands-section reveal">
+  <div class="pp-brands-bg">
+   <div class="pp-brands-content">
+    <h2 class="pp-brands-heading">See how real brands bring their Mailer Box to life in the wild</h2>
+    <div class="pp-brands-grid">
+      <div class="pp-brands-col pp-brands-col-a">
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/kuyichi.png')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/kuyichi-logo.png" alt="Kuyichi"></span>
+        </div>
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/tan.png')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/tan-logo.png" alt="TAN"></span>
+        </div>
+      </div>
+      <div class="pp-brands-col pp-brands-col-b">
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/highsnobiety.png')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/highsnobiety-logo.png" alt="Highsnobiety"></span>
+        </div>
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/tricotsjeanmarc.png')">
+          <span class="pp-brands-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>@tricotsjeanmarc</span></span>
+        </div>
+      </div>
+      <div class="pp-brands-col pp-brands-col-c">
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/birdsocks.png')">
+          <span class="pp-brands-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>@birdsocks</span></span>
+        </div>
+        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/treps.png')">
+          <span class="pp-brands-badge"><img src="assets/product-page/brands/treps-logo.png" alt="Treps"></span>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+</section>
+
 <section class="pp-carousel-section reveal">
   <h2 class="pp-carousel-heading">Related products</h2>
   <div class="scroll-carousel">
@@ -2264,40 +2290,6 @@
       </a>
     </div>
     <button class="scroll-carousel-nav next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
-  </div>
-</section>
-
-<section class="pp-brands-section reveal">
-  <div class="pp-brands-bg">
-   <div class="pp-brands-content">
-    <h2 class="pp-brands-heading">See how real brands bring their Mailer Box to life in the wild</h2>
-    <div class="pp-brands-grid">
-      <div class="pp-brands-col pp-brands-col-a">
-        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/kuyichi.jpg')">
-          <span class="pp-brands-badge"><img src="assets/product-page/brands/kuyichi-logo.png" alt="Kuyichi"></span>
-        </div>
-        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/tan.jpg')">
-          <span class="pp-brands-badge"><img src="assets/product-page/brands/tan-logo.png" alt="TAN"></span>
-        </div>
-      </div>
-      <div class="pp-brands-col pp-brands-col-b">
-        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/highsnobiety.jpg')">
-          <span class="pp-brands-badge"><img src="assets/product-page/brands/highsnobiety-logo.png" alt="Highsnobiety"></span>
-        </div>
-        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/tricotsjeanmarc.jpg')">
-          <span class="pp-brands-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>@tricotsjeanmarc</span></span>
-        </div>
-      </div>
-      <div class="pp-brands-col pp-brands-col-c">
-        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/birdsocks.jpg')">
-          <span class="pp-brands-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg><span>@birdsocks</span></span>
-        </div>
-        <div class="pp-brands-photo" style="background-image:url('assets/product-page/brands/treps.jpg')">
-          <span class="pp-brands-badge"><img src="assets/product-page/brands/treps-logo.png" alt="Treps"></span>
-        </div>
-      </div>
-    </div>
-   </div>
   </div>
 </section>
 
