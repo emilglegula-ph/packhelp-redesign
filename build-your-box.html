@@ -93,20 +93,20 @@
   }
 
   .build-box-header {
-    max-width: calc(1400px + 480px + var(--space-6));
+    max-width: var(--max-w-lg);
     margin: 0 auto;
-    padding: var(--space-8) var(--space-6) 0;
+    padding: var(--space-8) var(--space-6) 0 var(--space-8);
     box-sizing: border-box;
   }
 
   .build-box-page {
-    max-width: calc(1400px + 480px + var(--space-6));
+    max-width: var(--max-w-lg);
     margin: 0 auto;
     display: grid;
     grid-template-columns: minmax(0, 1400px) 480px;
     align-items: start;
     gap: var(--space-6);
-    padding: var(--space-6);
+    padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
     box-sizing: border-box;
   }
 
@@ -612,7 +612,7 @@
   }
 
   .build-box-heading {
-    margin: 0 0 var(--space-1);
+    margin: 0 0 var(--space-3);
     font-weight: 500;
     font-size: 2rem;
     line-height: 1.08;
@@ -620,12 +620,62 @@
     color: var(--color-text-primary);
   }
 
-  .build-box-subheading {
-    margin: 0 0 var(--space-8);
-    font-size: 0.9375rem;
+  /* ---------- USP pills (Unlimited constructions / Custom sizes / 3D
+     preview), replacing the old plain-text subtitle -- same .pp-usps pill
+     style as product-page.html, with a hover popover explaining each one
+     (no icon, left-aligned text), matching Build_your_box's own UspPills. ---------- */
+  .build-box-usps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .build-box-usp {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 200px;
+    background: var(--gray-200);
+    padding: 4px var(--space-3);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .build-box-usp-popover {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    z-index: 20;
+    width: 220px;
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    padding: var(--space-4);
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+    text-align: left;
+  }
+
+  .build-box-usp:hover .build-box-usp-popover {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .build-box-usp-popover p {
+    margin: 0;
+    font-size: 13px;
     line-height: 1.32;
     letter-spacing: -0.02em;
-    color: var(--color-text-muted);
+    color: var(--gray-600);
   }
 
   .build-box-field-label {
@@ -662,6 +712,7 @@
     border-radius: 12px;
     background: var(--color-bg-muted);
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
     transition: background-color .15s ease, box-shadow .15s ease;
   }
@@ -835,6 +886,26 @@
     object-fit: contain;
   }
 
+  /* Closure's icons (unlike every other .box-type-card-thumb, which holds
+     a full-bleed photo) read as oversized at the full 88px thumb size --
+     shrunk 40% within the same-size thumb slot so the row stays aligned
+     with the other picker sections. */
+  #stepClosure .box-type-card-thumb img {
+    width: 60%;
+    height: 60%;
+  }
+
+  /* "More products" link tile -- same slot as a photo thumb, a plain
+     arrow-in-a-circle instead (matches the equivalent "More products" tile
+     on Build_your_box/dist/index.html's Product picker). */
+  .box-type-card-thumb-icon {
+    border-radius: 50%;
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+  }
+
+  .box-type-card-thumb-icon svg { width: 28px; height: 28px; }
+
   .box-type-card-text {
     display: flex;
     flex-direction: column;
@@ -998,6 +1069,92 @@
     border-color: var(--color-text-primary);
     color: var(--color-text-primary);
   }
+
+  /* ---------- Type / Closure tiles -- same Chip pattern as
+     Build_your_box/dist/index.html (and product-page.html's .pp-chip):
+     square media box with its own background/active state, caption below
+     it off the background, left-aligned. Closure reuses the same tile but
+     smaller centered icons (fit:icon) instead of full-bleed photos. ---------- */
+  .type-tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .type-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: none;
+    width: 96px;
+    box-sizing: border-box;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .type-tile-media {
+    position: relative;
+    display: flex;
+    flex: none;
+    width: 96px;
+    height: 96px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--gray-100);
+    transition: background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .type-tile:hover .type-tile-media { background: var(--gray-300); }
+  .type-tile.active .type-tile-media {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--gray-500), 0 2px 2px rgba(0,0,0,.08);
+  }
+
+  .type-tile-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .type-tile-media.type-tile-media-icon img { width: 64px; height: auto; object-fit: contain; }
+
+  .type-tile-label {
+    width: 100%;
+    padding: var(--space-2) 0 0;
+    font-size: 12px;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--gray-600);
+  }
+
+  .type-tile.active .type-tile-label { color: var(--color-text-primary); }
+
+  /* Snap Lock's hover video preview, ported from .construction-card-preview
+     -- same panel, just anchored off the smaller 104px tile instead. */
+  .type-tile-preview {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 160px;
+    border-radius: 16px;
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.08);
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s ease;
+  }
+
+  .type-tile:hover .type-tile-preview { opacity: 1; visibility: visible; }
+
+  .type-tile-preview video { display: block; width: 100%; height: 100%; object-fit: cover; }
 
   .toggle-switch {
     position: relative;
@@ -1337,22 +1494,32 @@
     margin-top: 0;
   }
 
-  /* ---------- mini sticky price summary, pinned like the homepage sticky nav ---------- */
+  /* ---------- mini sticky price summary -- same panel as
+     Build_your_box/src/components/StickyDeliveryBar.tsx: docked to the
+     bottom, exactly as wide as the config column, rounded top corners
+     only, border-x/border-t (not a full border), bg white/80 + blur(4px),
+     soft upward shadow. left/width are set from JS (positionBar(), below)
+     to the config column's own real getBoundingClientRect() -- more
+     robust than replicating .build-box-page's max-width/centering math in
+     a second place, and already there before this pass. ---------- */
   .build-box-sticky-summary {
     position: fixed;
     bottom: 0;
     z-index: 60;
     box-sizing: border-box;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-4) var(--space-6);
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 72px;
+    padding: var(--space-3) var(--space-4);
     background: rgba(255, 255, 255, 0.80);
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,.08);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--color-border-default);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    box-shadow: 0 -5px 16px rgba(47,47,47,.06);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     transform: translateY(100%);
     pointer-events: none;
@@ -1365,24 +1532,29 @@
     pointer-events: auto;
   }
 
+  .build-box-sticky-summary-row { display: flex; width: 100%; align-items: center; gap: var(--space-4); }
+
   .build-box-sticky-summary-group {
     display: flex;
+    flex: 1;
     flex-direction: column;
+    justify-content: center;
     gap: var(--space-1);
   }
 
   .build-box-sticky-summary-label {
-    font-size: 0.6875rem;
+    white-space: nowrap;
+    font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-muted);
   }
 
   .build-box-sticky-summary-value {
-    font-size: 0.9375rem;
-    line-height: 1;
+    font-size: 0.8125rem;
+    line-height: 1.32;
     letter-spacing: -0.02em;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--color-text-primary);
   }
 
@@ -1394,20 +1566,23 @@
 
   .build-box-sticky-summary-price {
     font-size: 1.0625rem;
-    line-height: 1;
+    line-height: 1.16;
     letter-spacing: -0.02em;
     font-weight: 500;
     color: var(--color-text-primary);
   }
 
-  .build-box-sticky-summary-right {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
+  .build-box-sticky-summary-price-group {
+    flex: 1;
+    align-items: flex-end;
+    text-align: right;
   }
 
-  .build-box-sticky-summary-price-group {
-    text-align: right;
+  .build-box-sticky-summary .btn-pill {
+    flex: none;
+    height: 44px;
+    padding: 0 var(--space-5);
+    font-size: 0.9375rem;
   }
 
   @media (max-width: 900px) {
@@ -1491,15 +1666,15 @@
 
   .build-box-checkout-top {
     display: flex;
-    align-items: stretch;
+    align-items: flex-end;
     justify-content: space-between;
     gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
   }
 
   .build-box-checkout-delivery-label {
-    margin: 0 0 var(--space-3);
-    font-size: 0.9375rem;
+    margin: 0 0 var(--space-2);
+    font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-primary);
@@ -1517,8 +1692,8 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
-    font-size: 0.9375rem;
+    gap: var(--space-1);
+    font-size: 0.8125rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
   }
@@ -1563,15 +1738,15 @@
   .build-box-checkout-price-value {
     margin: 0;
     font-size: 2rem;
-    line-height: 1;
+    line-height: 1.08;
     font-weight: 500;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.03em;
     color: var(--color-text-primary);
   }
 
   .build-box-checkout-card .btn-pill {
     width: 100%;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
   }
 
   .build-box-checkout-card .btn-pill:last-child {
@@ -1586,6 +1761,170 @@
 
   .build-box-checkout-card .btn-pill.muted:hover {
     background: var(--color-bg-muted-hover);
+  }
+
+  /* ---------- checkout info-rows (Contact packaging advisors / Specification)
+     -- same .pp-info-rows table as product-page.html, ported verbatim.
+     margin-top tops up the buttons' own space-2 (8px) margin to a full
+     40px gap between the CTA buttons and this table. ---------- */
+  .build-box-info-rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: calc(var(--space-10) - var(--space-2));
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .build-box-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--space-5);
+    border-top: 1px solid var(--color-border-default);
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    font: inherit;
+    text-align: left;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .build-box-info-row:first-child { border-top: none; }
+
+  .build-box-info-row-icon { flex: none; width: 18px; height: 18px; color: var(--color-text-primary); }
+  .build-box-info-row-label { font-size: 0.9375rem; letter-spacing: -0.02em; }
+  .build-box-info-row-arrow { flex: none; width: 18px; height: 18px; margin-left: auto; color: var(--color-text-muted); transform: rotate(-90deg); }
+
+  /* ---------- specification modal -- same shell as Build_your_box's own
+     LearnMoreModal/SpecificationModal (rounded-24 card, header + scrollable
+     body + footer CTA), populated with the same spec table as
+     product-page.html's #ppSpecPanelSpec. ---------- */
+  .build-box-spec-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .4);
+    padding: var(--space-6);
+  }
+
+  .build-box-spec-modal-backdrop.open { display: flex; }
+
+  .build-box-spec-modal {
+    display: flex;
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 24px;
+    background: var(--color-bg-surface);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+
+  .build-box-spec-modal-header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-border-default);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .build-box-spec-modal-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-spec-modal-close {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .build-box-spec-modal-close:hover { background: var(--color-bg-muted-hover); }
+
+  .build-box-spec-modal-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0 var(--space-6);
+  }
+
+  .build-box-spec-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .build-box-spec-row:last-child { border-bottom: none; }
+
+  .build-box-spec-row-label {
+    flex: none;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .build-box-spec-row-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-spec-row-sub { color: var(--color-text-muted); }
+
+  .build-box-spec-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+
+  .build-box-spec-tag {
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    padding: var(--space-1) var(--space-3);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .build-box-spec-modal-footer {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-border-default);
+    padding: var(--space-4) var(--space-6);
+  }
+
+  @media (max-width: 700px) {
+    .build-box-spec-row { flex-direction: column; }
   }
 
   /* ---------- tablet: margins shrink before the full stack breakpoint; the 1400px/480px column sizing already flexes down gracefully ---------- */
@@ -1623,33 +1962,48 @@
 </div>
 
   <nav class="build-box-dots" id="stepDots" aria-label="Configuration steps">
-    <button class="build-box-dot active" data-target="stepBoxType" aria-label="Box type"></button>
-    <button class="build-box-dot" data-target="stepConstruction" aria-label="Construction"></button>
+    <button class="build-box-dot active" data-target="stepBoxType" aria-label="Product"></button>
+    <button class="build-box-dot" data-target="stepConstruction" aria-label="Type"></button>
     <button class="build-box-dot" data-target="stepSize" aria-label="Size"></button>
+    <button class="build-box-dot" data-target="stepOpening" aria-label="Opening"></button>
     <button class="build-box-dot" data-target="stepClosure" aria-label="Closure"></button>
     <button class="build-box-dot" data-target="stepWindows" aria-label="Windows and cutouts"></button>
     <button class="build-box-dot" data-target="stepMaterial" aria-label="Material color"></button>
     <button class="build-box-dot" data-target="stepCustomization" aria-label="Customization"></button>
-    <button class="build-box-dot" data-target="stepAdditional" aria-label="Additional options"></button>
+    <button class="build-box-dot" data-target="stepPrintCoverage" aria-label="Print coverage"></button>
+    <button class="build-box-dot" data-target="stepFinish" aria-label="Finish"></button>
     <button class="build-box-dot" data-target="stepQuantity" aria-label="Quantity"></button>
   </nav>
 
   <div class="build-box-header">
-    <h2 class="build-box-heading">Build your box</h2>
-    <p class="build-box-subheading">Quickly configure the exact box type you need</p>
+    <h2 class="build-box-heading">Build your packaging</h2>
+    <ul class="build-box-usps">
+      <li class="build-box-usp">
+        Unlimited constructions
+        <span class="build-box-usp-popover"><p>Switch freely between mailer boxes, gable tops, pillow packs and more — every construction updates the 3D preview and price instantly, so you can compare options before committing.</p></span>
+      </li>
+      <li class="build-box-usp">
+        Custom sizes
+        <span class="build-box-usp-popover"><p>Set any width, length and height in centimetres — the outer box, print area and dieline all recalculate live as you type, down to the millimetre.</p></span>
+      </li>
+      <li class="build-box-usp">
+        3D preview
+        <span class="build-box-usp-popover"><p>See a true-to-scale 3D model of your box as you configure it — drag to rotate, zoom in on details, and switch to a flat 2D dieline any time.</p></span>
+      </li>
+    </ul>
   </div>
 
   <div class="build-box-sticky-summary" id="stickySummaryBar">
-    <div class="build-box-sticky-summary-group">
-      <span class="build-box-sticky-summary-label">Delivery</span>
-      <span class="build-box-sticky-summary-value underline">20-28 April</span>
-    </div>
-    <div class="build-box-sticky-summary-right">
+    <div class="build-box-sticky-summary-row">
+      <div class="build-box-sticky-summary-group">
+        <span class="build-box-sticky-summary-label">Delivery</span>
+        <span class="build-box-sticky-summary-value underline">20-28 April</span>
+      </div>
       <div class="build-box-sticky-summary-group build-box-sticky-summary-price-group">
         <span class="build-box-sticky-summary-label">Netto / 30 pieces</span>
         <span class="build-box-sticky-summary-price">€45.00</span>
       </div>
-      <a href="#" class="btn-pill lg">Add to cart</a>
+      <a href="#" class="btn-pill lg">Customize design</a>
     </div>
   </div>
 
@@ -1759,41 +2113,64 @@
       <section class="build-box-step" id="stepBoxType">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">1</span>
-          <span class="build-box-accordion-title">Box Type<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Product<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Box Type</h3>
-        <p class="build-box-field-desc">Choose the base format that fits your product</p>
+        <h3 class="build-box-field-label">Product</h3>
+        <p class="build-box-field-desc">Choose the packaging product and material you want to build</p>
         <div class="box-type-grid">
           <button class="box-type-card active" data-box-type="folding">
-            <span class="box-type-card-thumb"><img src="assets/build/folding-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-cardboard.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Folding Box</span>
-              <span class="box-type-card-desc">Flat-packed box that folds from one die-cut sheet.</span>
+              <span class="box-type-card-label">Cardboard Boxes</span>
+              <span class="box-type-card-desc">Lightweight folding carton, ideal for retail and gifting.</span>
             </span>
           </button>
           <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/rigid-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-corrugated.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Rigid Box</span>
+              <span class="box-type-card-label">Corrugated Boxes</span>
+              <span class="box-type-card-desc">Durable corrugated cardboard built for shipping and transit.</span>
+            </span>
+          </button>
+          <button class="box-type-card">
+            <span class="box-type-card-thumb"><img src="assets/build/product-rigid.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Rigid Boxes</span>
               <span class="box-type-card-desc">Sturdy, non-collapsible box for premium packaging.</span>
             </span>
           </button>
           <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/mialer-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-envelopes.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Mailer Box</span>
-              <span class="box-type-card-desc">Self-locking box with an attached lid for shipping.</span>
+              <span class="box-type-card-label">Envelopes</span>
+              <span class="box-type-card-desc">Padded or flat mailers for documents and lightweight items.</span>
             </span>
           </button>
           <button class="box-type-card">
-            <span class="box-type-card-thumb"><img src="assets/build/shipping-box.png" alt=""></span>
+            <span class="box-type-card-thumb"><img src="assets/build/product-bags.png" alt=""></span>
             <span class="box-type-card-text">
-              <span class="box-type-card-label">Shipping Box</span>
-              <span class="box-type-card-desc">Corrugated box built for transport and storage.</span>
+              <span class="box-type-card-label">Bags</span>
+              <span class="box-type-card-desc">Mailing and carrier bags for apparel and lightweight goods.</span>
             </span>
           </button>
+          <button class="box-type-card">
+            <span class="box-type-card-thumb"><img src="assets/build/product-tubes.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Tubes</span>
+              <span class="box-type-card-desc">Cylindrical packaging for posters, bottles and gift sets.</span>
+            </span>
+          </button>
+          <a href="packaging.html" target="_blank" rel="noopener" class="box-type-card">
+            <span class="box-type-card-thumb box-type-card-thumb-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">More products</span>
+              <span class="box-type-card-desc">Browse the full Packhelp packaging range.</span>
+            </span>
+          </a>
         </div>
         </div>
       </section>
@@ -1801,32 +2178,60 @@
       <section class="build-box-step" id="stepConstruction">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">2</span>
-          <span class="build-box-accordion-title">Construction<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-title">Type<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Construction</h3>
+        <h3 class="build-box-field-label">Type</h3>
         <p class="build-box-field-desc">Decide how the box will open and close</p>
-        <div class="construction-grid">
-          <button class="construction-card active" data-construction="classic">
-            <img src="assets/build/classic.svg" alt="">
-            <span>Classic</span>
+        <div class="type-tile-grid">
+          <button class="type-tile active" data-construction="classic">
+            <span class="type-tile-media"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="type-tile-label">Classic</span>
           </button>
-          <button class="construction-card" data-construction="hanging">
-            <img src="assets/build/hanging.svg" alt="">
-            <span>Hanging</span>
+          <button class="type-tile" data-construction="hanging">
+            <span class="type-tile-media"><img src="assets/build/type/Hanging.png" alt=""></span>
+            <span class="type-tile-label">Hanging</span>
           </button>
-          <button class="construction-card" data-construction="with-lid">
-            <img src="assets/build/with-lid.svg" alt="">
-            <span>With Lid</span>
+          <button class="type-tile" data-construction="with-lid">
+            <span class="type-tile-media"><img src="assets/build/type/With_Lid.png" alt=""></span>
+            <span class="type-tile-label">With Lid</span>
           </button>
-          <button class="construction-card" data-construction="handle">
-            <img src="assets/build/handle.svg" alt="">
-            <span>With Handle</span>
+          <button class="type-tile" data-construction="handle">
+            <span class="type-tile-media"><img src="assets/build/type/With_Handle.png" alt=""></span>
+            <span class="type-tile-label">With Handle</span>
           </button>
-          <button class="construction-card" data-construction="gable">
-            <img src="assets/build/gable.svg" alt="">
-            <span>Gable Top</span>
+          <button class="type-tile" data-construction="gable">
+            <span class="type-tile-media"><img src="assets/build/type/Gable.png" alt=""></span>
+            <span class="type-tile-label">Gable</span>
+          </button>
+          <button class="type-tile" data-construction="pull-out">
+            <span class="type-tile-media"><img src="assets/build/type/Pull_Out.png" alt=""></span>
+            <span class="type-tile-label">Pull out</span>
+          </button>
+          <button class="type-tile" data-construction="pillow">
+            <span class="type-tile-media"><img src="assets/build/type/Pillow.png" alt=""></span>
+            <span class="type-tile-label">Pillow</span>
+          </button>
+          <button class="type-tile" data-construction="displays">
+            <span class="type-tile-media"><img src="assets/build/type/Displays.png" alt=""></span>
+            <span class="type-tile-label">Displays</span>
+          </button>
+          <button class="type-tile" data-construction="open-end">
+            <span class="type-tile-media"><img src="assets/build/type/Open_end.png" alt=""></span>
+            <span class="type-tile-label">Open end</span>
+          </button>
+          <button class="type-tile" data-construction="tray">
+            <span class="type-tile-media"><img src="assets/build/type/Tray.png" alt=""></span>
+            <span class="type-tile-label">Tray</span>
+          </button>
+          <button class="type-tile" data-construction="sleeve">
+            <span class="type-tile-media"><img src="assets/build/type/Sleeve.png" alt=""></span>
+            <span class="type-tile-label">Sleeve</span>
+          </button>
+          <button class="type-tile" data-construction="food">
+            <span class="type-tile-media"><img src="assets/build/type/Food.png" alt=""></span>
+            <span class="type-tile-label">Food</span>
           </button>
         </div>
         </div>
@@ -1875,29 +2280,77 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepClosure">
+      <section class="build-box-step" id="stepOpening">
         <button class="build-box-accordion-header" type="button">
           <span class="build-box-accordion-badge">4</span>
+          <span class="build-box-accordion-title">Opening<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Opening</h3>
+        <p class="build-box-field-desc">Choose how the top of the box opens</p>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-opening="tuck-end">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Tuck end</span>
+              <span class="box-type-card-desc">A simple flap tucks into the box to hold it closed, no adhesive needed.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-opening="seal-end">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Seal end</span>
+              <span class="box-type-card-desc">The end flap is glued shut for a fully sealed, tamper-evident closure.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-opening="tuck-and-tongue">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Tuck and Tongue</span>
+              <span class="box-type-card-desc">A tongue-shaped flap tucks into a matching slot for a secure, reusable close.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-opening="deluxe-bellow">
+            <span class="box-type-card-thumb"><img src="assets/build/type/Classic.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Deluxe bellow</span>
+              <span class="box-type-card-desc">An expandable bellow base pack that folds flat and holds contents securely.</span>
+            </span>
+          </button>
+        </div>
+        </div>
+      </section>
+
+      <section class="build-box-step" id="stepClosure">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">5</span>
           <span class="build-box-accordion-title">Closure<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
         <h3 class="build-box-field-label">Closure</h3>
         <p class="build-box-field-desc">Choose how the box bottom locks together</p>
-        <div class="construction-grid">
-          <button class="construction-card active">
-            <img src="assets/build/auto-lock.svg" alt="">
-            <span>Auto Lock</span>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-closure="snap-lock">
+            <span class="box-type-card-thumb"><img src="assets/build/closure-snap-lock-icon.svg" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Snap lock</span>
+              <span class="box-type-card-desc">A resealable interlocking base that folds together without glue or tape.</span>
+            </span>
           </button>
-          <button class="construction-card">
-            <img src="assets/build/reverse-tuck.svg" alt="">
-            <span>Reverse Tuck</span>
+          <button class="box-type-card" data-closure="auto-lock">
+            <span class="box-type-card-thumb"><img src="assets/build/closure-auto-lock-icon.svg" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Auto lock</span>
+              <span class="box-type-card-desc">A pre-glued base that pops into a flat bottom the moment the box is opened.</span>
+            </span>
           </button>
-          <button class="construction-card">
-            <img src="assets/build/snap-lock.svg" alt="">
-            <span>Snap Lock</span>
-            <span class="construction-card-preview">
-              <video src="assets/build/snaplock.mp4" autoplay muted loop playsinline></video>
+          <button class="box-type-card" data-closure="reverse-tuck">
+            <span class="box-type-card-thumb"><img src="assets/build/closure-reverse-tuck-icon.svg" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Reverse Tuck...</span>
+              <span class="box-type-card-desc">Flaps tuck in the opposite direction for a tamper-evident, locked base.</span>
             </span>
           </button>
         </div>
@@ -1906,7 +2359,7 @@
 
       <section class="build-box-step" id="stepWindows">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">5</span>
+          <span class="build-box-accordion-badge">6</span>
           <span class="build-box-accordion-title">Windows &amp; Cutouts<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -1947,7 +2400,7 @@
 
       <section class="build-box-step" id="stepMaterial">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">6</span>
+          <span class="build-box-accordion-badge">7</span>
           <span class="build-box-accordion-title">Material Color<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -1982,7 +2435,7 @@
 
       <section class="build-box-step" id="stepCustomization">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">7</span>
+          <span class="build-box-accordion-badge">8</span>
           <span class="build-box-accordion-title">Customization<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -2008,57 +2461,63 @@
         </div>
       </section>
 
-      <section class="build-box-step" id="stepAdditional">
+      <section class="build-box-step" id="stepPrintCoverage">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">8</span>
-          <span class="build-box-accordion-title">Additional options<span class="build-box-accordion-value"></span></span>
+          <span class="build-box-accordion-badge">9</span>
+          <span class="build-box-accordion-title">Print coverage<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="build-box-step-content">
-        <h3 class="build-box-field-label">Additional options</h3>
-        <p class="build-box-field-desc">Fine-tune the print and finish to match your brand.</p>
-
-        <div class="build-box-subfield">
-          <h4 class="build-box-subfield-label">Print coverage</h4>
-          <div class="box-type-grid">
-            <button class="box-type-card no-thumb active" data-print="outside">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Outside</span>
-                <span class="box-type-card-desc">Print applied only to the outer surface of the box.</span>
-              </span>
-            </button>
-            <button class="box-type-card no-thumb" data-print="outside-inside">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Outside + Inside</span>
-                <span class="box-type-card-desc">Print applied both outside and inside for a fully branded look.</span>
-              </span>
-            </button>
-          </div>
+        <h3 class="build-box-field-label">Print coverage</h3>
+        <p class="build-box-field-desc">Choose which surfaces of the box get printed</p>
+        <div class="box-type-grid">
+          <button class="box-type-card active" data-print="outside">
+            <span class="box-type-card-thumb"><img src="assets/build/print-coverage-outside.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Outside</span>
+              <span class="box-type-card-desc">Print applied only to the outer surface of the box.</span>
+            </span>
+          </button>
+          <button class="box-type-card" data-print="outside-inside">
+            <span class="box-type-card-thumb"><img src="assets/build/print-coverage-outside-inside.png" alt=""></span>
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Outside + Inside</span>
+              <span class="box-type-card-desc">Print applied both outside and inside for a fully branded look.</span>
+            </span>
+          </button>
         </div>
+        </div>
+      </section>
 
-        <div class="build-box-subfield">
-          <h4 class="build-box-subfield-label">Finish</h4>
-          <div class="box-type-grid">
-            <button class="box-type-card no-thumb active" data-finish="gloss">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Gloss</span>
-                <span class="box-type-card-desc">A shiny finish that makes colors pop and print stand out.</span>
-              </span>
-            </button>
-            <button class="box-type-card no-thumb" data-finish="matt">
-              <span class="box-type-card-text">
-                <span class="box-type-card-label">Matt</span>
-                <span class="box-type-card-desc">A soft, non-reflective finish for a subtle, premium look.</span>
-              </span>
-            </button>
-          </div>
+      <section class="build-box-step" id="stepFinish">
+        <button class="build-box-accordion-header" type="button">
+          <span class="build-box-accordion-badge">10</span>
+          <span class="build-box-accordion-title">Finish<span class="build-box-accordion-value"></span></span>
+          <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="build-box-step-content">
+        <h3 class="build-box-field-label">Finish</h3>
+        <p class="build-box-field-desc">Fine-tune the finish to match your brand.</p>
+        <div class="box-type-grid">
+          <button class="box-type-card no-thumb active" data-finish="gloss">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Gloss</span>
+              <span class="box-type-card-desc">A shiny finish that makes colors pop and print stand out.</span>
+            </span>
+          </button>
+          <button class="box-type-card no-thumb" data-finish="matt">
+            <span class="box-type-card-text">
+              <span class="box-type-card-label">Matt</span>
+              <span class="box-type-card-desc">A soft, non-reflective finish for a subtle, premium look.</span>
+            </span>
+          </button>
         </div>
         </div>
       </section>
 
       <section class="build-box-step" id="stepQuantity">
         <button class="build-box-accordion-header" type="button">
-          <span class="build-box-accordion-badge">9</span>
+          <span class="build-box-accordion-badge">11</span>
           <span class="build-box-accordion-title">Quantity<span class="build-box-accordion-value"></span></span>
           <svg class="build-box-accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -2194,6 +2653,80 @@
           </div>
           <a href="#" class="btn-pill lg">Customize design</a>
           <button class="btn-pill lg muted">Skip design for now</button>
+
+          <div class="build-box-info-rows">
+            <a href="#" class="build-box-info-row">
+              <svg class="build-box-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              <span class="build-box-info-row-label">Contact packaging advisors</span>
+              <svg class="build-box-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </a>
+            <button type="button" class="build-box-info-row" id="buildBoxSpecBtn">
+              <svg class="build-box-info-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+              <span class="build-box-info-row-label">Specification</span>
+              <svg class="build-box-info-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="build-box-spec-modal-backdrop" id="buildBoxSpecModal">
+        <div class="build-box-spec-modal">
+          <div class="build-box-spec-modal-header">
+            <h2 class="build-box-spec-modal-title">Specification</h2>
+            <button type="button" class="build-box-spec-modal-close" id="buildBoxSpecModalClose" aria-label="Close">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="build-box-spec-modal-body">
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Data for current product configuration</span>
+              <span class="build-box-spec-row-value"><strong>Custom Mailer Box</strong><span class="build-box-spec-row-sub">F23 (9.2 x 9.2 x 5 cm)</span></span>
+            </div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Material</span><span class="build-box-spec-row-value">Corrugated cardboard</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Material colour</span><span class="build-box-spec-row-value">Kraft</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Print colour mode</span><span class="build-box-spec-row-value">One Colour</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Print coverage</span><span class="build-box-spec-row-value">Outside</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Foil</span><span class="build-box-spec-row-value">None</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Adhesive strip</span><span class="build-box-spec-row-value">None</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Raw material</span><span class="build-box-spec-row-value">Corrugated cardboard flute E</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Weight</span><span class="build-box-spec-row-value">0.02 kg</span></div>
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Eco properties</span>
+              <ul class="build-box-spec-tags">
+                <li class="build-box-spec-tag">Biodegradable material</li>
+                <li class="build-box-spec-tag">Made in Europe</li>
+                <li class="build-box-spec-tag">Plastic-free</li>
+                <li class="build-box-spec-tag">Recyclable</li>
+                <li class="build-box-spec-tag">Recycled content</li>
+                <li class="build-box-spec-tag">Responsible sourcing</li>
+              </ul>
+            </div>
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Certifications</span>
+              <ul class="build-box-spec-tags">
+                <li class="build-box-spec-tag">Made for recycling</li>
+                <li class="build-box-spec-tag">FSC</li>
+              </ul>
+            </div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Grammage</span><span class="build-box-spec-row-value">438 gsm</span></div>
+            <div class="build-box-spec-row">
+              <span class="build-box-spec-row-label">Parcel size</span>
+              <ul class="build-box-spec-tags">
+                <li class="build-box-spec-tag">InPost Size A</li>
+                <li class="build-box-spec-tag">Royal Mail Size Small</li>
+                <li class="build-box-spec-tag">DPD Size S</li>
+                <li class="build-box-spec-tag">Pocztex Size S</li>
+                <li class="build-box-spec-tag">Vinted GO Up to 0.5 kg</li>
+                <li class="build-box-spec-tag">DHL BOX 24/7 Size XS</li>
+              </ul>
+            </div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Box size</span><span class="build-box-spec-row-value">Small</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Dimensional tolerance</span><span class="build-box-spec-row-value">±2-4mm</span></div>
+            <div class="build-box-spec-row"><span class="build-box-spec-row-label">Variant SKU</span><span class="build-box-spec-row-value" style="word-break:break-all;">box--mailer-box--23--cardboard-natural--print-monochrome--foil-none</span></div>
+          </div>
+          <div class="build-box-spec-modal-footer">
+            <button type="button" class="btn-pill lg" id="buildBoxSpecModalDone">Got it</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2358,8 +2891,13 @@
 
     function positionBar() {
       var rect = configCol.getBoundingClientRect();
-      summaryBar.style.left = rect.left + 'px';
-      summaryBar.style.width = rect.width + 'px';
+      // Side padding went from 32px to 16px (space-8 -> space-4), 16px
+      // less per side -- the bar's own width shrinks by that same total
+      // (32px) so it doesn't just look like it grew relative to its
+      // padding-defined content once it's tighter. Then nudged 16px right
+      // of the config column's own left edge.
+      summaryBar.style.left = (rect.left + 16) + 'px';
+      summaryBar.style.width = (rect.width - 32) + 'px';
     }
 
     function onScroll() {
@@ -2463,7 +3001,7 @@
     }
 
     initSelectableGroup('.box-type-grid');
-    initSelectableGroup('.construction-grid');
+    initSelectableGroup('.type-tile-grid');
     initSelectableGroup('.material-card-grid');
   })();
 
@@ -2948,7 +3486,7 @@
       setFromActive('#stepWindows', 'data-windows', 'no');
     }
 
-    document.querySelectorAll('#stepConstruction .construction-card').forEach(function (c) { c.addEventListener('click', refresh); });
+    document.querySelectorAll('#stepConstruction .type-tile').forEach(function (c) { c.addEventListener('click', refresh); });
     document.querySelectorAll('#stepMaterial .material-card').forEach(function (c) { c.addEventListener('click', refresh); });
     document.querySelectorAll('#stepWindows .box-type-card').forEach(function (c) { c.addEventListener('click', refresh); });
 
@@ -2958,7 +3496,7 @@
   (function () {
     var canvasImage = document.getElementById('canvasImage');
     var boxTypeCards = document.querySelectorAll('#stepBoxType .box-type-card');
-    var constructionCards = document.querySelectorAll('#stepConstruction .construction-card');
+    var constructionCards = document.querySelectorAll('#stepConstruction .type-tile');
     var windowsCards = document.querySelectorAll('#stepWindows .box-type-card');
     var materialCards = document.querySelectorAll('#stepMaterial .material-card');
     if (!canvasImage) { return; }
@@ -3137,17 +3675,9 @@
         if (w && l && h) { return w.value + ' x ' + l.value + ' x ' + h.value + ' cm'; }
         return '';
       }
-      if (step.id === 'stepAdditional') {
-        var parts = [];
-        step.querySelectorAll('.build-box-subfield').forEach(function (sub) {
-          var active = sub.querySelector('.box-type-card.active .box-type-card-label');
-          if (active) { parts.push(active.textContent.trim()); }
-        });
-        return parts.join(', ');
-      }
-      var activeCard = step.querySelector('.box-type-card.active, .construction-card.active, .material-card.active');
+      var activeCard = step.querySelector('.box-type-card.active, .type-tile.active, .material-card.active');
       if (!activeCard) { return ''; }
-      var labelEl = activeCard.querySelector('.box-type-card-label, .material-card-label, span');
+      var labelEl = activeCard.querySelector('.box-type-card-label, .type-tile-label, .material-card-label, span');
       return labelEl ? labelEl.textContent.trim() : '';
     }
 
@@ -3217,6 +3747,27 @@
 
       el.value = num;
       el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  })();
+
+  (function () {
+    var openBtn = document.getElementById('buildBoxSpecBtn');
+    var backdrop = document.getElementById('buildBoxSpecModal');
+    var closeBtn = document.getElementById('buildBoxSpecModalClose');
+    var doneBtn = document.getElementById('buildBoxSpecModalDone');
+    if (!openBtn || !backdrop) { return; }
+
+    function open() { backdrop.classList.add('open'); }
+    function close() { backdrop.classList.remove('open'); }
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    doneBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', function (e) {
+      if (e.target === backdrop) { close(); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { close(); }
     });
   })();
 </script>

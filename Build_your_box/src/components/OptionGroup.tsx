@@ -37,7 +37,7 @@ export default function OptionGroup({
           </button>
         )}
       </div>
-      <div className={wrap ? 'flex w-full flex-wrap items-start gap-2' : 'flex items-start gap-2'}>
+      <div className={wrap ? 'flex w-full flex-wrap items-start gap-x-2 gap-y-4' : 'flex items-start gap-2'}>
         {children}
       </div>
       {showLearnMore && modalOpen && options && (

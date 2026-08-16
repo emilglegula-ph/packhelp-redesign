@@ -6,19 +6,26 @@ interface ChipProps {
   onSelect: () => void
 }
 
+// Label sits below the image, left-aligned, off the gray/white background --
+// the background + active/hover states live on the media square only, not
+// the whole chip. Ported from product-page.html's .pp-chip/.pp-chip-media
+// (this app's own Chip previously wrapped image+label in one colored card,
+// matching the default gray-100 background instead).
 export default function Chip({ option, selected, onSelect }: ChipProps) {
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`flex min-h-[133px] w-[104px] shrink-0 cursor-pointer flex-col items-center justify-start rounded-xl text-left ring-1 ring-inset transition-colors ${
-        selected
-          ? 'ring-grey-500 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
-          : 'bg-grey-100 ring-transparent hover:bg-grey-300'
-      }`}
+      className="flex w-[104px] shrink-0 cursor-pointer flex-col items-start text-left"
     >
-      <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-t-xl">
+      <span
+        className={`relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl transition-colors ${
+          selected
+            ? 'bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)] ring-1 ring-inset ring-grey-500'
+            : 'bg-grey-100 hover:bg-grey-300'
+        }`}
+      >
         {option.fit === 'cover' && option.image && (
           <img src={option.image} alt="" className="size-full object-cover" />
         )}
@@ -27,7 +34,7 @@ export default function Chip({ option, selected, onSelect }: ChipProps) {
         )}
       </span>
       <span
-        className={`w-full px-1 pb-3 text-center text-[13px] leading-[1.32] tracking-[-0.26px] ${
+        className={`w-full pt-2 text-[12px] leading-[1.32] tracking-[-0.24px] ${
           selected ? 'text-richblue' : 'text-grey-600'
         }`}
       >

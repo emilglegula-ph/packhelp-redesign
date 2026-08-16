@@ -15,7 +15,7 @@ function mockPrice(index: number) {
 }
 
 function mockDescription(title: string, label: string) {
-  return `${label} — how this ${title.toLowerCase()} option affects the look, feel and price of your box.`
+  return `${label} — how this ${title.toLowerCase()} option affects the look, feel and price of your box. Every detail here is tuned to keep production efficient without compromising on durability, so you get a consistent result whether you're ordering a handful of prototypes or a full production run.`
 }
 
 export default function LearnMoreModal({ title, options, onClose }: LearnMoreModalProps) {
@@ -33,7 +33,7 @@ export default function LearnMoreModal({ title, options, onClose }: LearnMoreMod
       onClick={onClose}
     >
       <div
-        className="flex w-full max-w-[520px] flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+        className="flex w-full max-w-[680px] flex-col overflow-hidden rounded-[24px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
         style={{ maxHeight: '85vh' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -64,7 +64,7 @@ export default function LearnMoreModal({ title, options, onClose }: LearnMoreMod
               key={option.id}
               className="flex items-center gap-4 border-b border-grey-100 py-4 last:border-0"
             >
-              <span className="flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-grey-100">
+              <span className="flex size-[180px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-grey-100">
                 {option.image && (
                   <img
                     src={option.image}

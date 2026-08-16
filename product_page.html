@@ -233,6 +233,56 @@
     transition: opacity .15s ease;
   }
 
+  /* ---------- Gallery / 3D view / 2D view switcher -- visual control only,
+     no actual 3D/2D content behind it. Ported pixel-for-pixel (colors,
+     sizing, gradient) from the real Build_your_box app's own view switcher
+     (Build_your_box/dist -- a separate React/Three.js project, not this
+     repo's build-your-box.html prototype), which styles each option's
+     active state directly instead of a separate sliding indicator pill.
+     Positioned 24px from the gallery's top-left per spec -- the source
+     app puts it bottom-center in its own toolbar row, but this page has no
+     such row, and the ask was specifically top-left/24px here. */
+  .pp-gallery-view-switcher {
+    position: absolute;
+    top: var(--space-6);
+    left: var(--space-6);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--radius-full);
+    background: rgba(0, 0, 0, .04);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+
+  .pp-gallery-view-switcher .pp-view-option {
+    display: flex;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    font-size: 13px;
+    line-height: 1.32;
+    letter-spacing: -0.26px;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: color .15s ease;
+  }
+
+  .pp-gallery-view-switcher .pp-view-option:hover { color: var(--color-text-primary); }
+
+  .pp-gallery-view-switcher .pp-view-option.active {
+    background: linear-gradient(180deg, #fff 0%, var(--gray-100) 100%);
+    color: var(--color-text-primary);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .08);
+  }
+
   .pp-gallery-thumbs {
     flex: 0 0 48px;
     display: flex;
@@ -1649,6 +1699,12 @@
             <a href="#" class="pp-gallery-pin-link">Apply this configuration</a>
           </span>
         </div>
+
+        <div class="pp-gallery-view-switcher" id="ppGalleryViewSwitch">
+          <button type="button" class="pp-view-option active" data-value="gallery">Gallery</button>
+          <button type="button" class="pp-view-option" data-value="3d">3D view</button>
+          <button type="button" class="pp-view-option" data-value="2d">2D view</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2687,6 +2743,22 @@
         // the default) with no grey letterboxing.
         mainImg.style.objectFit = thumb.getAttribute('data-fit') || 'cover';
         updatePin(thumb);
+      });
+    });
+  })();
+
+  // ---------- Gallery / 3D view / 2D view switcher -- visual control only,
+  // no 3D/2D content behind it. Each option sets its own active-state
+  // background directly (no separate sliding indicator), matching the real
+  // Build_your_box app's own switcher. ----------
+  (function () {
+    var switchEl = document.getElementById('ppGalleryViewSwitch');
+    if (!switchEl) { return; }
+
+    switchEl.querySelectorAll('.pp-view-option').forEach(function (option) {
+      option.addEventListener('click', function () {
+        switchEl.querySelectorAll('.pp-view-option').forEach(function (o) { o.classList.remove('active'); });
+        option.classList.add('active');
       });
     });
   })();

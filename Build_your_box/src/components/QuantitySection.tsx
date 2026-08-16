@@ -79,7 +79,7 @@ export default function QuantitySection({ quantity, onQuantityChange }: Quantity
                 )}
               </span>
               <span className="flex items-center gap-3 whitespace-nowrap text-right text-[15px]">
-                <span className="leading-[1.32] tracking-[-0.3px] text-grey-500">
+                <span className="text-[13px] leading-[1.32] tracking-[-0.26px] text-grey-500">
                   €{tier.pricePerPiece.toFixed(2)}/piece
                 </span>
                 <span className="font-medium leading-[1.16] tracking-[-0.3px] text-richblue">

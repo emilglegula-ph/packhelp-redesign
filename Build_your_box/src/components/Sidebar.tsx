@@ -6,8 +6,11 @@ import FinishSection from './FinishSection'
 import QuantitySection from './QuantitySection'
 import SummarySection from './SummarySection'
 import StickyDeliveryBar from './StickyDeliveryBar'
+import SiteSettings from './SiteSettings'
+import UspPills from './UspPills'
 import type { DimensionField } from '../App'
 import {
+  productOptions,
   materialOptions,
   typeOptions,
   corrugatedTypeOptions,
@@ -61,7 +64,13 @@ export default function Sidebar({
   print,
   onPrintChange,
 }: SidebarProps) {
+  const [product, setProduct] = useState('boxes')
   const [material, setMaterial] = useState('cardboard')
+  // Combined single "Product" picker (Cardboard/Corrugated/Rigid Boxes +
+  // Boxes/Envelopes/Bags/Tubes/More products) is the default; this opts
+  // back into the previously-implemented two-group layout (separate
+  // "Product" and "Box material" pickers).
+  const [splitProductPicker, setSplitProductPicker] = useState(false)
   const [type, setType] = useState('hanging')
   const [opening, setOpening] = useState('tuck-end')
   const [closure, setClosure] = useState('snap-lock')
@@ -71,6 +80,14 @@ export default function Sidebar({
   const [printColourMode, setPrintColourMode] = useState('one-colour')
   const [adhesiveStrip, setAdhesiveStrip] = useState('none')
   const [finish, setFinish] = useState('goss')
+
+  // Same materialOptions, relabeled for the combined "Product" picker so
+  // they read as product tiles ("Cardboard Boxes") next to Envelopes/Bags/
+  // Tubes, instead of the bare material name ("Cardboard").
+  const boxMaterialOptions = materialOptions.map((option) => ({
+    ...option,
+    label: `${option.label} Boxes`,
+  }))
 
   const isCorrugated = material === 'corrugated'
   const currentTypeOptions = isCorrugated ? corrugatedTypeOptions : typeOptions
@@ -114,26 +131,100 @@ export default function Sidebar({
 
   return (
     <div ref={scrollRef} className="h-full w-[540px] shrink-0 overflow-y-auto bg-white">
-      <div className="flex flex-col items-start gap-14 pb-14 pl-11 pr-14 pt-14">
-        <header className="flex w-full flex-col items-start gap-2">
+      <div className="flex flex-col items-start gap-16 pb-14 pl-11 pr-14 pt-16">
+        <header className="flex w-full flex-col items-start gap-3">
           <h1 className="text-[40px] font-medium leading-[1.08] tracking-[-2px] text-richblue">
-            Build your box
+            Build your packaging
           </h1>
-          <p className="w-full text-[15px] leading-[1.32] tracking-[-0.34px] text-grey-600">
-            Quickly configure the exact box type you need
-          </p>
+          <UspPills />
         </header>
 
-        <OptionGroup title="Material" options={materialOptions} showLearnMore>
-          {materialOptions.map((option) => (
-            <Chip
-              key={option.id}
-              option={option}
-              selected={material === option.id}
-              onSelect={() => setMaterial(option.id)}
-            />
-          ))}
-        </OptionGroup>
+        {/* The "More products" tile is the only real destination out of this
+            page -- the other Product tiles (Boxes/Envelopes/Bags/Tubes) just
+            record a selection like any other chip, since this configurator
+            only actually builds Boxes and nothing here should navigate the
+            page away underneath the visitor without them choosing to. */}
+        {splitProductPicker ? (
+          <>
+            <OptionGroup title="Product" wrap>
+              {productOptions.map((option) => (
+                <Chip
+                  key={option.id}
+                  option={option}
+                  selected={product === option.id}
+                  onSelect={() => setProduct(option.id)}
+                />
+              ))}
+              <a
+                href="../../packaging.html"
+                target="_blank"
+                rel="noopener"
+                className="flex w-[104px] shrink-0 flex-col items-start text-left"
+              >
+                <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-grey-100 text-richblue transition-colors hover:bg-grey-300">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </span>
+                <span className="w-full pt-2 text-[12px] leading-[1.32] tracking-[-0.24px] text-grey-600">
+                  More products
+                </span>
+              </a>
+            </OptionGroup>
+
+            <OptionGroup title="Box material" options={materialOptions} showLearnMore>
+              {materialOptions.map((option) => (
+                <Chip
+                  key={option.id}
+                  option={option}
+                  selected={material === option.id}
+                  onSelect={() => setMaterial(option.id)}
+                />
+              ))}
+            </OptionGroup>
+          </>
+        ) : (
+          <OptionGroup title="Product" options={boxMaterialOptions} showLearnMore wrap>
+            {boxMaterialOptions.map((option) => (
+              <Chip
+                key={option.id}
+                option={option}
+                selected={material === option.id}
+                onSelect={() => setMaterial(option.id)}
+              />
+            ))}
+            {/* "Boxes" itself is left out here -- Cardboard/Corrugated/Rigid
+                Boxes above already cover it, so a plain "Boxes" tile would
+                just be a redundant fourth option pointing at the same thing. */}
+            {productOptions
+              .filter((option) => option.id !== 'boxes')
+              .map((option) => (
+                <Chip
+                  key={option.id}
+                  option={option}
+                  selected={product === option.id}
+                  onSelect={() => setProduct(option.id)}
+                />
+              ))}
+            <a
+              href="../../packaging.html"
+              target="_blank"
+              rel="noopener"
+              className="flex w-[104px] shrink-0 flex-col items-start text-left"
+            >
+              <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-grey-100 text-richblue transition-colors hover:bg-grey-300">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </span>
+              <span className="w-full pt-2 text-[12px] leading-[1.32] tracking-[-0.24px] text-grey-600">
+                More products
+              </span>
+            </a>
+          </OptionGroup>
+        )}
 
         <OptionGroup title="Type" wrap>
           {currentTypeOptions.map((option) => (
@@ -289,6 +380,11 @@ export default function Sidebar({
       </div>
 
       <StickyDeliveryBar visible={!summaryVisible} quantity={quantity} total={total} />
+
+      <SiteSettings
+        splitProductPicker={splitProductPicker}
+        onSplitProductPickerChange={setSplitProductPicker}
+      />
     </div>
   )
 }

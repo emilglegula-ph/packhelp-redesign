@@ -5,6 +5,15 @@ export { default as imgLogo } from './imgLogo.svg'
 export { default as imgChevron } from './imgVector2.svg'
 export { default as imgSamples } from './imgVector3.svg'
 
+// Real product-category photography, reused from the parent site's own
+// assets/packaging/ tile set (packaging.html's top-level category picker) --
+// not Figma exports like the rest of this file, but kept in the same
+// folder since it's the only image folder this app has.
+export { default as imgProductBoxes } from './Product_Boxes.png'
+export { default as imgProductEnvelopes } from './Product_Envelopes.png'
+export { default as imgProductBags } from './Product_Bags.png'
+export { default as imgProductTubes } from './Product_Tubes.png'
+
 export { default as imgFoldingBox } from './imgFrame6226.png'
 export { default as imgRigidBox } from './Rigid_Box.png'
 export { default as imgMailerBox } from './Mailer_Box.png'

@@ -1,4 +1,8 @@
 import {
+  imgProductBoxes,
+  imgProductEnvelopes,
+  imgProductBags,
+  imgProductTubes,
   imgFoldingBox,
   imgRigidBox,
   imgMailerBox,
@@ -40,6 +44,17 @@ export interface ChipOption {
   image?: string
   fit: ChipFit
 }
+
+// "Boxes" is the only category this configurator actually builds -- the
+// other three exist so switching away reads as a real choice (routed to
+// the main site's listing via the "More products" tile below) rather than
+// the configurator silently pretending to support them.
+export const productOptions: ChipOption[] = [
+  { id: 'boxes', label: 'Boxes', image: imgProductBoxes, fit: 'cover' },
+  { id: 'envelopes', label: 'Envelopes', image: imgProductEnvelopes, fit: 'cover' },
+  { id: 'bags', label: 'Bags', image: imgProductBags, fit: 'cover' },
+  { id: 'tubes', label: 'Tubes', image: imgProductTubes, fit: 'cover' },
+]
 
 export const materialOptions: ChipOption[] = [
   { id: 'cardboard', label: 'Cardboard', image: imgFoldingBox, fit: 'cover' },
@@ -85,7 +100,6 @@ export const openingOptions: ChipOption[] = [
   { id: 'seal-end', label: 'Seal end', image: imgTypeClassic, fit: 'cover' },
   { id: 'tuck-and-tongue', label: 'Tuck and Tongue', image: imgTypeClassic, fit: 'cover' },
   { id: 'deluxe-bellow', label: 'Deluxe bellow', image: imgTypeClassic, fit: 'cover' },
-  { id: 'tube-neck-lock', label: 'Tube neck lock', image: imgTypeClassic, fit: 'cover' },
 ]
 
 export const closureOptions: ChipOption[] = [
