@@ -19,11 +19,17 @@ export default function Chip({ option, selected, onSelect }: ChipProps) {
       aria-pressed={selected}
       className="flex w-[104px] shrink-0 cursor-pointer flex-col items-start text-left"
     >
+      {/* A `ring` (inset box-shadow) here would paint *behind* a full-bleed
+          cover image -- same stacking as `background` -- so a selected photo
+          chip's active ring went invisible wherever the photo actually
+          covers the edge. A real `border` lives in its own box-model layer
+          outside the content box the image is sized to, so it stays visible
+          regardless of what the image contains. */}
       <span
-        className={`relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl transition-colors ${
+        className={`relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl border transition-colors ${
           selected
-            ? 'bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)] ring-1 ring-inset ring-grey-500'
-            : 'bg-grey-100 hover:bg-grey-300'
+            ? 'border-grey-500 bg-white shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
+            : 'border-transparent bg-grey-100 hover:bg-grey-200'
         }`}
       >
         {option.fit === 'cover' && option.image && (

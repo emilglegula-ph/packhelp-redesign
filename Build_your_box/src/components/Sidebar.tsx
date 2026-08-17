@@ -71,6 +71,7 @@ export default function Sidebar({
   // back into the previously-implemented two-group layout (separate
   // "Product" and "Box material" pickers).
   const [splitProductPicker, setSplitProductPicker] = useState(false)
+  const [hideSubheader, setHideSubheader] = useState(false)
   const [type, setType] = useState('hanging')
   const [opening, setOpening] = useState('tuck-end')
   const [closure, setClosure] = useState('snap-lock')
@@ -136,6 +137,11 @@ export default function Sidebar({
           <h1 className="text-[40px] font-medium leading-[1.08] tracking-[-2px] text-richblue">
             Build your packaging
           </h1>
+          {!hideSubheader && (
+            <p className="w-full text-[15px] leading-[1.32] tracking-[-0.34px] text-grey-500">
+              Unlock expanded constructions beyond our standard catalog.
+            </p>
+          )}
           <UspPills />
         </header>
 
@@ -161,7 +167,7 @@ export default function Sidebar({
                 rel="noopener"
                 className="flex w-[104px] shrink-0 flex-col items-start text-left"
               >
-                <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-grey-100 text-richblue transition-colors hover:bg-grey-300">
+                <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-grey-100 text-richblue transition-colors hover:bg-grey-200">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14" />
                     <path d="m12 5 7 7-7 7" />
@@ -213,7 +219,7 @@ export default function Sidebar({
               rel="noopener"
               className="flex w-[104px] shrink-0 flex-col items-start text-left"
             >
-              <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-grey-100 text-richblue transition-colors hover:bg-grey-300">
+              <span className="relative flex size-[104px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-grey-100 text-richblue transition-colors hover:bg-grey-200">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14" />
                   <path d="m12 5 7 7-7 7" />
@@ -384,6 +390,8 @@ export default function Sidebar({
       <SiteSettings
         splitProductPicker={splitProductPicker}
         onSplitProductPickerChange={setSplitProductPicker}
+        hideSubheader={hideSubheader}
+        onHideSubheaderChange={setHideSubheader}
       />
     </div>
   )

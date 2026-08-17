@@ -3,12 +3,19 @@ import { useEffect, useRef, useState } from 'react'
 interface SiteSettingsProps {
   splitProductPicker: boolean
   onSplitProductPickerChange: (value: boolean) => void
+  hideSubheader: boolean
+  onHideSubheaderChange: (value: boolean) => void
 }
 
 // Same floating gear button + popover panel pattern used on the other pages
 // in the main project (packaging.html/product_page.html's #siteSettingsBtn),
 // mirrored to the bottom-left corner here instead of bottom-right.
-export default function SiteSettings({ splitProductPicker, onSplitProductPickerChange }: SiteSettingsProps) {
+export default function SiteSettings({
+  splitProductPicker,
+  onSplitProductPickerChange,
+  hideSubheader,
+  onHideSubheaderChange,
+}: SiteSettingsProps) {
   const [open, setOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
@@ -70,6 +77,26 @@ export default function SiteSettings({ splitProductPicker, onSplitProductPickerC
               type="checkbox"
               checked={splitProductPicker}
               onChange={(e) => onSplitProductPickerChange(e.target.checked)}
+              className="peer sr-only"
+            />
+            <span className="absolute inset-0 rounded-full bg-grey-300 transition-colors peer-checked:bg-ph-blue" />
+            <span className="absolute top-[3px] left-[3px] size-[18px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-transform peer-checked:translate-x-4" />
+          </label>
+        </div>
+        <div className="mt-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[13px] leading-[1.32] tracking-[-0.26px] text-richblue">
+              Hide catalog subheader
+            </p>
+            <p className="mt-1 text-[11px] leading-[1.32] tracking-[-0.22px] text-grey-600">
+              Hide the "Unlock expanded constructions..." line under the title
+            </p>
+          </div>
+          <label className="relative inline-block h-6 w-10 shrink-0 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hideSubheader}
+              onChange={(e) => onHideSubheaderChange(e.target.checked)}
               className="peer sr-only"
             />
             <span className="absolute inset-0 rounded-full bg-grey-300 transition-colors peer-checked:bg-ph-blue" />
