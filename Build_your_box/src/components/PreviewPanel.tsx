@@ -70,7 +70,7 @@ export default function PreviewPanel({
           <button
             type="button"
             onClick={() => setSide('front')}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               side === 'front'
                 ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
                 : 'text-grey-600 hover:text-richblue'
@@ -81,7 +81,7 @@ export default function PreviewPanel({
           <button
             type="button"
             onClick={() => setSide('back')}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               side === 'back'
                 ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
                 : 'text-grey-600 hover:text-richblue'
@@ -115,7 +115,7 @@ export default function PreviewPanel({
           <button
             type="button"
             onClick={() => setOpenness(0)}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               openness === 0
                 ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
                 : 'text-grey-600 hover:text-richblue'
@@ -126,7 +126,7 @@ export default function PreviewPanel({
           <button
             type="button"
             onClick={() => setOpenness(100)}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               openness === 100
                 ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
                 : 'text-grey-600 hover:text-richblue'

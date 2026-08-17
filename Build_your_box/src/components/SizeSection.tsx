@@ -127,7 +127,7 @@ export default function SizeSection({
           <button
             type="button"
             onClick={() => onSizeModeChange('external')}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               sizeMode === 'external'
                 ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
                 : 'text-grey-600 hover:text-richblue'
@@ -138,7 +138,7 @@ export default function SizeSection({
           <button
             type="button"
             onClick={() => onSizeModeChange('product')}
-            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-3 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
+            className={`flex h-7 cursor-pointer items-center justify-center rounded-full px-2 text-[13px] leading-[1.32] tracking-[-0.26px] transition-colors ${
               sizeMode === 'product'
                 ? 'bg-gradient-to-b from-white to-grey-100 text-richblue shadow-[0_2px_2px_rgba(0,0,0,0.08)]'
                 : 'text-grey-600 hover:text-richblue'

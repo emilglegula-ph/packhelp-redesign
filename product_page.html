@@ -369,6 +369,113 @@
     min-width: 0;
   }
 
+  /* ---------- promo banner above the title -- opt-in via gear panel
+     (#togglePromoActive), same body-class-driven show/hide convention as
+     the other gear-panel toggles on this page. Copy/code mirror the
+     site-wide .announcement-bar (BUNDLEUP), scoped to sit above the
+     configurator instead. ---------- */
+  .pp-promo-banner {
+    display: none;
+    align-items: center;
+    gap: 0;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-bg-accent-subtle);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+  }
+
+  body.pp-promo-active .pp-promo-banner { display: flex; }
+
+  .pp-promo-banner-text { min-width: 0; flex: 0 1 auto; line-height: 1.32; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .pp-promo-info {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    margin-left: var(--space-1);
+    width: 15px;
+    height: 15px;
+    color: var(--color-text-primary);
+  }
+
+  .pp-promo-info svg { width: 100%; height: 100%; }
+
+  .pp-promo-info::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    margin-bottom: 8px;
+    width: 220px;
+    padding: var(--space-2) var(--space-3);
+    background: var(--rich-blue);
+    color: var(--white);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    white-space: normal;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 12px 0 rgba(0,0,0,.15);
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+    transition: opacity .15s ease, transform .15s ease;
+    pointer-events: none;
+    /* Above the top nav (.sticky-bar tops out at z-index:50 in
+       components.css) so the popover never renders behind it. */
+    z-index: 100;
+  }
+
+  .pp-promo-info::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    margin-bottom: 4px;
+    transform: translateX(-50%) translateY(4px);
+    border: 5px solid transparent;
+    border-top-color: var(--rich-blue);
+    opacity: 0;
+    transition: opacity .15s ease, transform .15s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .pp-promo-info:hover::after, .pp-promo-info:hover::before,
+  .pp-promo-info:focus-visible::after, .pp-promo-info:focus-visible::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Code + copy button pinned to the banner's right edge -- margin-left:
+     auto on this group pushes it (and everything after it, i.e. nothing)
+     away from the text/info icon on the left. */
+  .pp-promo-banner-code-group { display: flex; flex: none; align-items: center; gap: var(--space-1); margin-left: auto; }
+  .pp-promo-banner-code { font-size: 12px; color: var(--color-text-primary); }
+
+  /* Same copy icon as .announcement-copy, minus the white circular
+     envelope behind it -- per request, bare icon only. */
+  .pp-promo-copy {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--color-text-primary);
+    padding: var(--space-1);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .pp-promo-copy:hover { background: var(--gray-200); }
+  .pp-promo-copy svg { width: 14px; height: 14px; }
+  .pp-promo-copy.copied { color: var(--color-accent); }
+
   .pp-heading {
     margin: 0 0 var(--space-2);
     font-weight: 500;
@@ -791,13 +898,13 @@
   }
 
   .pp-qty-cell:hover { background: var(--gray-300); }
-  .pp-qty-cell.active { background: #fff; box-shadow: inset 0 0 0 1px var(--gray-600); }
+  .pp-qty-cell.active { background: #fff; box-shadow: inset 0 0 0 1px var(--gray-600), 0 2px 2px rgba(0,0,0,.08); }
 
   .pp-qty-cell-value { font-size: 13px; letter-spacing: -0.02em; color: var(--color-text-primary); }
   .pp-qty-cell-unit { font-size: 12px; letter-spacing: -0.02em; color: var(--gray-500); }
 
   .pp-qty-cell-other { min-width: 0; position: relative; display: flex; border-radius: 8px; overflow: hidden; transition: background-color .15s ease, box-shadow .15s ease; }
-  .pp-qty-cell-other.active { box-shadow: inset 0 0 0 1px var(--gray-600); }
+  .pp-qty-cell-other.active { box-shadow: inset 0 0 0 1px var(--gray-600), 0 2px 2px rgba(0,0,0,.08); }
 
   .pp-qty-cell-other-btn {
     flex: 1;
@@ -887,7 +994,7 @@
 
   .pp-cta-dates { display: flex; flex-direction: column; gap: var(--space-1); margin: 0; padding: 0; list-style: none; font-size: 13px; letter-spacing: -0.02em; }
   .pp-cta-dates li { display: flex; align-items: center; gap: var(--space-1); }
-  .pp-cta-date { position: relative; padding-left: 18px; line-height: 1.32; color: var(--color-text-primary); }
+  .pp-cta-date { position: relative; padding-left: 12px; line-height: 1.32; color: var(--color-text-primary); }
   .pp-cta-date::before { content: ""; position: absolute; left: 0; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--color-text-primary); transform: translateY(-50%); }
   .pp-cta-date-price { line-height: 1.32; color: var(--color-text-muted); }
 
@@ -1711,6 +1818,19 @@
 
   <div class="pp-config-col" id="ppConfigCol">
 
+    <div class="pp-promo-banner" id="ppPromoBanner">
+      <span class="pp-promo-banner-text">The more products you add, the more you save.</span>
+      <span class="pp-promo-info" tabindex="0" data-tooltip="Save more with every extra product in your order — discounts stack automatically at checkout, up to 20% off." aria-label="Promotion details">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg>
+      </span>
+      <span class="pp-promo-banner-code-group">
+        <strong class="pp-promo-banner-code">BUNDLEUP</strong>
+        <button type="button" class="pp-promo-copy" id="ppPromoCopyBtn" aria-label="Copy code">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </span>
+    </div>
+
     <h1 class="pp-heading reveal">Custom Mailer Box</h1>
     <p class="pp-subheading reveal">A fully customisable mailer box with a choice of material, print and finish, from subtle tones to vivid colours and premium matte or gloss. Design yours online.</p>
 
@@ -2510,6 +2630,16 @@
       <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
     </label>
   </div>
+  <div class="site-settings-row">
+    <div>
+      <p class="site-settings-label">Promo active</p>
+      <p class="site-settings-desc">Show a bundle-discount banner above the title, with the promo code and a copy button</p>
+    </div>
+    <label class="site-toggle">
+      <input type="checkbox" id="togglePromoActive">
+      <span class="site-toggle-track"><span class="site-toggle-thumb"></span></span>
+    </label>
+  </div>
 </div>
 
 <script>
@@ -2618,6 +2748,35 @@
       applyRelatedUnderConfig(relatedUnderConfigToggle.checked);
       localStorage.setItem('relatedUnderConfig', relatedUnderConfigToggle.checked ? 'hide' : 'show');
     });
+
+    var promoActiveToggle = document.getElementById('togglePromoActive');
+
+    function applyPromoActive(active) {
+      document.body.classList.toggle('pp-promo-active', active);
+      promoActiveToggle.checked = active;
+    }
+
+    applyPromoActive(localStorage.getItem('promoActive') === 'on');
+
+    promoActiveToggle.addEventListener('change', function () {
+      applyPromoActive(promoActiveToggle.checked);
+      localStorage.setItem('promoActive', promoActiveToggle.checked ? 'on' : 'off');
+    });
+
+    var promoCopyBtn = document.getElementById('ppPromoCopyBtn');
+    if (promoCopyBtn) {
+      var promoCopyHideTimer;
+      promoCopyBtn.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('BUNDLEUP');
+        }
+        promoCopyBtn.classList.add('copied');
+        clearTimeout(promoCopyHideTimer);
+        promoCopyHideTimer = setTimeout(function () {
+          promoCopyBtn.classList.remove('copied');
+        }, 1500);
+      });
+    }
   })();
 </script>
 

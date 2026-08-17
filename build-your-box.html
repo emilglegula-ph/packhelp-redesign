@@ -952,7 +952,7 @@
 
   .box-type-card.active {
     background: var(--color-bg-surface);
-    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+    box-shadow: 0 0 0 1px var(--gray-500), 0 4px 12px rgba(0,0,0,.05);
   }
 
   /* Same darkened-gray hover already used on the Type tiles
@@ -1019,7 +1019,7 @@
 
   .material-card.active {
     background: var(--color-bg-surface);
-    box-shadow: 0 0 0 1px var(--color-border-default), 0 4px 12px rgba(0,0,0,.05);
+    box-shadow: 0 0 0 1px var(--gray-500), 0 4px 12px rgba(0,0,0,.05);
   }
 
   .material-card:not(.active):hover { background: var(--gray-200); }
@@ -1104,7 +1104,8 @@
   .type-tile-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    row-gap: var(--space-4);
+    column-gap: var(--space-2);
   }
 
   .type-tile {
