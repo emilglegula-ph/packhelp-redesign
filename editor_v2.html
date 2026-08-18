@@ -175,9 +175,9 @@
 
   .editor-drawer-item-value {
     margin: 0;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
+    color: var(--color-text-muted);
   }
 
   .editor-drawer-item-action {
@@ -242,8 +242,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 68px;
-    padding: 12px 32px 12px 16px;
+    height: 64px;
+    padding: 8px 32px 8px 16px;
     border-bottom: 1px solid var(--color-border-default);
   }
 
@@ -261,13 +261,14 @@
     align-items: center;
     justify-content: center;
     flex: none;
-    width: 44px;
-    height: 44px;
-    margin-right: 12px;
+    width: 36px;
+    height: 36px;
+    margin-right: 16px;
     padding: 0;
-    background: none;
+    background: rgba(0, 0, 0, .05);
+    backdrop-filter: blur(5px);
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 50%;
     color: var(--color-text-secondary);
     cursor: pointer;
     transition: background-color .15s ease;
@@ -284,26 +285,26 @@
   .editor-hamburger-lines {
     position: relative;
     flex: none;
-    width: 22px;
-    height: 16px;
+    width: 18px;
+    height: 13px;
   }
 
   .editor-hamburger-lines span {
     position: absolute;
     left: 0;
     width: 100%;
-    height: 1.5px;
+    height: 1.75px;
     background: currentColor;
     border-radius: 1px;
     transition: top .2s ease, transform .2s ease, opacity .15s ease;
   }
 
   .editor-hamburger-lines span:nth-child(1) { top: 0; }
-  .editor-hamburger-lines span:nth-child(2) { top: 7px; }
-  .editor-hamburger-lines span:nth-child(3) { top: 14px; }
+  .editor-hamburger-lines span:nth-child(2) { top: 5.5px; }
+  .editor-hamburger-lines span:nth-child(3) { top: 11px; }
 
   .editor-hamburger-btn.is-open .editor-hamburger-lines span:nth-child(1) {
-    top: 7px;
+    top: 5.5px;
     transform: rotate(45deg);
   }
 
@@ -312,7 +313,7 @@
   }
 
   .editor-hamburger-btn.is-open .editor-hamburger-lines span:nth-child(3) {
-    top: 7px;
+    top: 5.5px;
     transform: rotate(-45deg);
   }
 
@@ -320,12 +321,12 @@
     display: flex;
     align-items: center;
     height: 100%;
-    padding-right: 40px;
+    padding-right: 32px;
   }
 
   .editor-logo img {
     display: block;
-    height: 28px;
+    height: 25px;
     width: auto;
   }
 
@@ -333,13 +334,19 @@
   /* Same recipe as .editor-view-toggle (the "Front/Back" pill floating
      over the preview) — translucent blurred track, gradient-white active
      pill — just generalized from a fixed 2-item is-active/is-inactive
-     pair to N buttons where any one of them can carry .is-active. */
+     pair to N buttons where any one of them can carry .is-active. Matches
+     Build_your_box/dist's own SegmentedSwitch component pixel-for-pixel
+     (h-9 track, p-1 + gap-1, h-7 items) instead of this page's earlier,
+     hackier version (an inactive item taller than its own track, an
+     active-only left margin standing in for real spacing). */
   .editor-mode-switch {
     position: relative;
     display: flex;
     align-items: center;
+    gap: 4px;
     height: 36px;
-    background: rgba(0, 0, 0, .05);
+    padding: 4px;
+    background: rgba(0, 0, 0, .04);
     backdrop-filter: blur(5px);
     border-radius: var(--radius-full);
   }
@@ -348,8 +355,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px;
-    padding: 0 16px;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: var(--radius-full);
     font-size: 0.8125rem;
     letter-spacing: -0.02em;
     color: var(--color-text-secondary);
@@ -357,19 +365,17 @@
     background: none;
     border: none;
     cursor: pointer;
+    transition: color .15s ease;
+  }
+
+  .editor-mode-item:hover {
+    color: var(--color-text-primary);
   }
 
   .editor-mode-item.is-active {
-    height: 28px;
-    margin: 0 0 0 4px;
-    padding: 0 12px;
     background: linear-gradient(to bottom, var(--white) 50%, var(--gray-100));
-    border-radius: var(--radius-full);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .08);
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
     color: var(--color-text-primary);
-    white-space: nowrap;
   }
 
   .editor-navbar-right {
@@ -417,6 +423,7 @@
      padding of its own — see .editor-sidebar — so it stays flush against
      the navbar, the right edge and the bottom edge of the viewport. */
   .editor-preview-pane {
+    position: relative;
     flex: 1;
     min-width: 0;
     padding: 12px;
@@ -527,6 +534,38 @@
     text-align: center;
   }
 
+  /* Instagram: icon + handle, same font recipe as .editor-preview-website
+     (font-size/every other metric below is duplicated from it exactly,
+     including its per-composition overrides further down — kept as
+     literal duplicate values rather than a shared class because this one
+     needs flex layout for the icon+text pair, which .editor-preview-
+     website itself doesn't). No width/text-align:center like Website has
+     — .editor-preview-copy's own align-items:center already centers this
+     as a unit regardless of its (content-sized) width. The icon is sized
+     in `em` so it tracks whatever font-size a composition override below
+     sets on this same element, no separate icon-size overrides needed. */
+  .editor-preview-instagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin: 0;
+    font-family: "Poppins", "ABC Favorit", sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 1.08;
+    letter-spacing: -0.22px;
+    color: var(--brand-color);
+    opacity: .8;
+  }
+
+  .editor-preview-instagram-icon {
+    flex: none;
+    display: block;
+    width: 1em;
+    height: 1em;
+  }
+
   .editor-preview-rule {
     display: none;
     width: 260px;
@@ -572,6 +611,9 @@
   .editor-preview-lockup[data-composition="01"] .editor-preview-website {
     font-size: 13px;
   }
+  .editor-preview-lockup[data-composition="01"] .editor-preview-instagram {
+    font-size: 13px;
+  }
 
   /* 02: logo + a single small tagline line, pulled in tight, no website. */
   .editor-preview-lockup[data-composition="02"] {
@@ -583,6 +625,9 @@
     font-size: 13px;
   }
   .editor-preview-lockup[data-composition="02"] .editor-preview-website {
+    font-size: 10px;
+  }
+  .editor-preview-lockup[data-composition="02"] .editor-preview-instagram {
     font-size: 10px;
   }
 
@@ -639,6 +684,13 @@
   .editor-preview-lockup[data-composition="03"] .editor-preview-website {
     font-size: 12px;
   }
+  /* justify-content (not text-align — this one's a flex row, not text)
+     is this composition's equivalent of the tagline/website's own
+     text-align: left override just above. */
+  .editor-preview-lockup[data-composition="03"] .editor-preview-instagram {
+    justify-content: flex-start;
+    font-size: 12px;
+  }
 
   /* 04: big logo rotated on its side, tagline+website rotated into a
      vertical sidebar next to it. Scale+rotate are paint-only transforms —
@@ -648,7 +700,7 @@
      footprint (rotating swaps its effective width/height) rather than
      the unrotated box. */
   .editor-preview-lockup[data-composition="04"] {
-    left: 46%;
+    left: 42%;
   }
   .editor-preview-lockup[data-composition="04"] .editor-preview-logo {
     transform: scale(1.6) rotate(-90deg);
@@ -669,6 +721,10 @@
     text-align: left;
     font-size: 12px;
   }
+  .editor-preview-lockup[data-composition="04"] .editor-preview-instagram {
+    justify-content: flex-start;
+    font-size: 12px;
+  }
 
   /* 05 / 06: small centered logo only — both source designs lean on
      decorative illustration work with no equivalent dynamic element, so
@@ -687,59 +743,78 @@
   .editor-preview-lockup[data-composition="06"] .editor-preview-website {
     font-size: 9px;
   }
+  .editor-preview-lockup[data-composition="05"] .editor-preview-instagram,
+  .editor-preview-lockup[data-composition="06"] .editor-preview-instagram {
+    font-size: 9px;
+  }
 
   .editor-preview-bottombar {
     position: absolute;
     left: 50%;
     bottom: 2%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(4px);
     display: flex;
     align-items: center;
     gap: 24px;
   }
 
-  .editor-view-toggle,
-  .editor-zoom-toggle {
+  /* Front/Back pill: same SegmentedSwitch recipe as .editor-mode-switch
+     above (h-9 track, p-1 + gap-1, h-7 items) — matches
+     Build_your_box/dist's own component. */
+  .editor-view-toggle {
     display: flex;
     align-items: center;
+    gap: 4px;
     height: 36px;
-    background: rgba(0, 0, 0, .05);
+    padding: 4px;
+    background: rgba(0, 0, 0, .04);
     backdrop-filter: blur(5px);
     border-radius: var(--radius-full);
   }
 
-  .editor-view-toggle .is-active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    margin: 0 0 0 4px;
-    padding: 0 12px;
-    background: linear-gradient(to bottom, var(--white) 50%, var(--gray-100));
-    border-radius: var(--radius-full);
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .08);
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-    white-space: nowrap;
-  }
-
+  .editor-view-toggle .is-active,
   .editor-view-toggle .is-inactive {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px;
-    padding: 0 16px;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: var(--radius-full);
     font-size: 0.8125rem;
     letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
     white-space: nowrap;
+    cursor: pointer;
+    transition: color .15s ease;
   }
 
-  /* Zoom control: two circular buttons with a 4px margin to the pill's own
-     edge on their outer side only, and the "100%" label centered between
-     them with equal 8px padding — so the whole group balances symmetrically
-     instead of the buttons sitting flush against one side. */
+  .editor-view-toggle .is-active {
+    background: linear-gradient(to bottom, var(--white) 50%, var(--gray-100));
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .08);
+    color: var(--color-text-primary);
+  }
+
+  .editor-view-toggle .is-inactive {
+    color: var(--color-text-secondary);
+  }
+
+  .editor-view-toggle .is-inactive:hover {
+    color: var(--color-text-primary);
+  }
+
+  /* Zoom control: Build_your_box/dist's own version of this component —
+     a plain richblue-tinted track (no blur, unlike the switches above)
+     with each circular button carrying its own 4px margin instead of the
+     track itself having padding, and a fixed-width label so the +/-
+     buttons never shift as the displayed percentage's digit count
+     changes (80% vs 100% vs 125%). */
+  .editor-zoom-toggle {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    background: rgba(0, 6, 26, .04);
+    border-radius: var(--radius-full);
+  }
+
   .editor-zoom-btn {
     display: flex;
     align-items: center;
@@ -747,24 +822,24 @@
     flex: none;
     width: 28px;
     height: 28px;
+    margin: 4px;
     padding: 0;
     background: linear-gradient(to bottom, var(--white) 50%, var(--gray-100));
     border: none;
     border-radius: var(--radius-full);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .08);
     cursor: pointer;
+    transition: filter .15s ease;
   }
 
-  .editor-zoom-btn--decrease {
-    margin-left: 4px;
-  }
-
-  .editor-zoom-btn--increase {
-    margin-right: 4px;
+  .editor-zoom-btn:hover {
+    filter: brightness(.95);
   }
 
   .editor-zoom-value {
-    padding: 0 8px;
+    width: 48px;
+    flex: none;
+    text-align: center;
     font-size: 0.8125rem;
     letter-spacing: -0.02em;
     color: var(--color-text-secondary);
@@ -844,6 +919,63 @@
     line-height: 1.08;
     letter-spacing: -1.4px;
     color: var(--color-text-primary);
+  }
+
+  /* ---------- "2.4. Three ways start" — the 3 entry options ---------- */
+  .editor-start-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .editor-start-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    height: 56px;
+    padding: 0 16px 0 24px;
+    background: none;
+    border: 1px solid var(--gray-400);
+    border-radius: var(--radius-md);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+
+  .editor-start-option:hover {
+    background: var(--gray-100);
+    border-color: var(--gray-500);
+  }
+
+  .editor-start-option-emoji {
+    flex: none;
+    font-size: 2rem;
+    line-height: 1.32;
+    letter-spacing: -0.04em;
+  }
+
+  .editor-start-option-label {
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* Same box as #ideaBox's own .editor-idea-box (border/bg/shadow reused
+     as-is), just pinned 24px from the bottom of .editor-sidebar (the
+     nearest positioned ancestor — #threeWaysStart itself is a plain
+     static-position flex item, so this reaches past it) instead of
+     flowing after the options above. Hides/shows automatically with
+     #threeWaysStart's own `hidden` — a hidden ancestor removes this from
+     the render tree regardless of its own position: absolute. */
+  .editor-three-ways-prompt-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    padding: 0 44px;
   }
 
   /* ---------- "Add" bottom-menu tab ---------- */
@@ -1167,11 +1299,14 @@
   .editor-idea-send img { width: 16px; height: 16px; }
 
   .editor-skip-link {
+    display: inline-block;
+    align-self: flex-start;
     font-size: 0.9375rem;
     line-height: 1.32;
     letter-spacing: -0.02em;
     color: var(--color-text-secondary);
-    text-decoration: underline;
+    text-decoration: none;
+    border-bottom: 1px solid var(--gray-400);
   }
 
   /* ---------- Chat bubble — replaces the idea box once submitted, showing
@@ -1193,6 +1328,118 @@
     color: var(--color-text-primary);
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  /* ---------- "Thinking" bubble — shown after the user's own chat bubble
+     while interpretBrief() (further down the page) matches the brief
+     against editor-ai-brief-rules.js, before the matched steps reveal.
+     Opposite alignment from .editor-chat-bubble (flex-start, not
+     flex-end) so it reads as the tool's own message, not the user's. ---- */
+  .editor-thinking-bubble {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    max-width: 85%;
+    padding: 12px 16px;
+    background: var(--gray-100);
+    border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 4px;
+  }
+
+  .editor-thinking-text {
+    font-size: 0.9375rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    opacity: 1;
+    transition: opacity .2s ease;
+  }
+
+  .editor-thinking-text.is-swapping {
+    opacity: 0;
+  }
+
+  .editor-thinking-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: none;
+  }
+
+  .editor-thinking-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-text-secondary);
+    animation: editor-thinking-bounce 1.1s ease-in-out infinite;
+  }
+
+  .editor-thinking-dots span:nth-child(2) { animation-delay: .15s; }
+  .editor-thinking-dots span:nth-child(3) { animation-delay: .3s; }
+
+  @keyframes editor-thinking-bounce {
+    0%, 60%, 100% { opacity: .3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-2px); }
+  }
+
+  /* ---------- Idea-box attachment chip — confirms a reference design/
+     logo/image picked from the attach menu before sending, so what
+     interpretBrief() is about to match against isn't invisible state.
+     One attachment at a time (a new pick replaces it), same single-value
+     reasoning as the logo/colour/font fields it can end up feeding. ---- */
+  .editor-idea-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 4px 4px;
+    background: var(--white);
+    border: 1px solid var(--gray-400);
+    border-radius: var(--radius-full);
+    align-self: flex-start;
+  }
+
+  .editor-idea-attachment-thumb {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: var(--gray-200);
+  }
+
+  .editor-idea-attachment-label {
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  .editor-idea-attachment-remove {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background-color .15s ease;
+  }
+
+  .editor-idea-attachment-remove:hover {
+    background: var(--gray-200);
+  }
+
+  .editor-idea-attachment-remove svg {
+    width: 12px;
+    height: 12px;
   }
 
   /* ---------- Step 2 — "Set your design direction" ---------- */
@@ -1329,6 +1576,16 @@
     gap: 4px;
   }
 
+  /* Font's label row: "Add custom font" sits at the far right, same
+     height as the "Font" text itself, instead of living below the
+     dropdown — space-between only kicks in with a second child in the
+     row, so this doesn't affect the plain single-text labels (Logo,
+     Print colour, ...) or the tightly-grouped "Get branding with AI" +
+     "Optional" pair, which stay exactly as they were. */
+  .editor-field-label--with-action {
+    justify-content: space-between;
+  }
+
   .editor-field-label-text {
     margin: 0;
     font-size: 0.9375rem;
@@ -1342,6 +1599,29 @@
     font-size: 0.6875rem;
     letter-spacing: -0.02em;
     color: var(--gray-500);
+  }
+
+  /* Small text-only action, e.g. "Add custom font" at the right edge of
+     the Font label row (.editor-field-label--with-action above) — flush
+     against .editor-field-label's own align-items: center, so no
+     align-self override needed here the way .editor-skip-link needed one
+     against .editor-field's column stretch. */
+  .editor-field-mini-link {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color .15s ease;
+  }
+
+  .editor-field-mini-link:hover {
+    color: var(--color-text-primary);
   }
 
   .editor-text-input {
@@ -1569,6 +1849,7 @@
   }
 
   .editor-color-swatch {
+    position: relative;
     flex: none;
     width: 34px;
     height: 34px;
@@ -1582,6 +1863,53 @@
 
   .editor-color-swatch.is-selected {
     box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--color-accent);
+  }
+
+  /* Same dark-bubble-on-hover recipe as .editor-modal-color-swatch further
+     down this file — every swatch (preset or extracted) already carries
+     data-color, so this needs nothing beyond CSS: no hex text baked onto
+     the tile itself, it only shows here on hover. */
+  .editor-color-swatch::after {
+    content: attr(data-color);
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    background: var(--rich-blue);
+    color: var(--white);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, .15);
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+    transition: opacity .15s ease, transform .15s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .editor-color-swatch::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    margin-bottom: 4px;
+    transform: translateX(-50%) translateY(4px);
+    border: 5px solid transparent;
+    border-top-color: var(--rich-blue);
+    opacity: 0;
+    transition: opacity .15s ease, transform .15s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .editor-color-swatch:hover::after,
+  .editor-color-swatch:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 
   .editor-color-swatch-add {
@@ -2004,7 +2332,7 @@
     width: 100%;
     height: 56px;
     border-radius: 12px;
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
     transition: background-color .15s ease, color .15s ease;
   }
 
@@ -2472,113 +2800,150 @@
   /* ---------- Layout variants ----------
      Three mutually-exclusive arrangements, picked via the radio group in
      the "Page customization" panel below (never combined — the panel
-     enforces that, not this CSS). Rather than flex-direction: row-reverse
-     (which would reverse ALL of .editor-body's children, including the
-     rail — wrong, the rail always belongs at the true left edge even when
-     the other two panels swap), each child gets an explicit `order`:
+     enforces that, not this CSS):
 
-     - default:  preview(1) sidebar(2)              — rail absent
-     - mirrored: sidebar(1) preview(2)               — rail absent
-     - rail:     rail(0) sidebar(1) preview(2)       — same order as
-                 mirrored for sidebar/preview, plus the rail prepended
+     - default (1.2, "Merged nav"):    preview(1) sidebar(2)
+     - mirrored (2.5):                  sidebar(1) preview(2) while
+                                         closed, flips back to the base
+                                         order the instant a panel opens
+                                         — see the :not(.is-panel-open)
+                                         below and the comment on 2.5's
+                                         rail/reopen further down for why
+     - separated-nav (1.1):             preview/sidebar order depends on
+                                         whether a rail panel is open —
+                                         see .is-panel-open below
 
      .editor-preview-pane/.editor-sidebar both stay exactly as they are
      (uniform padding, uniform border-radius, no side-specific styling),
-     so reordering them needs nothing beyond `order`. The rail itself is
-     shown/hidden via its `hidden` attribute (set in JS, not a class) —
-     this file's global `[hidden]{display:none!important}` override would
-     otherwise beat a class-scoped `display` rule regardless of source
-     order or specificity. */
+     so reordering them needs nothing beyond `order`. */
   .editor-preview-pane { order: 1; }
   .editor-sidebar { order: 2; }
-  .editor-rail { order: 0; }
 
-  .editor-page.is-mirrored .editor-preview-pane,
-  .editor-page.is-rail-nav .editor-preview-pane {
+  /* :not(.is-panel-open) (rather than unconditional, like this rule used
+     to be) is what makes 2.5's own rail/reopen pair a real toggle instead
+     of a fixed arrangement: AI panel sits left / canvas+rail sit right
+     while closed, and the moment a panel opens (.is-panel-open added by
+     updateSeparatedPanelState(), same flag 2.1/2.3 use), this stops
+     applying and the base order two rules up — preview(1) sidebar(2) —
+     takes over on its own, which is exactly "sidebar swaps to the right,
+     canvas moves left" with zero extra rules needed. */
+  .editor-page.is-mirrored:not(.is-panel-open) .editor-preview-pane {
     order: 2;
   }
 
-  .editor-page.is-mirrored .editor-sidebar,
-  .editor-page.is-rail-nav .editor-sidebar {
+  .editor-page.is-mirrored:not(.is-panel-open) .editor-sidebar {
     order: 1;
   }
 
-  /* ---------- Rail navigation: vertical icon rail (replaces the
-     sidebar's floating bottom .editor-menu when this variant is active)
-     ---------- */
-  .editor-rail {
-    flex: none;
-    width: 80px;
-    height: 100%;
-    /* .editor-content-row has overflow:hidden, so this 1px reach upward
-       is clipped harmlessly at the bottom — it exists purely to let the
-       rail's own white background paint over the 1px sliver of
-       .editor-navbar's border-bottom that would otherwise sit flush
-       against the first item, reading as if that item had its own top
-       border. */
-    margin-top: -1px;
+  /* ---------- Separated-nav variant (2.1) ----------
+     Unlike "Merged nav" (the bottom .editor-menu bar lives inside the
+     sidebar and swaps that same panel's content in place), this variant
+     pulls the nav OUT of the sidebar into its own floating rail over the
+     canvas — and picking a rail item closes the right (AI-design) side
+     and opens a left one instead, reusing the same order-swap the
+     "mirrored" variant already does. A floating "AI designer" button on
+     the canvas's opposite edge reopens the right side.
+
+     Both the rail and the reopen button are positioned relative to
+     .editor-preview-pane (not .editor-body), because that pane's edges
+     stay the visual "canvas edges" regardless of which order it's
+     currently in — anchoring to .editor-body would require knowing which
+     side is which. Source: Figma nodes 6957:11512 (right open / left
+     closed — the default sub-state) and 6951:981 (left open / right
+     closed, via a rail item).
+
+     "2.3. Current - Separated nav" (.is-current-separated-nav) is the
+     exact same mechanic with a different rail (#editorCurrentRail/
+     #editorCurrentReopen, see .editor-preview-pane below) and different
+     (currently placeholder-only) panels — sharing this selector list
+     rather than duplicating it. "2.4. Three ways start"
+     (.is-three-ways) is the same again, its own rail (#editorThreeWays
+     Rail/#editorThreeWaysReopen) just opening the real 2.1 panels same
+     as 2.1 itself, with #threeWaysStart standing in for #aiDesignFlow
+     as the "closed" default — see CLOSED_STATE_KEYS in the script
+     further down. */
+  .editor-page.is-separated-nav.is-panel-open .editor-preview-pane,
+  .editor-page.is-current-separated-nav.is-panel-open .editor-preview-pane,
+  .editor-page.is-three-ways.is-panel-open .editor-preview-pane {
+    order: 2;
+  }
+
+  .editor-page.is-separated-nav.is-panel-open .editor-sidebar,
+  .editor-page.is-current-separated-nav.is-panel-open .editor-sidebar,
+  .editor-page.is-three-ways.is-panel-open .editor-sidebar {
+    order: 1;
+  }
+
+  .editor-separated-rail,
+  .editor-separated-reopen {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: var(--white);
-    border-right: 1px solid var(--color-border-default);
+    padding: 3px;
+    background: rgba(255, 255, 255, .8);
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 8px 0 rgba(47, 47, 47, .04);
+    transform: translateY(-50%);
   }
 
-  .editor-rail-item {
+  .editor-separated-rail { left: 24px; }
+  .editor-separated-reopen { right: 24px; }
+
+  /* 2.5's rail/reopen sit on the OPPOSITE edges from 2.1's/2.3's default
+     (rail right, reopen left) — same base positioning/sizing above,
+     these two just override which side. */
+  #editorMirroredRail { left: auto; right: 24px; }
+  #editorMirroredReopen { right: auto; left: 24px; }
+
+  /* Reuses .editor-menu-item/-surface/-label (same active-highlight CSS,
+     same data-menu click contract as the merged nav's bottom bar) at a
+     smaller, vertically-stacked size instead of the bar's horizontal
+     56px-icon layout. The :first-child/:last-child selectors are
+     repeated here purely to win the specificity tie against the bottom
+     bar's own edge-padding rules, not to add anything new. */
+  .editor-separated-rail .editor-menu-item,
+  .editor-separated-rail .editor-menu-item:first-child,
+  .editor-separated-rail .editor-menu-item:last-child,
+  .editor-separated-reopen .editor-menu-item,
+  .editor-separated-reopen .editor-menu-item:first-child,
+  .editor-separated-reopen .editor-menu-item:last-child {
     flex: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    height: 72px;
-    padding: 10px 8px;
-    background: none;
-    border: none;
-    border-top: 1px solid transparent;
-    border-bottom: 1px solid transparent;
-    color: var(--color-text-secondary);
-    cursor: pointer;
+    width: 56px;
+    padding: 0;
   }
 
-  .editor-rail-item.is-active {
-    background: var(--blue-50);
-    border-top-color: var(--color-border-default);
-    border-bottom-color: var(--color-border-default);
-    color: var(--color-text-primary);
+  .editor-separated-rail .editor-menu-item-surface,
+  .editor-separated-reopen .editor-menu-item-surface {
+    width: 56px;
+    height: 56px;
+    gap: 6px;
   }
 
-  .editor-rail-item svg {
-    display: block;
-    width: 20px;
-    height: 20px;
-    flex: none;
+  .editor-separated-rail .editor-menu-item-surface svg,
+  .editor-separated-reopen .editor-menu-item-surface svg {
+    width: 16px;
+    height: 16px;
   }
 
-  .editor-rail-item-label {
-    font-size: 0.6875rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    text-align: center;
-    color: inherit;
-    white-space: nowrap;
+  .editor-separated-rail .editor-menu-item-label,
+  .editor-separated-reopen .editor-menu-item-label {
+    font-size: 0.625rem;
   }
 
   /* ---------- SITE SETTINGS ----------
      Same widget as on index.html / sample-packs.html / build-your-box.html,
-     at half the size (28px vs. 56px) and mirrored to the bottom-LEFT corner
-     instead of bottom-right — this page's own convention per the request
-     that added it, so it doesn't collide with anything the preview pane
-     might put in its own bottom-right (zoom controls, etc. are centered/
-     bottom already — but the sidebar's own floating bottom-menu bar
-     (.editor-menu, "AI design"/"Template"/...) occupies the 12-84px band
-     above the viewport bottom, and once mirrored, that band lands on this
-     exact corner too; 96px clears the whole band (with a 12px gap to
-     spare) in both layout modes instead of only the default one. */
+     at half the size (28px vs. 56px) and mirrored to the bottom-LEFT
+     corner instead of bottom-right — this page's own convention per the
+     request that added it. Equal 24px inset from both edges (by request —
+     it no longer dodges the merged-nav variant's bottom-menu bar the way
+     it originally did; that variant isn't the page's default anymore). */
   .site-settings-btn {
     position: fixed;
-    bottom: 96px;
+    bottom: 24px;
     left: 24px;
     z-index: 1000;
     width: 28px;
@@ -2699,7 +3064,7 @@
 </head>
 <body>
 
-  <div class="editor-page">
+  <div class="editor-page is-separated-nav">
 
     <header class="editor-navbar">
       <div class="editor-navbar-left">
@@ -2720,7 +3085,7 @@
           <p class="editor-summary-name">Custom Classic Poly Mailer</p>
           <p class="editor-summary-price">€235.00</p>
         </div>
-        <button type="button" class="btn-pill lg">Add to cart</button>
+        <button type="button" class="btn-pill md">Add to cart</button>
       </div>
     </header>
 
@@ -2810,53 +3175,6 @@
 
     <div class="editor-body">
 
-      <!-- Rail-navigation layout variant only — hidden by default (see the
-           "Page customization" script above), takes over from
-           .editor-menu (the sidebar's floating bottom tab bar) when
-           active. Source: Figma node 6935:684. Icons faithfully
-           reproduced from that node's exported assets as inline
-           fill="currentColor" paths (so the active-state color change
-           works the same way every other icon on this page already
-           does) — except "AI design" and "Upload", which reuse this
-           page's own existing sparkle/magnifier-plus icons: verified
-           identical glyphs to what Figma exported for those two specific
-           items, so reusing keeps one icon per concept instead of two
-           near-duplicates. -->
-      <nav class="editor-rail" id="editorRail" hidden>
-        <button type="button" class="editor-rail-item" data-rail="product">
-          <svg viewBox="0 0 18.5 18.5" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14.26 8.47924V0H4.23881V8.47924H0V18.5H18.5V8.47924H14.26ZM5.78032 1.54174H7.70803V3.85424L9.24977 3.08326L10.7913 3.85424V1.54174H12.7183V8.47924H5.78032V1.54174ZM8.47971 16.9585H1.54174V10.0208H3.46875V12.3335L5.01026 11.5625L6.55201 12.3335V10.0208H8.47971V16.9585ZM16.9585 16.9585H10.0205V10.0208H11.9475V12.3335L13.489 11.5625L15.0308 12.3335V10.0208H16.9585V16.9585Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Product</span>
-        </button>
-        <button type="button" class="editor-rail-item" data-rail="configuration">
-          <svg viewBox="0 0 16.6675 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16.6675 10H13.335V3.335L14.1675 0H10.835L11.6675 3.335V10H8.335V11.6675H10V17.5C10 18.163 10.2634 18.7989 10.7322 19.2678C11.2011 19.7366 11.837 20 12.5 20C13.163 20 13.7989 19.7366 14.2678 19.2678C14.7366 18.7989 15 18.163 15 17.5V11.6675H16.6675V10ZM13.335 17.5C13.335 17.6097 13.3134 17.7182 13.2714 17.8195C13.2295 17.9208 13.168 18.0129 13.0904 18.0904C13.0129 18.168 12.9209 18.2295 12.8195 18.2714C12.7182 18.3134 12.6097 18.335 12.5 18.335C12.279 18.3343 12.0672 18.2461 11.9112 18.0896C11.7551 17.933 11.6675 17.721 11.6675 17.5V11.6675H13.335V17.5Z" fill="currentColor"/><path d="M5.835 0V3.815C5.835 4.25724 5.65932 4.68138 5.3466 4.9941C5.03389 5.30682 4.60975 5.4825 4.1675 5.4825C3.72526 5.4825 3.30112 5.30682 2.9884 4.9941C2.67569 4.68138 2.5 4.25724 2.5 3.815V0C1.7576 0.324123 1.12576 0.85758 0.681763 1.53513C0.237761 2.21267 0.000847402 3.00493 0 3.815C0.00106569 4.45916 0.152345 5.09419 0.441811 5.66965C0.731276 6.24511 1.15095 6.74514 1.6675 7.13V17.5C1.6675 18.163 1.93089 18.7989 2.39973 19.2678C2.86858 19.7366 3.50446 20 4.1675 20C4.83055 20 5.46643 19.7366 5.93527 19.2678C6.40411 18.7989 6.6675 18.163 6.6675 17.5V7.13C7.18405 6.74514 7.60373 6.24511 7.8932 5.66965C8.18266 5.09419 8.33393 4.45916 8.335 3.815C8.33415 3.00493 8.09724 2.21267 7.65324 1.53513C7.20924 0.85758 6.5774 0.324123 5.835 0ZM5 17.5C5 17.721 4.91238 17.933 4.75633 18.0896C4.60027 18.2461 4.38853 18.3343 4.1675 18.335C3.94648 18.3343 3.73473 18.2461 3.57868 18.0896C3.42263 17.933 3.335 17.721 3.335 17.5V8.335H5V17.5Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Configuration</span>
-        </button>
-        <button type="button" class="editor-rail-item is-active" data-rail="ai-design">
-          <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.03333 20.2507L2.75 18.9673L9.64792 12.0465L5.5 11.0152L10.0375 8.19648L9.64792 2.83398L13.75 6.2944L18.7 4.27773L16.7062 9.25065L20.1667 13.3298L14.8042 12.9632L11.9625 17.5007L10.9312 13.3527L4.03333 20.2507ZM4.58333 8.33398L2.75 6.50065L4.58333 4.66732L6.41667 6.50065L4.58333 8.33398ZM12.7187 12.8486L13.8187 11.0382L15.95 11.1986L14.575 9.57148L15.3771 7.60065L13.4062 8.40273L11.7792 7.05065L11.9396 9.15898L10.1292 10.2819L12.1917 10.7861L12.7187 12.8486ZM16.5 20.2507L14.6667 18.4173L16.5 16.584L18.3333 18.4173L16.5 20.2507Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">AI design</span>
-        </button>
-        <button type="button" class="editor-rail-item" data-rail="logo">
-          <svg viewBox="0 0 20 16.666" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 1.33705e-06C13.619 -0.000998663 12.369 0.559002 11.464 1.464L9.99925 2.92875L8.53525 1.46475C7.6305 0.559751 6.38025 1.33705e-06 5 1.33705e-06C2.2395 1.33705e-06 0 2.23825 0 5C0 6.3805 0.55975 7.6305 1.46475 8.53525L8.82175 16.18C9.46925 16.828 10.5307 16.828 11.1792 16.18L18.5355 8.53525C19.4402 7.63025 20 6.38025 20 5C20 2.2395 17.762 1.33705e-06 15 1.33705e-06ZM17.3568 7.35625L10 15.0033L2.666 7.37975C2.0135 6.72725 1.66675 5.8905 1.66675 5C1.66675 3.1625 3.1625 1.667 5 1.667C5.8905 1.667 6.727 2.01375 7.357 2.6435L9.9995 5.2865L12.6425 2.6425C13.2725 2.0135 14.1087 1.667 14.9982 1.667C16.8377 1.667 18.3335 3.16175 18.3335 5C18.3332 5.8905 17.9865 6.727 17.3568 7.35625Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Logo</span>
-        </button>
-        <button type="button" class="editor-rail-item" data-rail="templates">
-          <svg viewBox="0 0 20 18.3335" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 7.00025L13.095 6.0335L10.0017 0L6.91 6.0335L0 7.00025L5.00175 11.6967L3.824 18.3335L10.0017 15.201L16.184 18.3335L15 11.6967L20 7.00025ZM10.0017 13.3325L6.04825 15.337L6.80125 11.0995L3.67925 8.169L7.998 7.56425L10.0017 3.654L12.007 7.5635L16.3228 8.16825L13.2008 11.1003L13.9568 15.336L10.0017 13.3325Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Templates</span>
-        </button>
-        <button type="button" class="editor-rail-item" data-rail="text">
-          <svg viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13 10H12V2C12 0.9 11.1 0 10 0H8C6.9 0 6 0.9 6 2V10H5C2.24 10 0 12.24 0 15V22H18V15C18 12.24 15.76 10 13 10ZM8 2H10V10H8V2ZM16 20H14V17C14 16.45 13.55 16 13 16C12.45 16 12 16.45 12 17V20H10V17C10 16.45 9.55 16 9 16C8.45 16 8 16.45 8 17V20H6V17C6 16.45 5.55 16 5 16C4.45 16 4 16.45 4 17V20H2V15C2 13.35 3.35 12 5 12H13C14.65 12 16 13.35 16 15V20Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Text</span>
-        </button>
-        <button type="button" class="editor-rail-item" data-rail="elements">
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 6.66675L6.66675 0L0 13.3333H6.66675V20H20V6.66675H10ZM2.697 11.6667L6.66675 3.72625L10.6365 11.6667H2.697ZM18.3333 18.3333H8.33325V13.3333H13.3333L10.8333 8.33325H18.3333V18.3333Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Elements</span>
-        </button>
-        <button type="button" class="editor-rail-item" data-rail="upload">
-          <svg viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 5H14V8H11V10H14V13H16V10H19V8H16V5ZM2 9C2 6.21 3.64 3.8 6.01 2.68V0.52C2.52 1.76 0 5.09 0 9C0 12.91 2.52 16.24 6.01 17.48V15.32C3.64 14.2 2 11.79 2 9ZM15 0C10.04 0 6 4.04 6 9C6 13.96 10.04 18 15 18C19.96 18 24 13.96 24 9C24 4.04 19.96 0 15 0ZM15 16C11.14 16 8 12.86 8 9C8 5.14 11.14 2 15 2C18.86 2 22 5.14 22 9C22 12.86 18.86 16 15 16Z" fill="currentColor"/></svg>
-          <span class="editor-rail-item-label">Upload</span>
-        </button>
-      </nav>
-
       <div class="editor-preview-pane">
         <div class="editor-preview-card">
           <div class="editor-preview-stage">
@@ -2937,6 +3255,7 @@
               <div class="editor-preview-copy">
                 <p class="editor-preview-tagline js-tagline" id="previewTagline">You&rsquo;ve been expecting me</p>
                 <p class="editor-preview-website js-website" id="previewWebsite" hidden>www.website.com</p>
+                <p class="editor-preview-instagram js-instagram" id="previewInstagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></p>
               </div>
               <div class="editor-preview-rule" aria-hidden="true"></div>
             </div>
@@ -2947,17 +3266,278 @@
                 <span class="is-inactive">Back</span>
               </div>
               <div class="editor-zoom-toggle">
-                <button type="button" class="editor-zoom-btn editor-zoom-btn--decrease"><img src="assets/editor/app/bottom-bar-back-icon.svg" alt="Zoom out" width="16" height="16"></button>
+                <button type="button" class="editor-zoom-btn"><img src="assets/editor/app/bottom-bar-back-icon.svg" alt="Zoom out" width="16" height="16"></button>
                 <span class="editor-zoom-value">100%</span>
-                <button type="button" class="editor-zoom-btn editor-zoom-btn--increase"><img src="assets/editor/app/bottom-bar-zoom-icon.svg" alt="Zoom in" width="16" height="16"></button>
+                <button type="button" class="editor-zoom-btn"><img src="assets/editor/app/bottom-bar-zoom-icon.svg" alt="Zoom in" width="16" height="16"></button>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Separated-nav variant (1.1) only — floating rail replacing the
+             merged nav's bottom bar; clicking an item opens the matching
+             sidebar panel on the LEFT (see .is-panel-open) instead of
+             swapping it in place. Hidden by default (JS toggles per
+             layout variant, see the "Page customization" script below).
+             Icons/labels reused verbatim from #editorMenu below — same
+             four items, minus "AI design" (reached via the reopen button
+             instead). Source: Figma node 6957:11607. -->
+        <nav class="editor-separated-rail" id="editorSeparatedRail">
+          <button type="button" class="editor-menu-item" data-menu="brand">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 16.5 20.1667" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.9167 9.16667H11V1.83333C11 0.825 10.175 0 9.16667 0H7.33333C6.325 0 5.5 0.825 5.5 1.83333V9.16667H4.58333C2.05333 9.16667 0 11.22 0 13.75V20.1667H16.5V13.75C16.5 11.22 14.4467 9.16667 11.9167 9.16667ZM7.33333 1.83333H9.16667V9.16667H7.33333V1.83333ZM14.6667 18.3333H12.8333V15.5833C12.8333 15.0792 12.4208 14.6667 11.9167 14.6667C11.4125 14.6667 11 15.0792 11 15.5833V18.3333H9.16667V15.5833C9.16667 15.0792 8.75417 14.6667 8.25 14.6667C7.74583 14.6667 7.33333 15.0792 7.33333 15.5833V18.3333H5.5V15.5833C5.5 15.0792 5.0875 14.6667 4.58333 14.6667C4.07917 14.6667 3.66667 15.0792 3.66667 15.5833V18.3333H1.83333V13.75C1.83333 12.2375 3.07083 11 4.58333 11H11.9167C13.4292 11 14.6667 12.2375 14.6667 13.75V18.3333Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Brand</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="elements">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 17.4167 18.3333" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.25 0L3.20833 8.25H13.2917L8.25 0ZM8.25 3.52L10.0192 6.41667H6.47167L8.25 3.52ZM13.2917 10.0833C11.0092 10.0833 9.16667 11.9258 9.16667 14.2083C9.16667 16.4908 11.0092 18.3333 13.2917 18.3333C15.5742 18.3333 17.4167 16.4908 17.4167 14.2083C17.4167 11.9258 15.5742 10.0833 13.2917 10.0833ZM13.2917 16.5C12.0267 16.5 11 15.4733 11 14.2083C11 12.9433 12.0267 11.9167 13.2917 11.9167C14.5567 11.9167 15.5833 12.9433 15.5833 14.2083C15.5833 15.4733 14.5567 16.5 13.2917 16.5ZM0 17.875H7.33333V10.5417H0V17.875ZM1.83333 12.375H5.5V16.0417H1.83333V12.375Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Elements</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="template">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.2062 11.459L13.2916 10.1986L15.3771 11.459L14.8271 9.07565L16.6604 7.4944L14.2541 7.28815L13.2916 5.04232L12.3291 7.28815L9.9229 7.4944L11.7562 9.07565L11.2062 11.459ZM11.6416 17.4173H16.775C16.668 17.8145 16.4847 18.1354 16.225 18.3798C15.9653 18.6243 15.6291 18.777 15.2166 18.8382L5.22498 20.0527C4.72081 20.1291 4.2663 20.0107 3.86144 19.6975C3.45658 19.3843 3.22359 18.9757 3.16248 18.4715L1.94789 8.4569C1.88678 7.95273 2.00901 7.50204 2.31456 7.10482C2.62012 6.7076 3.02498 6.47843 3.52915 6.41732L4.58331 6.27982V8.11315L3.75831 8.22773L4.99581 18.2423L11.6416 17.4173ZM8.24998 15.584C7.74581 15.584 7.31422 15.4045 6.95519 15.0454C6.59616 14.6864 6.41665 14.2548 6.41665 13.7507V3.66732C6.41665 3.16315 6.59616 2.73155 6.95519 2.37253C7.31422 2.0135 7.74581 1.83398 8.24998 1.83398H18.3333C18.8375 1.83398 19.2691 2.0135 19.6281 2.37253C19.9871 2.73155 20.1666 3.16315 20.1666 3.66732V13.7507C20.1666 14.2548 19.9871 14.6864 19.6281 15.0454C19.2691 15.4045 18.8375 15.584 18.3333 15.584H8.24998ZM8.24998 13.7507H18.3333V3.66732H8.24998V13.7507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Template</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="add">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 5H14V8H11V10H14V13H16V10H19V8H16V5ZM2 9C2 6.21 3.64 3.8 6.01 2.68V0.52C2.52 1.76 0 5.09 0 9C0 12.91 2.52 16.24 6.01 17.48V15.32C3.64 14.2 2 11.79 2 9ZM15 0C10.04 0 6 4.04 6 9C6 13.96 10.04 18 15 18C19.96 18 24 13.96 24 9C24 4.04 19.96 0 15 0ZM15 16C11.14 16 8 12.86 8 9C8 5.14 11.14 2 15 2C18.86 2 22 5.14 22 9C22 12.86 18.86 16 15 16Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Add</span>
+            </span>
+          </button>
+        </nav>
+
+        <!-- Separated-nav variant (1.1) only — appears once a rail item
+             above has opened a left panel, closing the right (AI-design)
+             side; reopens it. Reuses the same data-menu="ai-design"
+             contract as #editorMenu's own "AI design" tab, so clicking it
+             goes through the exact same showMenuPanel() path. Source:
+             Figma node 6957:11734/6957:11735. -->
+        <nav class="editor-separated-reopen" id="editorSeparatedReopen" hidden>
+          <button type="button" class="editor-menu-item" data-menu="ai-design">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.03333 20.2507L2.75 18.9673L9.64792 12.0465L5.5 11.0152L10.0375 8.19648L9.64792 2.83398L13.75 6.2944L18.7 4.27773L16.7062 9.25065L20.1667 13.3298L14.8042 12.9632L11.9625 17.5007L10.9312 13.3527L4.03333 20.2507ZM4.58333 8.33398L2.75 6.50065L4.58333 4.66732L6.41667 6.50065L4.58333 8.33398ZM12.7187 12.8486L13.8187 11.0382L15.95 11.1986L14.575 9.57148L15.3771 7.60065L13.4062 8.40273L11.7792 7.05065L11.9396 9.15898L10.1292 10.2819L12.1917 10.7861L12.7187 12.8486ZM16.5 20.2507L14.6667 18.4173L16.5 16.584L18.3333 18.4173L16.5 20.2507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">AI designer</span>
+            </span>
+          </button>
+        </nav>
+
+        <!-- "2.3. Current - Separated nav" variant only — same floating-
+             rail mechanic as 2.1's own rail above (.editor-separated-rail/
+             .editor-menu-item classes reused as-is, so positioning/sizing/
+             active-highlight all come for free), just a different icon
+             set per Figma node 6975:12153: Logo/Template/Text/Elements/
+             Upload/Certificates. Each opens an almost-empty placeholder
+             panel (title only — see #menuPanelCurrentLogo etc. in
+             #sidebarContent below) rather than a built-out one; real
+             content for those comes later. Hidden by default (JS toggles
+             per layout variant). -->
+        <nav class="editor-separated-rail" id="editorCurrentRail" hidden>
+          <button type="button" class="editor-menu-item" data-menu="current-logo">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 16.5 20.1667" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.9167 9.16667H11V1.83333C11 0.825 10.175 0 9.16667 0H7.33333C6.325 0 5.5 0.825 5.5 1.83333V9.16667H4.58333C2.05333 9.16667 0 11.22 0 13.75V20.1667H16.5V13.75C16.5 11.22 14.4467 9.16667 11.9167 9.16667ZM7.33333 1.83333H9.16667V9.16667H7.33333V1.83333ZM14.6667 18.3333H12.8333V15.5833C12.8333 15.0792 12.4208 14.6667 11.9167 14.6667C11.4125 14.6667 11 15.0792 11 15.5833V18.3333H9.16667V15.5833C9.16667 15.0792 8.75417 14.6667 8.25 14.6667C7.74583 14.6667 7.33333 15.0792 7.33333 15.5833V18.3333H5.5V15.5833C5.5 15.0792 5.0875 14.6667 4.58333 14.6667C4.07917 14.6667 3.66667 15.0792 3.66667 15.5833V18.3333H1.83333V13.75C1.83333 12.2375 3.07083 11 4.58333 11H11.9167C13.4292 11 14.6667 12.2375 14.6667 13.75V18.3333Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Logo</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="current-template">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.14972 8.33594L9.66638 7.41927L11.1831 8.33594L10.7831 6.6026L12.1164 5.4526L10.3664 5.3026L9.66638 3.66927L8.96638 5.3026L7.21638 5.4526L8.54972 6.6026L8.14972 8.33594ZM8.46638 12.6693H12.1997C12.1219 12.9582 11.9886 13.1915 11.7997 13.3693C11.6108 13.547 11.3664 13.6582 11.0664 13.7026L3.79972 14.5859C3.43305 14.6415 3.1025 14.5554 2.80805 14.3276C2.51361 14.0998 2.34416 13.8026 2.29972 13.4359L1.41638 6.1526C1.37194 5.78594 1.46083 5.45816 1.68305 5.16927C1.90527 4.88038 2.19972 4.71372 2.56638 4.66927L3.33305 4.56927V5.9026L2.73305 5.98594L3.63305 13.2693L8.46638 12.6693ZM5.99972 11.3359C5.63305 11.3359 5.31916 11.2054 5.05805 10.9443C4.79694 10.6832 4.66638 10.3693 4.66638 10.0026V2.66927C4.66638 2.3026 4.79694 1.98872 5.05805 1.7276C5.31916 1.46649 5.63305 1.33594 5.99972 1.33594H13.3331C13.6997 1.33594 14.0136 1.46649 14.2747 1.7276C14.5358 1.98872 14.6664 2.3026 14.6664 2.66927V10.0026C14.6664 10.3693 14.5358 10.6832 14.2747 10.9443C14.0136 11.2054 13.6997 11.3359 13.3331 11.3359H5.99972ZM5.99972 10.0026H13.3331V2.66927H5.99972V10.0026Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Template</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="current-text">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.9999 5.99883C18.9999 5.44713 18.5529 4.99893 18 4.99893L6 4.99983C5.4483 4.99983 5.0001 5.44713 5.0001 6.00003V9.00003H6.9999V6.99993H11.0001V16.9998H9V18.9999H15V16.9998H12.9999V6.99993H17.0001V9.00003H18.9999V5.99883Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M2.0001 0H21.9999C23.0997 0 24 0.9003 24 1.9998V21.9999C24 23.0994 23.0997 24 21.9999 24H2.0001C0.9003 24 0 23.0994 0 21.9999V1.9998C0 0.9003 0.9003 0 2.0001 0ZM2.0001 21.9999H21.9999V1.9998H2.0001V21.9999Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Text</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="current-elements">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 17.4167 18.3333" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.25 0L3.20833 8.25H13.2917L8.25 0ZM8.25 3.52L10.0192 6.41667H6.47167L8.25 3.52ZM13.2917 10.0833C11.0092 10.0833 9.16667 11.9258 9.16667 14.2083C9.16667 16.4908 11.0092 18.3333 13.2917 18.3333C15.5742 18.3333 17.4167 16.4908 17.4167 14.2083C17.4167 11.9258 15.5742 10.0833 13.2917 10.0833ZM13.2917 16.5C12.0267 16.5 11 15.4733 11 14.2083C11 12.9433 12.0267 11.9167 13.2917 11.9167C14.5567 11.9167 15.5833 12.9433 15.5833 14.2083C15.5833 15.4733 14.5567 16.5 13.2917 16.5ZM0 17.875H7.33333V10.5417H0V17.875ZM1.83333 12.375H5.5V16.0417H1.83333V12.375Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Elements</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="current-upload">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 5H14V8H11V10H14V13H16V10H19V8H16V5ZM2 9C2 6.21 3.64 3.8 6.01 2.68V0.52C2.52 1.76 0 5.09 0 9C0 12.91 2.52 16.24 6.01 17.48V15.32C3.64 14.2 2 11.79 2 9ZM15 0C10.04 0 6 4.04 6 9C6 13.96 10.04 18 15 18C19.96 18 24 13.96 24 9C24 4.04 19.96 0 15 0ZM15 16C11.14 16 8 12.86 8 9C8 5.14 11.14 2 15 2C18.86 2 22 5.14 22 9C22 12.86 18.86 16 15 16Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Upload</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="current-certificates">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 24 23.991" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M23.0913 4.0005H17.9933V0.899663C17.9933 0.661057 17.8985 0.432219 17.7297 0.2635C17.561 0.0947803 17.3322 0 17.0936 0H6.89741C6.65881 0 6.42997 0.0947803 6.26126 0.2635C6.09254 0.432219 5.99775 0.661057 5.99775 0.899663V4.0005H0.899663C0.661057 4.0005 0.432224 4.09528 0.263504 4.264C0.0947849 4.43272 0 4.66156 0 4.90016V11.9145L3.41272 15.3272C2.56474 15.6292 1.84546 16.212 1.37419 16.9789C0.902921 17.7458 0.707975 18.6507 0.821691 19.5437C0.940999 20.4322 1.35684 21.2544 2.00183 21.8771C2.64682 22.4998 3.48317 22.8864 4.37536 22.9744C5.00854 23.0348 5.64691 22.9405 6.23561 22.6997C6.82431 22.4589 7.34574 22.0787 7.75509 21.5919C8.19787 22.3229 8.82141 22.9277 9.56567 23.3478C10.3099 23.768 11.1498 23.9895 12.0045 23.991C12.8592 23.9895 13.6991 23.768 14.4433 23.3478C15.1876 22.9277 15.8111 22.3229 16.2539 21.5919C16.6923 22.1132 17.2586 22.5117 17.8974 22.7482C18.5361 22.9848 19.2253 23.0514 19.8975 22.9414C20.7349 22.8004 21.5051 22.3951 22.0954 21.7848C22.6857 21.1745 23.0652 20.3912 23.1783 19.5497C23.294 18.6557 23.1 17.7491 22.6286 16.9808C22.1571 16.2125 21.4367 15.6289 20.5873 15.3272L24 11.9145V4.90016C24 4.78126 23.9764 4.66353 23.9307 4.55378C23.8849 4.44404 23.8178 4.34446 23.7333 4.2608C23.6488 4.17714 23.5486 4.11106 23.4384 4.06638C23.3282 4.0217 23.2102 3.99931 23.0913 4.0005ZM7.998 2.00024H15.993V9.16756L11.9955 13.1681L7.998 9.16756V2.00024ZM15.2853 12.7032L17.9093 15.3272C17.2773 15.5532 16.7143 15.9385 16.2749 16.4458C15.6843 15.4551 14.7687 14.6995 13.6839 14.3076L15.2853 12.7032ZM7.7191 16.4458C7.27885 15.9381 6.7148 15.5527 6.08172 15.3272L8.70573 12.7032L10.3101 14.3076C9.2248 14.6986 8.30894 15.4544 7.7191 16.4458ZM2.00025 5.99775H5.99775V9.99825L7.29027 11.2908L4.75622 13.8338L2.00925 11.0838L2.00025 5.99775ZM4.74722 20.9921C4.2281 20.9913 3.73047 20.7848 3.36339 20.4177C2.99632 20.0506 2.78975 19.553 2.78896 19.0339C2.78975 18.515 2.99642 18.0177 3.36358 17.6511C3.73074 17.2845 4.22838 17.0786 4.74722 17.0786C5.26555 17.0786 5.76273 17.2841 6.12981 17.65C6.49688 18.016 6.7039 18.5125 6.70549 19.0309C6.7055 19.5489 6.50051 20.046 6.13529 20.4135C5.77007 20.7809 5.27429 20.989 4.75622 20.9921H4.74722ZM11.9955 21.9938C11.2002 21.9938 10.4374 21.6778 9.87498 21.1154C9.31258 20.553 8.99663 19.7902 8.99663 18.9949C8.99663 18.1995 9.31258 17.4367 9.87498 16.8743C10.4374 16.3119 11.2002 15.996 11.9955 15.996C12.7909 15.996 13.5536 16.3119 14.116 16.8743C14.6784 17.4367 14.9944 18.1995 14.9944 18.9949C14.9944 19.7902 14.6784 20.553 14.116 21.1154C13.5536 21.6778 12.7909 21.9938 11.9955 21.9938ZM21.202 19.0339C21.2013 19.553 20.9947 20.0506 20.6276 20.4177C20.2605 20.7848 19.7629 20.9913 19.2438 20.9921C18.7247 20.9913 18.227 20.7848 17.86 20.4177C17.4929 20.0506 17.2863 19.553 17.2855 19.0339C17.2863 18.515 17.493 18.0177 17.8601 17.6511C18.2273 17.2845 18.7249 17.0786 19.2438 17.0786C19.7621 17.0786 20.2593 17.2841 20.6264 17.65C20.9934 18.016 21.2005 18.5125 21.202 19.0309V19.0339ZM21.9908 11.0838L19.2438 13.8338L16.7007 11.2908L17.9933 9.99825V5.99775H21.9908V11.0838Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Certificates</span>
+            </span>
+          </button>
+        </nav>
+
+        <!-- "2.3. Current - Separated nav" variant's own reopen button —
+             same contract as #editorSeparatedReopen above (data-menu=
+             "ai-design"), just its own element since only one rail's
+             worth of chrome should be visible per variant. -->
+        <nav class="editor-separated-reopen" id="editorCurrentReopen" hidden>
+          <button type="button" class="editor-menu-item" data-menu="ai-design">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.03333 20.2507L2.75 18.9673L9.64792 12.0465L5.5 11.0152L10.0375 8.19648L9.64792 2.83398L13.75 6.2944L18.7 4.27773L16.7062 9.25065L20.1667 13.3298L14.8042 12.9632L11.9625 17.5007L10.9312 13.3527L4.03333 20.2507ZM4.58333 8.33398L2.75 6.50065L4.58333 4.66732L6.41667 6.50065L4.58333 8.33398ZM12.7187 12.8486L13.8187 11.0382L15.95 11.1986L14.575 9.57148L15.3771 7.60065L13.4062 8.40273L11.7792 7.05065L11.9396 9.15898L10.1292 10.2819L12.1917 10.7861L12.7187 12.8486ZM16.5 20.2507L14.6667 18.4173L16.5 16.584L18.3333 18.4173L16.5 20.2507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">AI designer</span>
+            </span>
+          </button>
+        </nav>
+
+        <!-- "2.5. Mirrored on the left" variant only — the exact mirror
+             of 2.1's own rail+reopen pair (same panel set/icons, same
+             data-menu values so this opens the real, already-built
+             panels, not placeholders — even the same active-highlight
+             mechanism, since it's the same global `.editor-menu-item.
+             is-active` selector), just with every left/right swapped:
+             the rail sits at .editor-preview-pane's RIGHT edge (#editor
+             MirroredRail's position override below) instead of its
+             left, and clicking an item pulls the panel out from the
+             RIGHT edge of the screen, collapsing the AI panel down to
+             the single reopen icon on the LEFT (#editorMirroredReopen)
+             — opposite of 2.1, where the rail's on the left and panels
+             open from the left. See handleNavClick() further down for
+             how the shared animateSeparatedNavSwap() gets the mirrored
+             direction (passing !willBeOpen instead of willBeOpen only
+             for this variant) and the "Layout variants" CSS for how
+             .is-mirrored's order-flip is gated on :not(.is-panel-open)
+             rather than being unconditional, so the base (unflipped)
+             order takes over automatically once a panel opens. -->
+        <nav class="editor-separated-rail" id="editorMirroredRail" hidden>
+          <button type="button" class="editor-menu-item" data-menu="brand">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 16.5 20.1667" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.9167 9.16667H11V1.83333C11 0.825 10.175 0 9.16667 0H7.33333C6.325 0 5.5 0.825 5.5 1.83333V9.16667H4.58333C2.05333 9.16667 0 11.22 0 13.75V20.1667H16.5V13.75C16.5 11.22 14.4467 9.16667 11.9167 9.16667ZM7.33333 1.83333H9.16667V9.16667H7.33333V1.83333ZM14.6667 18.3333H12.8333V15.5833C12.8333 15.0792 12.4208 14.6667 11.9167 14.6667C11.4125 14.6667 11 15.0792 11 15.5833V18.3333H9.16667V15.5833C9.16667 15.0792 8.75417 14.6667 8.25 14.6667C7.74583 14.6667 7.33333 15.0792 7.33333 15.5833V18.3333H5.5V15.5833C5.5 15.0792 5.0875 14.6667 4.58333 14.6667C4.07917 14.6667 3.66667 15.0792 3.66667 15.5833V18.3333H1.83333V13.75C1.83333 12.2375 3.07083 11 4.58333 11H11.9167C13.4292 11 14.6667 12.2375 14.6667 13.75V18.3333Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Brand</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="elements">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 17.4167 18.3333" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.25 0L3.20833 8.25H13.2917L8.25 0ZM8.25 3.52L10.0192 6.41667H6.47167L8.25 3.52ZM13.2917 10.0833C11.0092 10.0833 9.16667 11.9258 9.16667 14.2083C9.16667 16.4908 11.0092 18.3333 13.2917 18.3333C15.5742 18.3333 17.4167 16.4908 17.4167 14.2083C17.4167 11.9258 15.5742 10.0833 13.2917 10.0833ZM13.2917 16.5C12.0267 16.5 11 15.4733 11 14.2083C11 12.9433 12.0267 11.9167 13.2917 11.9167C14.5567 11.9167 15.5833 12.9433 15.5833 14.2083C15.5833 15.4733 14.5567 16.5 13.2917 16.5ZM0 17.875H7.33333V10.5417H0V17.875ZM1.83333 12.375H5.5V16.0417H1.83333V12.375Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Elements</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="template">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.2062 11.459L13.2916 10.1986L15.3771 11.459L14.8271 9.07565L16.6604 7.4944L14.2541 7.28815L13.2916 5.04232L12.3291 7.28815L9.9229 7.4944L11.7562 9.07565L11.2062 11.459ZM11.6416 17.4173H16.775C16.668 17.8145 16.4847 18.1354 16.225 18.3798C15.9653 18.6243 15.6291 18.777 15.2166 18.8382L5.22498 20.0527C4.72081 20.1291 4.2663 20.0107 3.86144 19.6975C3.45658 19.3843 3.22359 18.9757 3.16248 18.4715L1.94789 8.4569C1.88678 7.95273 2.00901 7.50204 2.31456 7.10482C2.62012 6.7076 3.02498 6.47843 3.52915 6.41732L4.58331 6.27982V8.11315L3.75831 8.22773L4.99581 18.2423L11.6416 17.4173ZM8.24998 15.584C7.74581 15.584 7.31422 15.4045 6.95519 15.0454C6.59616 14.6864 6.41665 14.2548 6.41665 13.7507V3.66732C6.41665 3.16315 6.59616 2.73155 6.95519 2.37253C7.31422 2.0135 7.74581 1.83398 8.24998 1.83398H18.3333C18.8375 1.83398 19.2691 2.0135 19.6281 2.37253C19.9871 2.73155 20.1666 3.16315 20.1666 3.66732V13.7507C20.1666 14.2548 19.9871 14.6864 19.6281 15.0454C19.2691 15.4045 18.8375 15.584 18.3333 15.584H8.24998ZM8.24998 13.7507H18.3333V3.66732H8.24998V13.7507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Template</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="add">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 5H14V8H11V10H14V13H16V10H19V8H16V5ZM2 9C2 6.21 3.64 3.8 6.01 2.68V0.52C2.52 1.76 0 5.09 0 9C0 12.91 2.52 16.24 6.01 17.48V15.32C3.64 14.2 2 11.79 2 9ZM15 0C10.04 0 6 4.04 6 9C6 13.96 10.04 18 15 18C19.96 18 24 13.96 24 9C24 4.04 19.96 0 15 0ZM15 16C11.14 16 8 12.86 8 9C8 5.14 11.14 2 15 2C18.86 2 22 5.14 22 9C22 12.86 18.86 16 15 16Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Add</span>
+            </span>
+          </button>
+        </nav>
+
+        <!-- 2.5's own reopen button — same data-menu="ai-design" contract
+             as 2.1's/2.3's, positioned at the LEFT edge (override below)
+             since that's where the AI panel collapses to here. -->
+        <nav class="editor-separated-reopen" id="editorMirroredReopen" hidden>
+          <button type="button" class="editor-menu-item" data-menu="ai-design">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.03333 20.2507L2.75 18.9673L9.64792 12.0465L5.5 11.0152L10.0375 8.19648L9.64792 2.83398L13.75 6.2944L18.7 4.27773L16.7062 9.25065L20.1667 13.3298L14.8042 12.9632L11.9625 17.5007L10.9312 13.3527L4.03333 20.2507ZM4.58333 8.33398L2.75 6.50065L4.58333 4.66732L6.41667 6.50065L4.58333 8.33398ZM12.7187 12.8486L13.8187 11.0382L15.95 11.1986L14.575 9.57148L15.3771 7.60065L13.4062 8.40273L11.7792 7.05065L11.9396 9.15898L10.1292 10.2819L12.1917 10.7861L12.7187 12.8486ZM16.5 20.2507L14.6667 18.4173L16.5 16.584L18.3333 18.4173L16.5 20.2507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">AI designer</span>
+            </span>
+          </button>
+        </nav>
+
+        <!-- "2.4. Three ways start" variant only — identical rail/reopen
+             mechanic and direction to 2.1 (same icons, same left/right
+             edges, same animateSeparatedNavSwap() call with willBeOpen
+             unmodified — 2.4 is not mirrored the way 2.5 is), the only
+             difference is what "closed" shows: #threeWaysStart (see
+             #sidebarContent below) instead of #aiDesignFlow. The reopen
+             button's data-menu="three-ways-start" (not "ai-design") is
+             what tells showMenuPanel()/handleNavClick() which panel that
+             is — see CLOSED_STATE_KEYS further down for how both this
+             and 2.1's own "ai-design" default coexist without either
+             variant needing to know the other exists. Source: Figma node
+             6975:11905/6975:11998. -->
+        <nav class="editor-separated-rail" id="editorThreeWaysRail" hidden>
+          <button type="button" class="editor-menu-item" data-menu="brand">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 16.5 20.1667" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.9167 9.16667H11V1.83333C11 0.825 10.175 0 9.16667 0H7.33333C6.325 0 5.5 0.825 5.5 1.83333V9.16667H4.58333C2.05333 9.16667 0 11.22 0 13.75V20.1667H16.5V13.75C16.5 11.22 14.4467 9.16667 11.9167 9.16667ZM7.33333 1.83333H9.16667V9.16667H7.33333V1.83333ZM14.6667 18.3333H12.8333V15.5833C12.8333 15.0792 12.4208 14.6667 11.9167 14.6667C11.4125 14.6667 11 15.0792 11 15.5833V18.3333H9.16667V15.5833C9.16667 15.0792 8.75417 14.6667 8.25 14.6667C7.74583 14.6667 7.33333 15.0792 7.33333 15.5833V18.3333H5.5V15.5833C5.5 15.0792 5.0875 14.6667 4.58333 14.6667C4.07917 14.6667 3.66667 15.0792 3.66667 15.5833V18.3333H1.83333V13.75C1.83333 12.2375 3.07083 11 4.58333 11H11.9167C13.4292 11 14.6667 12.2375 14.6667 13.75V18.3333Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Brand</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="elements">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 17.4167 18.3333" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.25 0L3.20833 8.25H13.2917L8.25 0ZM8.25 3.52L10.0192 6.41667H6.47167L8.25 3.52ZM13.2917 10.0833C11.0092 10.0833 9.16667 11.9258 9.16667 14.2083C9.16667 16.4908 11.0092 18.3333 13.2917 18.3333C15.5742 18.3333 17.4167 16.4908 17.4167 14.2083C17.4167 11.9258 15.5742 10.0833 13.2917 10.0833ZM13.2917 16.5C12.0267 16.5 11 15.4733 11 14.2083C11 12.9433 12.0267 11.9167 13.2917 11.9167C14.5567 11.9167 15.5833 12.9433 15.5833 14.2083C15.5833 15.4733 14.5567 16.5 13.2917 16.5ZM0 17.875H7.33333V10.5417H0V17.875ZM1.83333 12.375H5.5V16.0417H1.83333V12.375Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Elements</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="template">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.2062 11.459L13.2916 10.1986L15.3771 11.459L14.8271 9.07565L16.6604 7.4944L14.2541 7.28815L13.2916 5.04232L12.3291 7.28815L9.9229 7.4944L11.7562 9.07565L11.2062 11.459ZM11.6416 17.4173H16.775C16.668 17.8145 16.4847 18.1354 16.225 18.3798C15.9653 18.6243 15.6291 18.777 15.2166 18.8382L5.22498 20.0527C4.72081 20.1291 4.2663 20.0107 3.86144 19.6975C3.45658 19.3843 3.22359 18.9757 3.16248 18.4715L1.94789 8.4569C1.88678 7.95273 2.00901 7.50204 2.31456 7.10482C2.62012 6.7076 3.02498 6.47843 3.52915 6.41732L4.58331 6.27982V8.11315L3.75831 8.22773L4.99581 18.2423L11.6416 17.4173ZM8.24998 15.584C7.74581 15.584 7.31422 15.4045 6.95519 15.0454C6.59616 14.6864 6.41665 14.2548 6.41665 13.7507V3.66732C6.41665 3.16315 6.59616 2.73155 6.95519 2.37253C7.31422 2.0135 7.74581 1.83398 8.24998 1.83398H18.3333C18.8375 1.83398 19.2691 2.0135 19.6281 2.37253C19.9871 2.73155 20.1666 3.16315 20.1666 3.66732V13.7507C20.1666 14.2548 19.9871 14.6864 19.6281 15.0454C19.2691 15.4045 18.8375 15.584 18.3333 15.584H8.24998ZM8.24998 13.7507H18.3333V3.66732H8.24998V13.7507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Template</span>
+            </span>
+          </button>
+          <button type="button" class="editor-menu-item" data-menu="add">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 5H14V8H11V10H14V13H16V10H19V8H16V5ZM2 9C2 6.21 3.64 3.8 6.01 2.68V0.52C2.52 1.76 0 5.09 0 9C0 12.91 2.52 16.24 6.01 17.48V15.32C3.64 14.2 2 11.79 2 9ZM15 0C10.04 0 6 4.04 6 9C6 13.96 10.04 18 15 18C19.96 18 24 13.96 24 9C24 4.04 19.96 0 15 0ZM15 16C11.14 16 8 12.86 8 9C8 5.14 11.14 2 15 2C18.86 2 22 5.14 22 9C22 12.86 18.86 16 15 16Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">Add</span>
+            </span>
+          </button>
+        </nav>
+
+        <nav class="editor-separated-reopen" id="editorThreeWaysReopen" hidden>
+          <button type="button" class="editor-menu-item" data-menu="three-ways-start">
+            <span class="editor-menu-item-surface">
+              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.03333 20.2507L2.75 18.9673L9.64792 12.0465L5.5 11.0152L10.0375 8.19648L9.64792 2.83398L13.75 6.2944L18.7 4.27773L16.7062 9.25065L20.1667 13.3298L14.8042 12.9632L11.9625 17.5007L10.9312 13.3527L4.03333 20.2507ZM4.58333 8.33398L2.75 6.50065L4.58333 4.66732L6.41667 6.50065L4.58333 8.33398ZM12.7187 12.8486L13.8187 11.0382L15.95 11.1986L14.575 9.57148L15.3771 7.60065L13.4062 8.40273L11.7792 7.05065L11.9396 9.15898L10.1292 10.2819L12.1917 10.7861L12.7187 12.8486ZM16.5 20.2507L14.6667 18.4173L16.5 16.584L18.3333 18.4173L16.5 20.2507Z" fill="currentColor"/></svg>
+              <span class="editor-menu-item-label">AI designer</span>
+            </span>
+          </button>
+        </nav>
       </div>
 
       <aside class="editor-sidebar">
         <div class="editor-sidebar-content" id="sidebarContent">
+          <!-- "2.4. Three ways start" variant only — its own "closed"
+               default panel (an alternative to #aiDesignFlow below, not
+               a replacement — 2.1/2.3/2.5 still use that one), shown via
+               showMenuPanel('three-ways-start'). All three options (and
+               this panel's own prompt box, pinned 24px from the bottom
+               of .editor-sidebar via .editor-three-ways-prompt-wrap
+               below) hand off into #aiDesignFlow itself rather than
+               duplicating the brief-submission flow a second time — see
+               the dedicated script further down. Source: Figma node
+               6975:11979. -->
+          <div class="editor-menu-panel" id="threeWaysStart" hidden>
+            <h2 class="editor-menu-panel-title">How do you want to design your packaging?</h2>
+
+            <div class="editor-start-options">
+              <button type="button" class="editor-start-option" id="threeWaysBrief">
+                <span class="editor-start-option-emoji" aria-hidden="true">✍️</span>
+                <span class="editor-start-option-label">I have an idea &ndash; let&rsquo;s write a brief</span>
+              </button>
+              <button type="button" class="editor-start-option" id="threeWaysGuide">
+                <span class="editor-start-option-emoji" aria-hidden="true">🪜</span>
+                <span class="editor-start-option-label">Guide me step-by-step</span>
+              </button>
+              <button type="button" class="editor-start-option" id="threeWaysReference">
+                <span class="editor-start-option-emoji" aria-hidden="true">📸</span>
+                <span class="editor-start-option-label">I have a reference image</span>
+              </button>
+            </div>
+
+            <div class="editor-three-ways-prompt-wrap">
+              <div class="editor-idea-box" id="threeWaysIdeaBox">
+                <textarea class="editor-idea-input" id="threeWaysIdeaInput" rows="2" placeholder="Minimalist design with logo and slogan&hellip;"></textarea>
+                <div class="editor-idea-actions">
+                  <button type="button" class="editor-idea-attach" id="threeWaysAttachTrigger" aria-label="Attach a reference image">
+                    <img src="assets/editor/app/attach-file-vector.svg" alt="">
+                  </button>
+                  <button type="button" class="editor-idea-send" id="threeWaysSendBtn">
+                    <img src="assets/editor/app/send-arrow.svg" alt="Send">
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Steps 1-6, the guided "AI design" conversation — wrapped as
                one unit so the bottom-menu's Template/Elements/Brand tabs
                can hide it wholesale and show their own single-purpose
@@ -2978,22 +3558,31 @@
                     <img src="assets/editor/app/attach-file-vector.svg" alt="Attach file">
                   </button>
                   <div class="editor-attach-menu" id="attachDropdownMenu" role="menu" hidden>
-                    <button type="button" class="editor-attach-option" role="menuitem">
+                    <button type="button" class="editor-attach-option" role="menuitem" data-attach="reference-design">
                       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-9 11 2.5 3.01L16 12l4 5H4l3.5-4.5L10 14Z" fill="currentColor"/></svg>
                       <span>Add reference design</span>
                     </button>
-                    <button type="button" class="editor-attach-option" role="menuitem">
+                    <button type="button" class="editor-attach-option" role="menuitem" data-attach="logo">
                       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21Z" fill="currentColor"/></svg>
                       <span>Add logo</span>
                     </button>
-                    <button type="button" class="editor-attach-option" role="menuitem">
+                    <button type="button" class="editor-attach-option" role="menuitem" data-attach="image">
                       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 20h14v-2H5v2Zm0-10h4v6h6v-6h4l-7-7-7 7Z" fill="currentColor"/></svg>
                       <span>Upload image</span>
                     </button>
                   </div>
+                  <input type="file" id="ideaAttachInput" accept="image/*" hidden>
                 </div>
                 <button type="button" class="editor-idea-send" id="ideaSendBtn">
                   <img src="assets/editor/app/send-arrow.svg" alt="Send">
+                </button>
+              </div>
+
+              <div class="editor-idea-attachment" id="ideaAttachmentChip" hidden>
+                <img class="editor-idea-attachment-thumb" id="ideaAttachmentThumb" alt="">
+                <span class="editor-idea-attachment-label" id="ideaAttachmentLabel"></span>
+                <button type="button" class="editor-idea-attachment-remove" id="ideaAttachmentRemove" aria-label="Remove attachment">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 </button>
               </div>
             </div>
@@ -3002,7 +3591,17 @@
               <p class="editor-chat-bubble-text" id="chatBubbleText"></p>
             </div>
 
-            <a href="#" class="editor-skip-link" id="skipLink">Skip brief &amp; guide me step-by-step</a>
+            <!-- AI "thinking" state — shown right after the user's own
+                 chat bubble, before the brief is interpreted (see
+                 interpretBrief() below) and the matched steps reveal.
+                 Left-aligned (.editor-chat-bubble is right-aligned) so it
+                 reads as the tool's own message, chat-UI style. -->
+            <div class="editor-thinking-bubble" id="thinkingBubble" hidden>
+              <span class="editor-thinking-text" id="thinkingBubbleText">Reading your brief&hellip;</span>
+              <span class="editor-thinking-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+            </div>
+
+            <a href="#" class="editor-skip-link" id="skipLink">Skip &amp; design step-by-step</a>
           </div>
 
           <div class="editor-step" id="step2" hidden>
@@ -3132,7 +3731,7 @@
                     <button type="button" class="editor-color-swatch" style="background:#a12820" data-color="#a12820" aria-label="Red"></button>
                     <button type="button" class="editor-color-swatch" style="background:#087416" data-color="#087416" aria-label="Green"></button>
                     <button type="button" class="editor-color-swatch-add" aria-label="Add custom colour">
-                      <svg width="14" height="14" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.6006 16.3994L23 16.3994V17.5996L17.6006 17.5996L17.6006 23H16.4004L16.4004 17.5996H11V16.3994H16.4004V11H17.6006V16.3994Z" fill="#555555"/></svg>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555555" stroke-width="2.5" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                     </button>
                   </div>
                   <div class="editor-color-swatches-row editor-color-swatches-row--extracted" id="extractedColorRow"></div>
@@ -3141,8 +3740,9 @@
               </div>
 
               <div class="editor-field">
-                <div class="editor-field-label">
+                <div class="editor-field-label editor-field-label--with-action">
                   <p class="editor-field-label-text">Font</p>
+                  <button type="button" class="editor-field-mini-link">Add custom font</button>
                 </div>
                 <div class="editor-select-wrap" id="fontDropdown">
                   <button type="button" class="editor-select-input" id="fontDropdownTrigger" aria-haspopup="listbox" aria-expanded="false">
@@ -3288,6 +3888,7 @@
                         <span class="editor-preview-copy">
                           <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                           <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                         </span>
                         <span class="editor-preview-rule" aria-hidden="true"></span>
                       </span>
@@ -3308,6 +3909,7 @@
                         <span class="editor-preview-copy">
                           <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                           <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                         </span>
                         <span class="editor-preview-rule" aria-hidden="true"></span>
                       </span>
@@ -3328,6 +3930,7 @@
                         <span class="editor-preview-copy">
                           <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                           <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                         </span>
                         <span class="editor-preview-rule" aria-hidden="true"></span>
                       </span>
@@ -3348,6 +3951,7 @@
                         <span class="editor-preview-copy">
                           <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                           <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                         </span>
                         <span class="editor-preview-rule" aria-hidden="true"></span>
                       </span>
@@ -3379,6 +3983,7 @@
                         <span class="editor-preview-copy">
                           <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                           <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                         </span>
                         <span class="editor-preview-rule" aria-hidden="true"></span>
                       </span>
@@ -3408,6 +4013,7 @@
                         <span class="editor-preview-copy">
                           <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                           <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                         </span>
                         <span class="editor-preview-rule" aria-hidden="true"></span>
                       </span>
@@ -3480,6 +4086,7 @@
                       <span class="editor-preview-copy">
                         <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                         <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                        <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                       </span>
                       <span class="editor-preview-rule" aria-hidden="true"></span>
                     </span>
@@ -3500,6 +4107,7 @@
                       <span class="editor-preview-copy">
                         <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                         <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                        <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                       </span>
                       <span class="editor-preview-rule" aria-hidden="true"></span>
                     </span>
@@ -3520,6 +4128,7 @@
                       <span class="editor-preview-copy">
                         <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                         <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                        <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                       </span>
                       <span class="editor-preview-rule" aria-hidden="true"></span>
                     </span>
@@ -3540,6 +4149,7 @@
                       <span class="editor-preview-copy">
                         <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                         <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                        <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                       </span>
                       <span class="editor-preview-rule" aria-hidden="true"></span>
                     </span>
@@ -3571,6 +4181,7 @@
                       <span class="editor-preview-copy">
                         <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                         <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                        <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                       </span>
                       <span class="editor-preview-rule" aria-hidden="true"></span>
                     </span>
@@ -3600,6 +4211,7 @@
                       <span class="editor-preview-copy">
                         <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
                         <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                        <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
                       </span>
                       <span class="editor-preview-rule" aria-hidden="true"></span>
                     </span>
@@ -3747,7 +4359,7 @@
                   <button type="button" class="editor-color-swatch" style="background:#a12820" data-color="#a12820" aria-label="Red"></button>
                   <button type="button" class="editor-color-swatch" style="background:#087416" data-color="#087416" aria-label="Green"></button>
                   <button type="button" class="editor-color-swatch-add" aria-label="Add custom colour">
-                    <svg width="14" height="14" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.6006 16.3994L23 16.3994V17.5996L17.6006 17.5996L17.6006 23H16.4004L16.4004 17.5996H11V16.3994H16.4004V11H17.6006V16.3994Z" fill="#555555"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555555" stroke-width="2.5" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                   </button>
                 </div>
                 <div class="editor-color-swatches-row editor-color-swatches-row--extracted" id="extractedColorRow2"></div>
@@ -3755,8 +4367,9 @@
             </div>
 
             <div class="editor-field">
-              <div class="editor-field-label">
+              <div class="editor-field-label editor-field-label--with-action">
                 <p class="editor-field-label-text">Font</p>
+                <button type="button" class="editor-field-mini-link">Add custom font</button>
               </div>
               <div class="editor-select-wrap" id="fontDropdown2">
                 <button type="button" class="editor-select-input" id="fontDropdownTrigger2" aria-haspopup="listbox" aria-expanded="false">
@@ -3846,9 +4459,37 @@
               </div>
             </div>
           </div>
+
+          <!-- "2.3. Current - Separated nav" variant's own panels — title
+               only, on purpose (see the comment on #editorCurrentRail
+               above): layout-first placeholders for
+               Logo/Template/Text/Elements/Upload/Certificates, real
+               content comes later. Wired through the same
+               MENU_PANEL_IDS/showMenuPanel() mechanism as every other
+               panel on this page (see the 'current-*' keys further down)
+               so they're mutually exclusive with #aiDesignFlow and the
+               2.2 panels above, not a separate parallel system. -->
+          <div class="editor-menu-panel" id="menuPanelCurrentLogo" hidden>
+            <h2 class="editor-menu-panel-title">Logo</h2>
+          </div>
+          <div class="editor-menu-panel" id="menuPanelCurrentTemplate" hidden>
+            <h2 class="editor-menu-panel-title">Template</h2>
+          </div>
+          <div class="editor-menu-panel" id="menuPanelCurrentText" hidden>
+            <h2 class="editor-menu-panel-title">Text</h2>
+          </div>
+          <div class="editor-menu-panel" id="menuPanelCurrentElements" hidden>
+            <h2 class="editor-menu-panel-title">Elements</h2>
+          </div>
+          <div class="editor-menu-panel" id="menuPanelCurrentUpload" hidden>
+            <h2 class="editor-menu-panel-title">Upload</h2>
+          </div>
+          <div class="editor-menu-panel" id="menuPanelCurrentCertificates" hidden>
+            <h2 class="editor-menu-panel-title">Certificates</h2>
+          </div>
         </div>
 
-        <div class="editor-menu-wrap">
+        <div class="editor-menu-wrap" hidden>
         <nav class="editor-menu" id="editorMenu">
           <button type="button" class="editor-menu-item is-active" data-menu="ai-design">
             <span class="editor-menu-item-surface">
@@ -3960,19 +4601,33 @@
     <p class="site-settings-label" style="margin-bottom:10px">Layout variant</p>
     <div class="site-settings-radio-group">
       <label class="site-settings-radio">
-        <input type="radio" name="layoutVariant" value="default" id="layoutDefault" checked>
-        <span>Default</span>
+        <input type="radio" name="layoutVariant" value="separated-nav" id="layoutSeparatedNav" checked>
+        <span>2.1. Easy Mode - Separated nav</span>
+      </label>
+      <label class="site-settings-radio">
+        <input type="radio" name="layoutVariant" value="default" id="layoutDefault">
+        <span>2.2. Easy Mode - Merged nav</span>
+      </label>
+      <label class="site-settings-radio">
+        <input type="radio" name="layoutVariant" value="current-separated-nav" id="layoutCurrentSeparatedNav">
+        <span>2.3. Current - Separated nav</span>
+      </label>
+      <label class="site-settings-radio">
+        <input type="radio" name="layoutVariant" value="three-ways" id="layoutThreeWays">
+        <span>2.4. Three ways start</span>
       </label>
       <label class="site-settings-radio">
         <input type="radio" name="layoutVariant" value="mirrored" id="layoutMirrored">
-        <span>Mirrored — preview on the right</span>
-      </label>
-      <label class="site-settings-radio">
-        <input type="radio" name="layoutVariant" value="rail" id="layoutRail">
-        <span>Rail navigation</span>
+        <span>2.5. Mirrored on the left</span>
       </label>
     </div>
   </div>
+
+  <!-- Editable "AI brief" matching rules — see interpretBrief() further
+       down this page for how they're read. Kept in its own file (rather
+       than inlined here) specifically so it's easy to hand-edit without
+       touching the rest of the page. -->
+  <script src="editor-ai-brief-rules.js"></script>
 
   <script>
     (function () {
@@ -3980,8 +4635,15 @@
       var panel = document.getElementById('siteSettingsPanel');
       var variantRadios = document.querySelectorAll('input[name="layoutVariant"]');
       var editorPage = document.querySelector('.editor-page');
-      var railEl = document.getElementById('editorRail');
       var menuWrapEl = document.querySelector('.editor-menu-wrap');
+      var railEl = document.getElementById('editorSeparatedRail');
+      var reopenEl = document.getElementById('editorSeparatedReopen');
+      var currentRailEl = document.getElementById('editorCurrentRail');
+      var currentReopenEl = document.getElementById('editorCurrentReopen');
+      var mirroredRailEl = document.getElementById('editorMirroredRail');
+      var mirroredReopenEl = document.getElementById('editorMirroredReopen');
+      var threeWaysRailEl = document.getElementById('editorThreeWaysRail');
+      var threeWaysReopenEl = document.getElementById('editorThreeWaysReopen');
       if (!btn || !panel || !variantRadios.length || !editorPage) return;
 
       btn.addEventListener('click', function (e) {
@@ -3995,15 +4657,60 @@
         }
       });
 
+      // Separated-nav's own left/right sub-state (which side is open)
+      // tracks whether SOME default panel is visible — isAnyDefaultPanel
+      // Visible() (defined further down, by CLOSED_STATE_KEYS — global,
+      // called here only at runtime so definition order doesn't matter,
+      // same reasoning as every other cross-script-tag call on this
+      // page) covers both #aiDesignFlow (2.1/2.3/2.5's default) and
+      // #threeWaysStart (2.4's own). showMenuPanel() (further down the
+      // page) already flips whichever nav triggered it, merged bar or
+      // any of the four separated rails — only one of the four reopen
+      // buttons below is ever un-hidden at a time, gated on which
+      // variant is actually active, so they can't all show up together.
+      // Exposed on window so that script can call it back after every
+      // panel switch. See the "Layout variants" CSS comment for why the
+      // ordering follows this instead of a separate independent flag.
+      function updateSeparatedPanelState() {
+        var isPanelOpen = window.isAnyDefaultPanelVisible ? !window.isAnyDefaultPanelVisible() : false;
+        editorPage.classList.toggle('is-panel-open', isPanelOpen);
+        if (reopenEl) reopenEl.hidden = !(isPanelOpen && editorPage.classList.contains('is-separated-nav'));
+        if (currentReopenEl) currentReopenEl.hidden = !(isPanelOpen && editorPage.classList.contains('is-current-separated-nav'));
+        if (mirroredReopenEl) mirroredReopenEl.hidden = !(isPanelOpen && editorPage.classList.contains('is-mirrored'));
+        if (threeWaysReopenEl) threeWaysReopenEl.hidden = !(isPanelOpen && editorPage.classList.contains('is-three-ways'));
+      }
+      window.updateSeparatedPanelState = updateSeparatedPanelState;
+
       function applyVariant(variant) {
+        // .is-mirrored's order-flip is gated on :not(.is-panel-open) (see
+        // the "Layout variants" CSS) — closed, it puts the AI panel on
+        // the left same as before; the moment 2.5's own rail opens a
+        // panel, that gate drops the flip and the base order (preview
+        // left / sidebar right) takes over, which is "sidebar swaps to
+        // the right, canvas moves left" for free.
         editorPage.classList.toggle('is-mirrored', variant === 'mirrored');
-        editorPage.classList.toggle('is-rail-nav', variant === 'rail');
+        editorPage.classList.toggle('is-separated-nav', variant === 'separated-nav');
+        editorPage.classList.toggle('is-current-separated-nav', variant === 'current-separated-nav');
+        editorPage.classList.toggle('is-three-ways', variant === 'three-ways');
         // .hidden (the IDL property, not a CSS class) — this file's global
         // [hidden]{display:none!important} override means a class-scoped
         // `display` rule could never win against it regardless of
         // specificity, so visibility here is driven straight from JS.
-        if (railEl) railEl.hidden = variant !== 'rail';
-        if (menuWrapEl) menuWrapEl.hidden = variant === 'rail';
+        if (menuWrapEl) menuWrapEl.hidden = (variant === 'separated-nav' || variant === 'current-separated-nav' || variant === 'mirrored' || variant === 'three-ways');
+        if (railEl) railEl.hidden = variant !== 'separated-nav';
+        if (currentRailEl) currentRailEl.hidden = variant !== 'current-separated-nav';
+        if (mirroredRailEl) mirroredRailEl.hidden = variant !== 'mirrored';
+        if (threeWaysRailEl) threeWaysRailEl.hidden = variant !== 'three-ways';
+        // If no SPECIFIC panel (Brand, etc.) is open right now — i.e. one
+        // of the two "default" panels is showing — switch which default
+        // is showing to match this variant instead of leaving whatever
+        // the previous variant's default happened to be. A specific
+        // panel already open is left alone, same as switching between
+        // any other two variants already does.
+        if (window.isAnyDefaultPanelVisible && window.isAnyDefaultPanelVisible() && window.showMenuPanel) {
+          window.showMenuPanel(variant === 'three-ways' ? 'three-ways-start' : 'ai-design');
+        }
+        updateSeparatedPanelState();
       }
 
       variantRadios.forEach(function (radio) {
@@ -4025,8 +4732,44 @@
       'template': 'menuPanelTemplate',
       'elements': 'menuPanelElements',
       'brand': 'menuPanelBrand',
-      'add': 'menuPanelAdd'
+      'add': 'menuPanelAdd',
+      // "2.3. Current - Separated nav" variant's own rail items (see
+      // #editorCurrentRail) — separate 'current-*' keys so they don't
+      // collide with the 2.2 keys above sharing the same label text
+      // (e.g. 'elements' vs 'current-elements'), which matter because
+      // those two variants' panels are genuinely different elements
+      // (2.3's are placeholder title-only panels, not the built-out 2.2
+      // ones) even where the label happens to match.
+      'current-logo': 'menuPanelCurrentLogo',
+      'current-template': 'menuPanelCurrentTemplate',
+      'current-text': 'menuPanelCurrentText',
+      'current-elements': 'menuPanelCurrentElements',
+      'current-upload': 'menuPanelCurrentUpload',
+      'current-certificates': 'menuPanelCurrentCertificates',
+      // "2.4. Three ways start" variant's own "closed" default panel —
+      // see CLOSED_STATE_KEYS below for why this and 'ai-design' are
+      // both allowed to represent "no side panel open", each for their
+      // own variant.
+      'three-ways-start': 'threeWaysStart'
     };
+
+    // Every key here is a "closed / nothing open" default for SOME
+    // variant — 'ai-design' for 2.1/2.3/2.5, 'three-ways-start' for 2.4.
+    // Both stay in this list unconditionally (rather than swapping which
+    // one's "the" default) because it lets handleNavClick()/
+    // updateSeparatedPanelState() ask "is *some* default panel showing"
+    // without needing to know which layout variant is currently active —
+    // at most one of the two is ever actually visible at once, since
+    // showMenuPanel() (right below) already hides every panel not its
+    // own target, this list included.
+    var CLOSED_STATE_KEYS = ['ai-design', 'three-ways-start'];
+    function isAnyDefaultPanelVisible() {
+      return CLOSED_STATE_KEYS.some(function (key) {
+        var id = MENU_PANEL_IDS[key];
+        var el = id && document.getElementById(id);
+        return !!el && !el.hidden;
+      });
+    }
 
     // Where the AI-design conversation's scroll was left, restored on
     // return instead of the top-reset every other panel gets below.
@@ -4080,34 +4823,163 @@
       var sidebarContent = document.getElementById('sidebarContent');
       sidebarContent.classList.toggle('is-menu-panel', menuKey !== 'ai-design');
       sidebarContent.scrollTop = menuKey === 'ai-design' ? savedAiDesignScrollTop : 0;
+
+      // Separated-nav (1.1) variant only — no-op (and window.* undefined)
+      // on every other page this file's patterns get copied to, so this
+      // stays optional-chained rather than a hard call.
+      if (window.updateSeparatedPanelState) window.updateSeparatedPanelState();
     }
 
-    document.getElementById('editorMenu').addEventListener('click', function (e) {
+    // Separated-nav (1.1) only: opening/closing the left panel swaps
+    // .editor-sidebar and .editor-preview-pane's `order` (see
+    // .is-panel-open in the CSS) — an instant snap on its own. This turns
+    // it into a two-phase "push" instead of a straight FLIP: a straight
+    // FLIP slides the sidebar directly from its old (say, right) position
+    // to its new (left) one, cutting straight across the preview pane
+    // doing the reverse — the two visibly cross in the middle, which
+    // reads as wrong. Real edges instead: phase 1 throws the sidebar (and
+    // its OLD content) on toward the edge it's leaving through, fully
+    // clear of .editor-content-row's `overflow: hidden` so it disappears
+    // behind that edge; only once it's off-screen does `applyChange` flip
+    // the order + swap the content, then phase 2 stages it just past the
+    // OPPOSITE edge and releases it into its final resting spot — it
+    // visibly enters from that edge instead of reappearing mid-screen.
+    // The preview pane isn't thrown off-edge (it never leaves the
+    // canvas), just FLIP-slid from its old rect to its new one across the
+    // same two phases, so both panes settle at the same moment.
+    function animateSeparatedNavSwap(applyChange, opening) {
+      var sidebar = document.querySelector('.editor-sidebar');
+      var preview = document.querySelector('.editor-preview-pane');
+      var row = document.querySelector('.editor-content-row');
+      if (!sidebar || !preview || !row) { applyChange(); return; }
+
+      var EXIT_MS = 140;
+      var ENTER_MS = 220;
+      var rowRect = row.getBoundingClientRect();
+      var previewOldRect = preview.getBoundingClientRect();
+      var sidebarOldRect = sidebar.getBoundingClientRect();
+
+      // Phase 1 — old content exits through the edge it currently sits
+      // against (right edge when opening, left edge when closing).
+      var exitDx = opening
+        ? (rowRect.right - sidebarOldRect.left)
+        : (rowRect.left - sidebarOldRect.right);
+
+      sidebar.style.transition = 'none';
+      sidebar.style.transform = 'translateX(0)';
+      sidebar.getBoundingClientRect(); // force reflow
+      requestAnimationFrame(function () {
+        sidebar.style.transition = 'transform ' + EXIT_MS + 'ms cubic-bezier(.4, 0, 1, 1)';
+        sidebar.style.transform = 'translateX(' + exitDx + 'px)';
+      });
+
+      setTimeout(function () {
+        // Phase 1's exit transform is still applied at this point — clear
+        // it before measuring, or the "new natural position" read below
+        // would be the flipped layout PLUS the leftover exit offset.
+        sidebar.style.transition = 'none';
+        sidebar.style.transform = '';
+        applyChange(); // order flip + content swap, invisible while off-screen
+
+        // Phase 2 — stage both panes at their pre-flip look (sidebar just
+        // past the OPPOSITE edge from the one it exited through; preview
+        // at the delta between its old and new rect), then release.
+        var sidebarNewRect = sidebar.getBoundingClientRect();
+        var previewNewRect = preview.getBoundingClientRect();
+        var enterDx = opening
+          ? (rowRect.left - sidebarNewRect.right)
+          : (rowRect.right - sidebarNewRect.left);
+        var previewDx = previewOldRect.left - previewNewRect.left;
+
+        sidebar.style.transition = 'none';
+        sidebar.style.transform = 'translateX(' + enterDx + 'px)';
+        preview.style.transition = 'none';
+        preview.style.transform = previewDx ? 'translateX(' + previewDx + 'px)' : '';
+        sidebar.getBoundingClientRect(); // force reflow
+
+        requestAnimationFrame(function () {
+          sidebar.style.transition = 'transform ' + ENTER_MS + 'ms cubic-bezier(0, 0, .2, 1)';
+          sidebar.style.transform = '';
+          if (previewDx) {
+            preview.style.transition = 'transform ' + ENTER_MS + 'ms cubic-bezier(0, 0, .2, 1)';
+            preview.style.transform = '';
+          }
+        });
+
+        [sidebar, preview].forEach(function (el) {
+          el.addEventListener('transitionend', function done(ev) {
+            if (ev.target !== el) return;
+            el.style.transition = '';
+            el.removeEventListener('transitionend', done);
+          });
+        });
+      }, EXIT_MS);
+    }
+
+    // Three navs can trigger the same panel swap: the merged bar
+    // (#editorMenu, always in the DOM), and separated-nav's own rail +
+    // reopen button (#editorSeparatedRail / #editorSeparatedReopen —
+    // only visible in that layout variant). All three share the
+    // .editor-menu-item/data-menu contract, so one handler serves all —
+    // the active highlight is applied page-wide (not scoped to whichever
+    // nav was clicked) so switching layout variants mid-session shows the
+    // same item highlighted on whichever nav is now visible.
+    function handleNavClick(e) {
       var item = e.target.closest('.editor-menu-item');
       if (!item) return;
       var aiDesignFlow = document.getElementById('aiDesignFlow');
       if (aiDesignFlow && !aiDesignFlow.hidden) {
         savedAiDesignScrollTop = document.getElementById('sidebarContent').scrollTop;
       }
-      document.querySelectorAll('#editorMenu .editor-menu-item.is-active').forEach(function (el) {
+      document.querySelectorAll('.editor-menu-item.is-active').forEach(function (el) {
         el.classList.remove('is-active');
       });
-      item.classList.add('is-active');
-      showMenuPanel(item.dataset.menu);
-    });
-  </script>
+      document.querySelectorAll('.editor-menu-item[data-menu="' + item.dataset.menu + '"]').forEach(function (el) {
+        el.classList.add('is-active');
+      });
+      var editorPage = document.querySelector('.editor-page');
+      // "wasOpen"/"willBeOpen" track the left/right sub-state (see
+      // .is-panel-open) — the edge-slide only plays when that state is
+      // actually changing (right <-> left). Switching between two
+      // already-open left panels (e.g. Brand -> Elements, or 2.3's own
+      // Logo -> Template) keeps the same side, so it's a plain instant
+      // content swap, same as merged nav. isAnyDefaultPanelVisible()
+      // (CLOSED_STATE_KEYS below) covers both #aiDesignFlow (2.1/2.3/
+      // 2.5's default) and #threeWaysStart (2.4's own), so this reads
+      // correctly regardless of which variant is active.
+      var wasOpen = !isAnyDefaultPanelVisible();
+      var willBeOpen = CLOSED_STATE_KEYS.indexOf(item.dataset.menu) === -1;
+      var isMirroredVariant = !!editorPage && editorPage.classList.contains('is-mirrored');
+      var isAnySeparatedVariant = editorPage && (
+        editorPage.classList.contains('is-separated-nav')
+        || editorPage.classList.contains('is-current-separated-nav')
+        || editorPage.classList.contains('is-three-ways')
+        || isMirroredVariant
+      );
+      if (isAnySeparatedVariant && wasOpen !== willBeOpen) {
+        // 2.5 is the mirror image of 2.1/2.3/2.4: opening there means the
+        // sidebar exits LEFT and enters from the RIGHT (opposite of
+        // animateSeparatedNavSwap()'s own "opening" contract, which
+        // exits right/enters left) — passing the inverted flag reuses
+        // the exact same function for the opposite direction instead of
+        // needing a second copy of it.
+        animateSeparatedNavSwap(
+          function () { showMenuPanel(item.dataset.menu); },
+          isMirroredVariant ? !willBeOpen : willBeOpen
+        );
+      } else {
+        showMenuPanel(item.dataset.menu);
+      }
+    }
 
-  <script>
-    // Rail-navigation variant's own tab list — same active-swap behavior
-    // as #editorMenu above, just a separate element/query since the two
-    // never coexist visibly (only one nav is un-hidden at a time).
-    document.getElementById('editorRail').addEventListener('click', function (e) {
-      var item = e.target.closest('.editor-rail-item');
-      if (!item) return;
-      document.querySelectorAll('#editorRail .editor-rail-item.is-active').forEach(function (el) {
-        el.classList.remove('is-active');
-      });
-      item.classList.add('is-active');
+    [
+      'editorMenu', 'editorSeparatedRail', 'editorSeparatedReopen',
+      'editorCurrentRail', 'editorCurrentReopen',
+      'editorMirroredRail', 'editorMirroredReopen',
+      'editorThreeWaysRail', 'editorThreeWaysReopen'
+    ].forEach(function (navId) {
+      var nav = document.getElementById(navId);
+      if (nav) nav.addEventListener('click', handleNavClick);
     });
   </script>
 
@@ -4239,58 +5111,36 @@
   </script>
 
   <script>
-    // Step 1 -> step 2 hand-off: submitting the idea turns the editable
-    // input into a read-only chat bubble showing what was typed (falling
-    // back to whatever the typewriter placeholder was mid-animation, so the
-    // demo works even without the user typing anything). Scrolling back up
-    // still shows the bubble instead of the input — it's a one-way
-    // hand-off, not a toggle.
-    (function () {
-      var ideaBox = document.getElementById('ideaBox');
-      var ideaInput = document.getElementById('ideaInput');
-      var sendBtn = document.getElementById('ideaSendBtn');
-      var chatBubble = document.getElementById('chatBubble');
-      var chatBubbleText = document.getElementById('chatBubbleText');
-      var skipLink = document.getElementById('skipLink');
-      var step1 = document.getElementById('step1');
-      var step2 = document.getElementById('step2');
-      if (!sendBtn) return;
+    // Idea-box attachment state — set by picking a file after choosing one
+    // of the attach menu's three options (see below), read by
+    // interpretBrief() (also below) when the brief is submitted. One
+    // attachment at a time: a fresh pick, or the chip's own remove button,
+    // replaces/clears the last one. Global (not IIFE-local) so the submit
+    // handler further down can read it.
+    var ideaAttachment = null; // { kind: 'reference-design'|'logo'|'image', dataUrl, name }
 
-      function submitIdea(message) {
-        if (!message) return;
-
-        chatBubbleText.textContent = message;
-        ideaBox.hidden = true;
-        skipLink.hidden = true;
-        chatBubble.hidden = false;
-
-        revealStep(step1, step2);
-      }
-
-      sendBtn.addEventListener('click', function () {
-        submitIdea(ideaInput.value.trim() || ideaInput.placeholder.trim());
-      });
-
-      // "Skip brief & guide me step-by-step" — same hand-off as sending an
-      // idea, but with no actual brief: the bubble just says so, and step 2
-      // starts from a clean slate instead of whatever was typed.
-      skipLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        submitIdea('No brief');
-      });
-    })();
-  </script>
-
-  <script>
     // Idea box attach-icon dropdown — same trigger+panel open/close pattern
     // as the font dropdown (#fontDropdown), just with icon+label menu items
-    // instead of plain text options. UI/layout only for now: each option
-    // closes the menu on click, no upload wiring behind them yet.
+    // instead of plain text options. Each option opens the native file
+    // picker for its own data-attach kind via the one shared
+    // #ideaAttachInput; the actual attach + chip preview happens in its
+    // change handler below.
     (function () {
       var wrap = document.getElementById('attachDropdown');
       var trigger = document.getElementById('attachDropdownTrigger');
       var menu = document.getElementById('attachDropdownMenu');
+      var fileInput = document.getElementById('ideaAttachInput');
+      var chip = document.getElementById('ideaAttachmentChip');
+      var chipThumb = document.getElementById('ideaAttachmentThumb');
+      var chipLabel = document.getElementById('ideaAttachmentLabel');
+      var chipRemove = document.getElementById('ideaAttachmentRemove');
       if (!wrap) return;
+
+      var ATTACH_LABELS = {
+        'reference-design': 'Reference: ',
+        'logo': 'Logo: ',
+        'image': 'Image: '
+      };
 
       function closeMenu() {
         menu.hidden = true;
@@ -4310,12 +5160,383 @@
       });
 
       menu.addEventListener('click', function (e) {
-        if (e.target.closest('.editor-attach-option')) closeMenu();
+        var option = e.target.closest('.editor-attach-option');
+        if (!option) return;
+        closeMenu();
+        fileInput.dataset.attachKind = option.dataset.attach;
+        fileInput.value = ''; // otherwise re-picking the same file fires no change event
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function () {
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        var kind = fileInput.dataset.attachKind || 'image';
+        var reader = new FileReader();
+        reader.onload = function () {
+          ideaAttachment = { kind: kind, dataUrl: reader.result, name: file.name };
+          chipThumb.src = reader.result;
+          chipLabel.textContent = (ATTACH_LABELS[kind] || '') + file.name;
+          chip.hidden = false;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      chipRemove.addEventListener('click', function () {
+        ideaAttachment = null;
+        chip.hidden = true;
+        chipThumb.src = '';
+        fileInput.value = '';
       });
 
       document.addEventListener('click', function (e) {
         if (!wrap.contains(e.target)) closeMenu();
       });
+    })();
+  </script>
+
+  <script>
+    // "AI" brief interpretation — a static prototype stands in for a real
+    // model call with plain keyword/regex matching against
+    // editor-ai-brief-rules.js (loaded above), which is the file meant to
+    // be hand-edited to tune what gets caught. Calls applyLogoDataUrl(),
+    // extractLogoColors(), selectPrintColorByHex(), applyExtractedColors()
+    // and applyFontByName() — all defined in later script blocks on this
+    // page, but global (hoisted, shared scope across script tags, same
+    // reasoning as their own comments explain) and only ever actually
+    // invoked from submitIdea() below, long after every script on the
+    // page has run — so definition order here doesn't matter.
+
+    function interpretBrief(text, attachment) {
+      var rules = window.EDITOR_AI_BRIEF_RULES || {};
+      var raw = text || '';
+      var lower = raw.toLowerCase();
+      // result.elements: { [data-elem key]: { on: true, value: string|null } }
+      // — one entry per step-4 [Elements] item the brief earned, see below.
+      // Only ever holds entries for items the brief actually matched;
+      // applyBriefInterpretation() is what turns everything else off.
+      var result = { skipInspirations: false, colors: [], font: null, elements: {} };
+
+      function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+      function wordMatch(phrase) { return new RegExp('\\b' + escapeRegex(phrase) + '\\b', 'i').test(raw); }
+
+      // "Reference design"/"Upload image" attachments and a precise-enough
+      // look/vibe description both skip step 2 [Inspirations] — see the
+      // comments on skipInspirations in editor-ai-brief-rules.js.
+      var skipRules = rules.skipInspirations || {};
+      var attachedImage = !!attachment && (attachment.kind === 'reference-design' || attachment.kind === 'image');
+      var vibeHits = 0;
+      (skipRules.vibeKeywords || []).forEach(function (word) {
+        if (lower.indexOf(word.toLowerCase()) !== -1) vibeHits++;
+      });
+      result.skipInspirations = !!(skipRules.onImageAttached && attachedImage)
+        || vibeHits >= (skipRules.threshold == null ? Infinity : skipRules.threshold);
+
+      // Colours: named colours from the rules file (word-boundary match,
+      // so "red" doesn't match inside "credo") plus any literal #hex code
+      // typed directly in the brief.
+      var colorNames = (rules.colors && rules.colors.names) || {};
+      Object.keys(colorNames).forEach(function (name) {
+        if (wordMatch(name) && result.colors.indexOf(colorNames[name]) === -1) {
+          result.colors.push(colorNames[name].toLowerCase());
+        }
+      });
+      (raw.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) || []).forEach(function (hex) {
+        hex = hex.toLowerCase();
+        if (hex.length === 4) hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+        if (result.colors.indexOf(hex) === -1) result.colors.push(hex);
+      });
+
+      // Font: first matching name/synonym — longest phrases checked first
+      // so e.g. "ibm plex serif" wins over the shorter "serif" synonym.
+      var fontNames = (rules.fonts && rules.fonts.names) || {};
+      var fontKeys = Object.keys(fontNames).sort(function (a, b) { return b.length - a.length; });
+      for (var i = 0; i < fontKeys.length; i++) {
+        if (wordMatch(fontKeys[i])) { result.font = fontNames[fontKeys[i]]; break; }
+      }
+
+      // Elements [step 4] — Main text: a quoted phrase always counts;
+      // failing that, whatever follows a trigger phrase up to the next
+      // sentence boundary. Feeds into the same result.elements map as
+      // every other step-4 item below (rather than its own separate
+      // field), so applyBriefInterpretation()'s "turn off whatever the
+      // brief didn't earn" pass treats it exactly the same way.
+      var quoted = raw.match(/["“]([^"”]{2,80})["”]/);
+      var mainText = null;
+      if (quoted) {
+        mainText = quoted[1].trim();
+      } else {
+        var phrases = (rules.elementsContent && rules.elementsContent.mainTextTriggerPhrases) || [];
+        for (var j = 0; j < phrases.length; j++) {
+          var idx = lower.indexOf(phrases[j].toLowerCase());
+          if (idx === -1) continue;
+          var after = raw.slice(idx + phrases[j].length).trim();
+          var sentenceEnd = after.search(/[.!?\n]/);
+          var candidate = (sentenceEnd === -1 ? after : after.slice(0, sentenceEnd)).trim();
+          if (candidate) { mainText = candidate; break; }
+        }
+      }
+      if (mainText) result.elements['main-text'] = { on: true, value: mainText };
+
+      // Elements [step 4] — every other item (Website/Instagram/Facebook/
+      // Eco badges): a `keywords` hit (or, if given, a standalone
+      // `valuePattern` match — see the comment on it in
+      // editor-ai-brief-rules.js) switches that item on; `valuePattern` is
+      // then tried again to pull out the actual value typed, if any.
+      var elementRules = (rules.elementsContent && rules.elementsContent.elements) || {};
+      Object.keys(elementRules).forEach(function (key) {
+        var rule = elementRules[key] || {};
+        var keywordHit = (rule.keywords || []).some(function (word) {
+          return lower.indexOf(word.toLowerCase()) !== -1;
+        });
+        var valueMatch = rule.valuePattern ? raw.match(rule.valuePattern) : null;
+        // Instagram's pattern also matches a bare email's "@domain" half,
+        // so it only counts without an explicit keyword alongside it —
+        // Website/Facebook's patterns are distinctive enough on their own.
+        var patternCountsAlone = key !== 'instagram';
+        if (!keywordHit && !(valueMatch && patternCountsAlone)) return;
+        // Reaching this line already guarantees either a real keyword hit
+        // or (for the non-instagram keys) a standalone pattern match, so
+        // any valueMatch found here is safe to use as-is.
+        result.elements[key] = { on: true, value: valueMatch ? valueMatch[1] : null };
+      });
+
+      return result;
+    }
+
+    // Applies interpretBrief()'s result to the actual step 3 [Brand] / step
+    // 4 [Elements] fields (and the live preview both feed), reusing exactly
+    // the same functions a manual upload/pick/type would go through.
+    function applyBriefInterpretation(text, attachment) {
+      var rules = window.EDITOR_AI_BRIEF_RULES || {};
+      var result = interpretBrief(text, attachment);
+
+      // The logo image itself always applies when one's attached — colour
+      // is the only thing that's contested between the two sources.
+      if (attachment && attachment.kind === 'logo') {
+        applyLogoDataUrl(attachment.dataUrl);
+      }
+
+      if (result.colors.length) {
+        // An explicit colour in the brief always wins over the logo's own
+        // palette, attached or not — extractLogoColors() is skipped
+        // entirely in this branch, so it never has a chance to overwrite
+        // what was just set here.
+        var presetHexes = {};
+        Object.keys((rules.colors && rules.colors.names) || {}).forEach(function (name) {
+          presetHexes[rules.colors.names[name].toLowerCase()] = true;
+        });
+        var customColors = result.colors.filter(function (hex) { return !presetHexes[hex]; });
+        if (customColors.length) {
+          applyExtractedColors(
+            customColors.map(function (hex) { return { hex: hex }; }),
+            'Colors picked up from your brief'
+          );
+        }
+        // Whichever colour was mentioned first wins as the active print
+        // colour. applyExtractedColors() above already does that when it's
+        // a custom hex (it's always customColors[0] in that case) — this
+        // only needs to run when the first colour detected was a preset.
+        if (presetHexes[result.colors[0]]) selectPrintColorByHex(result.colors[0]);
+      } else if (attachment && attachment.kind === 'logo') {
+        // No colour named in the brief — fall back to auto-extracting one
+        // from the attached logo, same as a manual upload would.
+        extractLogoColors(attachment.dataUrl);
+      }
+
+      if (result.font) applyFontByName(result.font);
+
+      // Elements [step 4]: switch ON whatever the brief earned (Main
+      // text/Website/Instagram/Facebook/Eco badges — see interpretBrief()
+      // above) and fill its own field where a real value got extracted;
+      // switch OFF everything else on the list — the brief describes what
+      // the packaging SHOULD carry, not extras layered on top of the
+      // defaults, per editor-ai-brief-rules.js's turnOffUnmentioned (Logo
+      // is the one exemption, see exemptKeys there — it never appears in
+      // this loop at all). Uses applyElementOnByKey() (defined in the
+      // step 4 elements-list script further down the page — global, same
+      // cross-script-tag reasoning as this function's own opening
+      // comment).
+      var ELEMENT_VALUE_INPUT_IDS = {
+        'main-text': ['mainTextInput', 'mainTextInput2'],
+        website: ['websiteInput', 'websiteInput2'],
+        instagram: ['instagramInput', 'instagramInput2'],
+        facebook: ['facebookInput', 'facebookInput2']
+      };
+      var elementsRules = rules.elementsContent || {};
+      var exemptKeys = elementsRules.exemptKeys || [];
+      var allElementKeys = ['main-text'].concat(Object.keys(elementsRules.elements || {}));
+      allElementKeys.forEach(function (key) {
+        if (exemptKeys.indexOf(key) !== -1) return;
+        var entry = result.elements[key];
+        applyElementOnByKey(key, !!(entry && entry.on));
+        if (!entry || !entry.value) return;
+        (ELEMENT_VALUE_INPUT_IDS[key] || []).forEach(function (id) {
+          var input = document.getElementById(id);
+          if (!input) return;
+          input.value = entry.value;
+          input.dispatchEvent(new Event('input'));
+        });
+      });
+
+      return result;
+    }
+  </script>
+
+  <script>
+    // Step 1 -> step 2/3 hand-off: submitting the idea turns the editable
+    // input into a read-only chat bubble showing what was typed (falling
+    // back to whatever the typewriter placeholder was mid-animation, so the
+    // demo works even without the user typing anything), then shows an AI
+    // "thinking" bubble while interpretBrief() (above) matches the brief
+    // against editor-ai-brief-rules.js — once that resolves, the matched
+    // step 3 [Brand]/4 [Elements] fields are already pre-filled (see
+    // applyBriefInterpretation() above) and the flow reveals step 3
+    // directly if the brief/attachment earned a step 2 [Inspirations]
+    // skip, or step 2 otherwise. Scrolling back up still shows the bubbles
+    // instead of the input — it's a one-way hand-off, not a toggle.
+    (function () {
+      var ideaBox = document.getElementById('ideaBox');
+      var ideaInput = document.getElementById('ideaInput');
+      var sendBtn = document.getElementById('ideaSendBtn');
+      var chatBubble = document.getElementById('chatBubble');
+      var chatBubbleText = document.getElementById('chatBubbleText');
+      var thinkingBubble = document.getElementById('thinkingBubble');
+      var thinkingBubbleText = document.getElementById('thinkingBubbleText');
+      var skipLink = document.getElementById('skipLink');
+      var step1 = document.getElementById('step1');
+      var step2 = document.getElementById('step2');
+      var step3 = document.getElementById('step3');
+      if (!sendBtn) return;
+
+      function submitIdea(message, attachment) {
+        if (!message) return;
+
+        chatBubbleText.textContent = message;
+        ideaBox.hidden = true;
+        skipLink.hidden = true;
+        chatBubble.hidden = false;
+
+        // Plays the whole messages list in order (starting with "Reading
+        // your brief…", never a random pick) in the same bubble, one
+        // stepMs-long turn each, with a quick opacity crossfade between
+        // them — then reveals the matched step once the last one's had
+        // its turn.
+        var thinkingRules = (window.EDITOR_AI_BRIEF_RULES || {}).thinking || {};
+        var messages = thinkingRules.messages && thinkingRules.messages.length
+          ? thinkingRules.messages : ['Thinking…'];
+        var stepMs = thinkingRules.stepMs || 1200;
+
+        thinkingBubbleText.textContent = messages[0];
+        thinkingBubble.hidden = false;
+
+        var msgIndex = 0;
+        var cycleTimer = messages.length > 1 ? setInterval(function () {
+          msgIndex++;
+          if (msgIndex >= messages.length) return;
+          thinkingBubbleText.classList.add('is-swapping');
+          setTimeout(function () {
+            thinkingBubbleText.textContent = messages[msgIndex];
+            thinkingBubbleText.classList.remove('is-swapping');
+          }, 200);
+        }, stepMs) : null;
+
+        setTimeout(function () {
+          if (cycleTimer) clearInterval(cycleTimer);
+          var result = applyBriefInterpretation(message, attachment);
+          thinkingBubble.hidden = true;
+          revealStep(step1, result.skipInspirations ? step3 : step2);
+        }, stepMs * messages.length);
+      }
+      // "2.4. Three ways start" variant's own prompt box (further down
+      // the page) submits through this exact same function rather than
+      // duplicating it — exposed on window for that script to call.
+      window.submitIdea = submitIdea;
+
+      sendBtn.addEventListener('click', function () {
+        submitIdea(ideaInput.value.trim() || ideaInput.placeholder.trim(), ideaAttachment);
+      });
+
+      // "Skip brief & guide me step-by-step" — there's no brief to show or
+      // interpret, so neither bubble makes sense here: no chat bubble (no
+      // message was actually sent), no "thinking" bubble (nothing to
+      // think about), straight to step 2. Also why this doesn't go
+      // through submitIdea()/applyBriefInterpretation() at all — running
+      // that on an empty brief would trip editor-ai-brief-rules.js's
+      // turnOffUnmentioned pass and switch every non-exempt step 4
+      // [Elements] item off, which isn't what "guide me step-by-step" is
+      // asking for.
+      //
+      // Unlike the send-a-brief path, the idea box + this link stay put
+      // (not hidden) — skipping isn't a one-way hand-off the way sending
+      // a real brief is, so scrolling back up to step 1 still shows the
+      // actual input field and this link, not just the bare title, in
+      // case the user wants to type a brief after all.
+      skipLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        revealStep(step1, step2);
+      });
+    })();
+  </script>
+
+  <script>
+    // "2.4. Three ways start" — all three options, and this panel's own
+    // prompt box, hand off into #aiDesignFlow (showMenuPanel('ai-design'))
+    // rather than duplicating the brief-submission flow a second time.
+    // window.submitIdea/window.showMenuPanel are exposed by the script
+    // blocks that own them (above/below this one) specifically for this.
+    (function () {
+      var briefBtn = document.getElementById('threeWaysBrief');
+      var guideBtn = document.getElementById('threeWaysGuide');
+      var referenceBtn = document.getElementById('threeWaysReference');
+      var input = document.getElementById('threeWaysIdeaInput');
+      var sendBtn = document.getElementById('threeWaysSendBtn');
+      var attachTrigger = document.getElementById('threeWaysAttachTrigger');
+      var step1 = document.getElementById('step1');
+      var step2 = document.getElementById('step2');
+      if (!briefBtn) return;
+
+      function openReferenceFilePicker() {
+        var fileInput = document.getElementById('ideaAttachInput');
+        if (!fileInput) return;
+        fileInput.dataset.attachKind = 'reference-design';
+        fileInput.value = ''; // otherwise re-picking the same file fires no change event
+        fileInput.click();
+      }
+
+      // "I have an idea – let's write a brief": jump straight to
+      // #aiDesignFlow's own step 1 and focus its (real) idea input —
+      // this panel's own prompt box below can also submit directly (see
+      // sendBtn below), so this button is for whoever wants to see the
+      // full step first.
+      briefBtn.addEventListener('click', function () {
+        if (window.showMenuPanel) window.showMenuPanel('ai-design');
+        var ideaInput = document.getElementById('ideaInput');
+        if (ideaInput) ideaInput.focus();
+      });
+
+      // "Guide me step-by-step": same end state as the old skip-link
+      // 2.1 still has (straight to step 2, no brief) — just reached from
+      // this variant's own entry screen instead.
+      guideBtn.addEventListener('click', function () {
+        if (window.showMenuPanel) window.showMenuPanel('ai-design');
+        if (step1 && step2 && window.revealStep) window.revealStep(step1, step2);
+      });
+
+      referenceBtn.addEventListener('click', openReferenceFilePicker);
+      if (attachTrigger) attachTrigger.addEventListener('click', openReferenceFilePicker);
+
+      // This panel's own prompt box: submits through the exact same
+      // window.submitIdea() the real #ideaBox uses (see its own script),
+      // reading whatever got attached via the paperclip above (shared
+      // `ideaAttachment` global, same one #ideaBox's attach menu uses).
+      if (sendBtn && input) {
+        sendBtn.addEventListener('click', function () {
+          var message = input.value.trim() || input.placeholder.trim();
+          if (window.showMenuPanel) window.showMenuPanel('ai-design');
+          if (window.submitIdea) window.submitIdea(message, window.ideaAttachment);
+        });
+      }
     })();
   </script>
 
@@ -4613,7 +5834,7 @@
         valueEl.textContent = fontName;
         valueEl.style.fontFamily = fontFamily;
       });
-      document.querySelectorAll('.js-tagline, .js-website').forEach(function (el) {
+      document.querySelectorAll('.js-tagline, .js-website, .js-instagram').forEach(function (el) {
         el.style.fontFamily = fontFamily;
       });
     }
@@ -4729,18 +5950,54 @@
     // an action, not a toggle) switches independently between the bordered
     // "on" card and the flat "off" chip. Clicks inside the text input are
     // excluded so typing a caret into it doesn't also toggle the item off.
-    // Logo/Main text/Website each also show/hide their bit of the preview —
-    // the flex gaps in .editor-preview-lockup/.editor-preview-copy mean
-    // whichever pieces stay visible keep exactly the same distance from
-    // each other, they just close the gap where a hidden piece used to be.
-    // Class selectors (not id) so this reaches every instance — the main
+    // Logo/Main text/Website/Instagram each also show/hide their bit of
+    // the preview — the flex gaps in .editor-preview-lockup/.editor-
+    // preview-copy mean whichever pieces stay visible keep exactly the
+    // same distance from each other, they just close the gap where a
+    // hidden piece used to be. This is also what makes Instagram fall
+    // into Website's own spot when Website's off — Instagram is always
+    // the third child of .editor-preview-copy (after tagline, website),
+    // so with Website hidden it contributes zero height/gap and Instagram
+    // just slides up into the space, no extra positioning logic needed;
+    // with Website on, Instagram naturally sits right below it. Class
+    // selectors (not id) so this reaches every instance — the main
     // preview *and* each step 5 tile's live mini-preview, which reuse the
-    // same .editor-preview-logo/.js-tagline/.js-website classes.
+    // same .editor-preview-logo/.js-tagline/.js-website/.js-instagram
+    // classes.
     var ELEM_PREVIEW_TARGETS = {
       'logo': '.editor-preview-logo',
       'main-text': '.js-tagline',
-      'website': '.js-website'
+      'website': '.js-website',
+      'instagram': '.js-instagram'
     };
+
+    // Idempotent on/off setter (rather than the plain toggle a click does)
+    // so a caller that already knows the desired end state — the AI-brief
+    // flow below, setting an item on because the brief mentioned it —
+    // doesn't have to first check the current state to avoid toggling it
+    // the wrong way. `item` is a single .editor-elem-item; see
+    // applyElementOnByKey() below for the both-instances version.
+    function setElemItemOn(item, on) {
+      item.classList.toggle('is-on', on);
+      item.classList.toggle('is-off', !on);
+      var targetSelector = ELEM_PREVIEW_TARGETS[item.dataset.elem];
+      if (targetSelector) {
+        document.querySelectorAll(targetSelector).forEach(function (target) {
+          target.hidden = !on;
+        });
+      }
+    }
+
+    // Same as setElemItemOn(), but by data-elem key and reaching every
+    // matching item — #elementsList (step 4) *and* #elementsList2 (the
+    // "Elements" bottom-menu tab's duplicate) both have one, and the
+    // AI-brief flow (applyBriefInterpretation(), further down) needs both
+    // kept in sync, same as it already does for logo/colour/font/main text.
+    function applyElementOnByKey(key, on) {
+      document.querySelectorAll('.editor-elem-item[data-elem="' + key + '"]').forEach(function (item) {
+        setElemItemOn(item, on);
+      });
+    }
 
     // Attached to both #elementsList (step 4) and #elementsList2 (the
     // "Elements" bottom-menu tab's duplicate). Each list's on/off state is
@@ -4753,16 +6010,7 @@
       if (e.target.closest('.editor-elem-input-wrap')) return;
       var item = e.target.closest('.editor-elem-item');
       if (!item) return;
-      item.classList.toggle('is-on');
-      item.classList.toggle('is-off');
-
-      var targetSelector = ELEM_PREVIEW_TARGETS[item.dataset.elem];
-      if (targetSelector) {
-        var isOn = item.classList.contains('is-on');
-        document.querySelectorAll(targetSelector).forEach(function (target) {
-          target.hidden = !isOn;
-        });
-      }
+      setElemItemOn(item, !item.classList.contains('is-on'));
     }
     document.getElementById('elementsList').addEventListener('click', handleElementsListClick);
     var elementsList2 = document.getElementById('elementsList2');
@@ -4794,6 +6042,22 @@
       if (!input) return;
       input.addEventListener('input', function () {
         document.querySelectorAll('.js-website').forEach(function (el) {
+          el.textContent = input.value;
+        });
+      });
+    });
+  </script>
+
+  <script>
+    // Step 4 "Instagram" field: same live-sync pattern as Website, just
+    // targeting the text span inside .editor-preview-instagram (not the
+    // whole .js-instagram wrapper — that one also holds the icon, and
+    // overwriting its textContent would wipe the <svg> out with it).
+    ['instagramInput', 'instagramInput2'].forEach(function (id) {
+      var input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener('input', function () {
+        document.querySelectorAll('.js-instagram-text').forEach(function (el) {
           el.textContent = input.value;
         });
       });
