@@ -1104,15 +1104,32 @@
   /* Once step 2 is revealed the content no longer fits (and shouldn't be
      vertically centered — that would start the scroll position halfway
      through empty space above step 1), and the gap between the two steps
-     grows to 72px (vs. the 24px used for spacing *within* a step). */
+     grows to 72px (vs. the 24px used for spacing *within* a step). Also
+     turned on as soon as the AI-brief conversation starts (submitIdea(),
+     well before an actual second step exists) so the title+bubble+
+     question-card trio floats up to 56px below the navbar instead of
+     staying vertically centered mid-screen — the centered default is only
+     right for the empty starting screen. */
   .editor-sidebar-content.is-multistep {
     justify-content: flex-start;
     gap: 72px;
+    padding-top: 56px;
     /* Extra scroll slack: without it, step 2's own content often isn't
        tall enough below the fold for the browser to let the container
        scroll far enough to crop step 1 down to just its 40px peek — the
        scroll simply clamps at whatever max scrollTop the content allows. */
     padding-bottom: 240px;
+  }
+
+  /* #stepConcepts is the one exception to the 72px inter-step gap right
+     above — it's still part of the same chat thread as step1's own
+     bubbles (it opens with #qaSummaryList, another bubble), so it reads
+     right at the same 24px used *within* a step, not the wider gap a
+     genuinely new step (2, 3, ...) gets. The flex `gap` still reserves
+     its own 72px; margin stacks on top of it rather than replacing it, so
+     a negative value here nets out to 24px instead of fighting it. */
+  #stepConcepts {
+    margin-top: -48px;
   }
 
   /* Same reasoning as .is-multistep above, for the bottom-menu panels
@@ -1133,11 +1150,13 @@
     display: none;
     position: sticky;
     /* Sticky offsets resolve against the scroll container's *padding* box,
-       so `top: 0` would park this 32px below the container's true visible
-       edge (.editor-sidebar-content has padding: 32px 44px) — pulling it up
-       by that same amount lines it up with the actual top of the viewport,
-       covering the full peek instead of just the bottom two-thirds of it. */
-    top: -32px;
+       so `top: 0` would park this below the container's true visible edge
+       — pulling it up by that same amount lines it up with the actual top
+       of the viewport, covering the full peek instead of just part of it.
+       This is only ever actually shown (revealStep() sets display:block)
+       once .is-multistep is already active, so the padding it needs to
+       offset is always that state's own 56px, never the 32px default. */
+    top: -56px;
     z-index: 2;
     flex: none; /* an empty flex item's default min-height:auto is 0 — without this it gets crushed to 0px the moment the container overflows and needs to scroll, which is exactly when we need it */
     height: 50px;
@@ -1190,11 +1209,37 @@
     border-color: var(--gray-600);
   }
 
+  /* Once the brief's been sent, #pinnedFooter (its parent — see that
+     element's own markup comment) stops flowing at the top of step1 and
+     instead docks to the bottom of the whole sidebar for the rest of the
+     AI-brief conversation (clarifying questions, then the concepts screen
+     — Figma node 6988:13409 shows it staying put through both, and
+     6997:13601 adds the suggestion chips above it), so there's always a
+     way to type a follow-up. Same pin-to-bottom mechanism as
+     .editor-three-ways-prompt-wrap below: absolute against .editor-sidebar
+     (the nearest position:relative ancestor), reaching past
+     #sidebarContent's own scroll. */
+  #pinnedFooter {
+    display: contents;
+  }
+
+  #pinnedFooter.is-pinned-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: absolute;
+    left: 44px;
+    right: 44px;
+    bottom: 24px;
+    z-index: 3;
+  }
+
   .editor-idea-input {
     width: 100%;
     /* .editor-idea-box has a 116px min-height, not a fixed one — the
        textarea grows with its own content (see autosizeIdeaInput() below)
-       and the card grows with it past that floor. */
+       and the card grows with it past that floor, rather than clipping or
+       scrolling internally. */
     min-height: calc(1.32em * 2);
     height: auto;
     margin: 0;
@@ -1311,17 +1356,6 @@
 
   .editor-idea-send img { width: 16px; height: 16px; }
 
-  .editor-skip-link {
-    display: inline-block;
-    align-self: flex-start;
-    font-size: 0.9375rem;
-    line-height: 1.32;
-    letter-spacing: -0.02em;
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    border-bottom: 1px solid var(--gray-400);
-  }
-
   /* ---------- Chat bubble — replaces the idea box once submitted, showing
      what the user typed as a read-only "message" instead of an editable
      field, right-aligned like a sent chat message. ---------- */
@@ -1345,7 +1379,7 @@
 
   /* ---------- "Thinking" bubble — shown after the user's own chat bubble
      while interpretBrief() (further down the page) matches the brief
-     against editor-ai-brief-rules-v2.js, before the matched steps reveal.
+     against editor-ai-brief-rules-v1.js, before the matched steps reveal.
      Opposite alignment from .editor-chat-bubble (flex-start, not
      flex-end) so it reads as the tool's own message, not the user's. ---- */
   .editor-thinking-bubble {
@@ -1389,6 +1423,436 @@
 
   .editor-thinking-dots span:nth-child(2) { animation-delay: .15s; }
   .editor-thinking-dots span:nth-child(3) { animation-delay: .3s; }
+
+  /* ---------- Question card — the real AI backend's clarifying-question
+     UI (Figma node 6988:13274), shown one at a time (max 4, see
+     editor-ai-brief-rules-v1.js's QUESTION RULES) below the thinking bubble.
+     Flat grey card, no border — distinct from the bordered .editor-idea-box
+     input below it. ---------- */
+  .editor-question-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding: 16px;
+    background: var(--gray-100);
+    border-radius: var(--radius-md);
+  }
+
+  .editor-question-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .editor-question-card-pagination {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-muted);
+  }
+
+  .editor-question-card-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .editor-question-card-close svg { width: 16px; height: 16px; }
+
+  .editor-question-card-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .editor-question-card-options {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .editor-question-card-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 8px 0;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--gray-300);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .editor-question-card-option:first-child {
+    border-top: none;
+  }
+
+  .editor-question-card-option:last-child {
+    padding-bottom: 0;
+  }
+
+  /* Hover reads on the badge + label themselves (number/background under
+     it turn accent-blue, label text follows) rather than washing the
+     whole row in a flat background. Swatch badges (hex-color options)
+     keep their own real color always showing — inverting them on hover
+     would hide the one thing they exist to preview. */
+  .editor-question-card-option:hover .editor-question-card-option-label {
+    color: var(--color-accent);
+  }
+
+  .editor-question-card-option:hover .editor-question-card-option-badge:not(.is-swatch) {
+    background: var(--color-accent);
+    color: var(--white);
+  }
+
+  .editor-question-card-option-badge {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    transition: background-color .15s ease, color .15s ease;
+  }
+
+  .editor-question-card-option-badge svg { width: 10px; height: 10px; }
+
+  /* A hex-code option (e.g. "#003A8C" — see the color rules in
+     editor-ai-brief-rules-v1.js) shows an actual swatch of that color
+     instead of its ordinal number, so you can see the color before
+     picking it. */
+  .editor-question-card-option-badge.is-swatch {
+    border: 1px solid rgba(0, 0, 0, .1);
+  }
+
+  .editor-question-card-option-label {
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    transition: color .15s ease;
+  }
+
+  .editor-question-card-option.is-freetext .editor-question-card-option-label {
+    color: var(--color-text-muted);
+  }
+
+  .editor-question-card-freetext-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .editor-question-card-freetext-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  /* Shown once there's at least 1 character typed (see the 'input'
+     listener in submitIdea()'s script below) — same send-button look as
+     .editor-idea-send, so "confirm this free-text answer" reads as the
+     same action as sending the brief itself did. */
+  .editor-question-card-freetext-submit {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+  }
+
+  .editor-question-card-freetext-submit img { width: 12px; height: 12px; }
+
+  /* ---------- Inline upload field — appears under an "Upload my own"-type
+     answer once it's picked (see selectUploadOption() in submitIdea()'s
+     script below), growing the card in place; replaced by
+     .editor-question-card-upload-chip once a file's actually chosen (or
+     when navigating back to an already-answered upload question). ------- */
+  .editor-question-card-upload {
+    padding-left: 44px;
+    margin-bottom: 8px;
+    animation: editorQuestionUploadIn .18s ease;
+  }
+
+  @keyframes editorQuestionUploadIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .editor-question-card-upload-dropzone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1px dashed var(--gray-400);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .editor-question-card-upload-dropzone:hover {
+    border-color: var(--gray-600);
+    color: var(--color-text-primary);
+  }
+
+  .editor-question-card-upload-dropzone svg { width: 16px; height: 16px; flex: none; }
+
+  .editor-question-card-upload-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 4px 4px;
+    background: var(--white);
+    border: 1px solid var(--gray-400);
+    border-radius: var(--radius-full);
+    align-self: flex-start;
+  }
+
+  .editor-question-card-upload-chip-thumb {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: var(--gray-200);
+  }
+
+  .editor-question-card-upload-chip-label {
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  /* ---------- Inline color-picker field — appears under the "Choose or
+     type HEX" answer once it's picked (see selectColorPickOption()/
+     buildColorPickField() in submitIdea()'s script below), same
+     grow-in-place pattern as .editor-question-card-upload. One step, not
+     two: the picker itself (swatch + hex input + confirm) shows directly
+     — there's nothing worth gating behind an extra "+" click first, unlike
+     the upload field, which genuinely needs a real file before it can do
+     anything. Replaced by .editor-question-card-colorpick-chip once a
+     color's actually confirmed (or when navigating back to an
+     already-answered one). ------- */
+  .editor-question-card-colorpick {
+    padding-left: 44px;
+    margin-bottom: 8px;
+    animation: editorQuestionUploadIn .18s ease;
+  }
+
+  .editor-question-card-colorpick-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--white);
+    border: 1px solid var(--gray-400);
+    border-radius: var(--radius-sm);
+  }
+
+  /* The real <input type="color"> stays invisible — .editor-question-card-
+     colorpick-swatch-btn is the actual clickable affordance shown, and
+     just proxies to it (same hidden-input pattern as the file upload
+     dropzone above) so the swatch can be styled consistently instead of
+     however each browser paints a native color input. */
+  .editor-question-card-colorpick-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .editor-question-card-colorpick-swatch-btn {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .editor-question-card-colorpick-hex-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 8px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    outline: none;
+  }
+
+  .editor-question-card-colorpick-confirm {
+    flex: none;
+    padding: 6px 10px;
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    cursor: pointer;
+  }
+
+  .editor-question-card-colorpick-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 4px 4px;
+    background: var(--white);
+    border: 1px solid var(--gray-400);
+    border-radius: var(--radius-full);
+    align-self: flex-start;
+  }
+
+  .editor-question-card-colorpick-chip-swatch {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, .1);
+  }
+
+  .editor-question-card-colorpick-chip-label {
+    font-size: 0.8125rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  /* ---------- Collapsed Q&A summary — once every question's answered (or
+     skipped), all of them collapse into ONE bubble (not one bubble each)
+     stacked question-above-answer with a gap between pairs, same shape/
+     side as .editor-chat-bubble (right-aligned, "sent" look) — shown on
+     the concepts screen (Figma node 6988:13409). ------- */
+  .editor-qa-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-self: flex-end;
+    max-width: 85%;
+    padding: 16px;
+    background: var(--color-bg-accent-faint);
+    border-radius: var(--radius-md) var(--radius-md) 4px var(--radius-md);
+  }
+
+  .editor-qa-summary-list:empty {
+    display: none;
+  }
+
+  .editor-qa-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .editor-qa-summary-question {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  .editor-qa-summary-answer {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+  }
+
+  /* ---------- Concepts screen (Figma node 6988:13409) — where the AI-brief
+     flow ends up once the brief is submitted and every question's been
+     answered/skipped, replacing the old step2 [Inspirations]/step3
+     [Brand]/step4 [Elements] hand-off editor_v2.html still uses. ---------- */
+  .editor-concepts-heading-bubble {
+    align-self: flex-start;
+    max-width: 85%;
+    padding: 16px;
+    background: var(--gray-100);
+    border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 4px;
+  }
+
+  .editor-concepts-heading-text {
+    margin: 0;
+    font-size: 0.9375rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+  /* Small, horizontal pills — pinned above #ideaBox (see #pinnedFooter)
+     instead of the larger, vertically-stacked chips this used to be
+     in-flow inside #stepConcepts. Figma node 6997:13601. */
+  .editor-pinned-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .editor-pinned-suggestion-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px 4px 8px;
+    background: var(--white);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+  }
+
+  .editor-pinned-suggestion-chip:hover {
+    background: var(--gray-100);
+    border-color: var(--color-border-hover);
+  }
+
+  .editor-pinned-suggestion-chip svg { width: 12px; height: 12px; flex: none; }
 
   @keyframes editor-thinking-bounce {
     0%, 60%, 100% { opacity: .3; transform: translateY(0); }
@@ -1453,6 +1917,41 @@
   .editor-idea-attachment-remove svg {
     width: 12px;
     height: 12px;
+  }
+
+  /* ---------- Step 1 idea suggestions — quick-fill pills below the idea
+     box (Figma node 6988:13249). Visible label is short; clicking fills
+     #ideaInput with a longer brief from each chip's data-brief. --------- */
+  .editor-idea-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100%;
+    margin-top: -8px;
+  }
+
+  .editor-idea-suggestion-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    padding: 4px 12px;
+    background: none;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: 0.75rem;
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+  }
+
+  .editor-idea-suggestion-chip:hover {
+    background: var(--gray-100);
+    border-color: var(--color-border-hover);
   }
 
   /* ---------- Step 2 — "Set your design direction" ---------- */
@@ -1941,12 +2440,13 @@
     flex: none;
   }
 
-  /* Same buildColorPickerControls() module used elsewhere — see that
-     function's own comment — just dropped from the "+" trigger instead
-     of growing inline. Anchored by its RIGHT edge (not left) since the
-     "+" trigger sits at the end of the swatch row — growing rightward
-     from there would run the popover off the edge of the sidebar instead
-     of back over the swatches. */
+  /* Same buildColorPickerControls() module the question card's own
+     "Choose or type HEX" answer uses, just dropped from the "+" trigger
+     instead of growing inline — see addCustomPrintColorSwatch() further
+     down for what happens once a color's confirmed here. Anchored by its
+     RIGHT edge (not left) since the "+" trigger sits at the end of the
+     swatch row — growing rightward from there would run the popover off
+     the edge of the sidebar instead of back over the swatches. */
   .editor-colorpicker-popover {
     position: absolute;
     top: calc(100% + 6px);
@@ -1954,66 +2454,6 @@
     z-index: 10;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .1);
     border-radius: var(--radius-sm);
-  }
-
-  /* ---------- Shared color-picker module controls (native color input +
-     hex text field + confirm) — see buildColorPickerControls() in its own
-     script block further down. Only ever appears inside
-     .editor-colorpicker-popover in this file (no question-card wizard
-     here, unlike editor_v1.html). ---------- */
-  .editor-question-card-colorpick-picker {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    background: var(--white);
-    border: 1px solid var(--gray-400);
-    border-radius: var(--radius-sm);
-  }
-
-  .editor-question-card-colorpick-native {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .editor-question-card-colorpick-swatch-btn {
-    flex: none;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: 1px solid rgba(0, 0, 0, .1);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-  }
-
-  .editor-question-card-colorpick-hex-input {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 6px 8px;
-    background: var(--gray-100);
-    border: 1px solid var(--gray-300);
-    border-radius: var(--radius-sm);
-    font-family: inherit;
-    font-size: 0.8125rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-    outline: none;
-  }
-
-  .editor-question-card-colorpick-confirm {
-    flex: none;
-    padding: 6px 10px;
-    background: var(--color-accent);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: inherit;
-    font-size: 0.75rem;
-    letter-spacing: -0.02em;
-    color: var(--white);
-    cursor: pointer;
   }
 
   /* Custom dropdown (not a native <select>): the browser's own <option>
@@ -2361,38 +2801,17 @@
     background: var(--gray-200);
   }
 
-  /* ---------- Bottom tab bar — floats 12px above the sidebar's bottom edge
-     (same 44px side inset as the content above it) as an overlay
-     (position: absolute) rather than sitting in-flow, so scrolled sidebar
-     content passes underneath and is visibly frosted through it — same
-     bg-white/80 + backdrop-blur-[4px] recipe as Build_your_box's
-     StickyDeliveryBar. Fully rounded now that it's detached from the
-     viewport edge on all sides (was rounded-top-only when it sat flush to
-     the bottom). Always visible, never scrolls with the content above it.
-     Every item shares the exact same markup (button > surface > icon +
-     label) so the active highlight and icon color work identically no
-     matter which item is clicked — icons are inline SVGs using
-     fill="currentColor" so `.editor-menu-item-surface`'s `color` drives
-     both the label and the icon together. ---------- */
-  .editor-menu-wrap {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 12px;
-    padding: 0 44px;
-  }
-
-  .editor-menu {
-    display: flex;
-    width: 100%;
-    height: 72px;
-    background: rgba(255, 255, 255, .8);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--radius-md);
-    box-shadow: 0 -4px 8px 0 rgba(47, 47, 47, .04);
-  }
-
+  /* ---------- .editor-menu-item/-surface/-label ----------
+     Shared by every rail variant's own nav (.editor-embedded-rail,
+     .editor-separated-rail, ...) — "2.2. Easy Mode - Merged nav", the
+     bottom-tab-bar variant these were originally built for, has been
+     removed, but the component itself lives on since the other variants
+     all still reuse it (see each rail's own CSS comment for its specific
+     sizing overrides). Every item shares the exact same markup (button >
+     surface > icon + label) so the active highlight and icon color work
+     identically no matter which item is clicked — icons are inline SVGs
+     using fill="currentColor" so `.editor-menu-item-surface`'s `color`
+     drives both the label and the icon together. ---------- */
   .editor-menu-item {
     flex: 1;
     display: flex;
@@ -2888,17 +3307,19 @@
   }
 
   /* ---------- Layout variants ----------
-     Three mutually-exclusive arrangements, picked via the radio group in
-     the "Page customization" panel below (never combined — the panel
-     enforces that, not this CSS):
+     Every variant picked via the radio group in the "Page customization"
+     panel below (never combined — the panel enforces that, not this CSS)
+     uses this base order — preview(1) sidebar(2) — unless it overrides it
+     below:
 
-     - default (1.2, "Merged nav"):    preview(1) sidebar(2)
      - mirrored (2.5):                  sidebar(1) preview(2) while
                                          closed, flips back to the base
                                          order the instant a panel opens
                                          — see the :not(.is-panel-open)
                                          below and the comment on 2.5's
                                          rail/reopen further down for why
+     - embedded-nav (2.6):              sidebar(1) preview(2) always — see
+                                         that rule further down
      - separated-nav (1.1):             preview/sidebar order depends on
                                          whether a rail panel is open —
                                          see .is-panel-open below
@@ -2940,10 +3361,9 @@
   }
 
   /* ---------- Separated-nav variant (2.1) ----------
-     Unlike "Merged nav" (the bottom .editor-menu bar lives inside the
-     sidebar and swaps that same panel's content in place), this variant
-     pulls the nav OUT of the sidebar into its own floating rail over the
-     canvas — and picking a rail item closes the right (AI-design) side
+     This variant pulls the nav OUT of the sidebar into its own floating
+     rail over the canvas — and picking a rail item closes the right
+     (AI-design) side
      and opens a left one instead, reusing the same order-swap the
      "mirrored" variant already does. A floating "AI designer" button on
      the canvas's opposite edge reopens the right side.
@@ -3442,7 +3862,15 @@
               <svg class="editor-decor-icon" style="left:58%; top:80%; width:16px; height:16px;"><use href="#decor-dot"></use></svg>
             </div>
 
-            <div class="editor-preview-lockup" id="previewLockup">
+            <!-- Empty until there's a real design to show — no logo/tagline
+                 (just the plain bag photo behind it) until
+                 applyInterpretationResult() un-hides this, which only
+                 happens once there's an actual interpreted brief to show
+                 (after clarifying questions, or immediately if none were
+                 needed — see that function's own comment). Different from
+                 editor_v2.html on purpose: that flow shows this same
+                 default lockup content from the start. -->
+            <div class="editor-preview-lockup" id="previewLockup" hidden>
               <div class="editor-preview-rule" aria-hidden="true"></div>
               <div class="editor-preview-logo">
                 <svg class="editor-preview-logo-svg js-logo-mark" id="previewLogoMark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
@@ -3745,43 +4173,91 @@
           <div class="editor-scroll-fade" aria-hidden="true"></div>
 
           <div class="editor-step" id="step1">
-            <h1 class="editor-sidebar-title">What&rsquo;s your design idea?</h1>
+            <h1 class="editor-sidebar-title" id="ideaTitle">What&rsquo;s your design idea?</h1>
 
-            <div class="editor-idea-box" id="ideaBox">
-              <textarea class="editor-idea-input" id="ideaInput" rows="2" placeholder="Minimalist design with logo and slogan&hellip;"></textarea>
-              <div class="editor-idea-actions">
-                <div class="editor-attach-wrap" id="attachDropdown">
-                  <button type="button" class="editor-idea-attach" id="attachDropdownTrigger" aria-haspopup="menu" aria-expanded="false">
-                    <img src="assets/editor/app/attach-file-vector.svg" alt="Attach file">
-                  </button>
-                  <div class="editor-attach-menu" id="attachDropdownMenu" role="menu" hidden>
-                    <button type="button" class="editor-attach-option" role="menuitem" data-attach="reference-design">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-9 11 2.5 3.01L16 12l4 5H4l3.5-4.5L10 14Z" fill="currentColor"/></svg>
-                      <span>Add reference design</span>
+            <!-- Once the brief's sent, the plain heading above swaps for
+                 this — same "AI's own message" bubble treatment as
+                 #thinkingBubble/.editor-concepts-heading-bubble further
+                 down (reused verbatim, not a new style), reading as the
+                 tool's opening line in the thread rather than a page
+                 title once there IS a thread. Toggled in submitIdea()
+                 below — a one-way hand-off, not a toggle: there's no
+                 "start over" control that reverses it once the
+                 conversation's begun (see #pinnedSuggestions' own
+                 chips — they fill a follow-up prompt, same continuous
+                 thread, never reset it). -->
+            <div class="editor-concepts-heading-bubble" id="ideaTitleBubble" hidden>
+              <p class="editor-concepts-heading-text">What&rsquo;s your design idea?</p>
+            </div>
+
+            <!-- #ideaBox + the concepts screen's own suggestion chips
+                 (moved here from #stepConcepts — see #pinnedSuggestions
+                 below) share one pinned unit once the conversation starts.
+                 display:contents by default (same trick #aiDesignFlow
+                 itself uses) means this generates no box of its own and
+                 #ideaBox lays out exactly as it always did, right here at
+                 the top of step1 — only .is-pinned-bottom (toggled
+                 alongside #ideaBox's own, in submitIdea()'s script below)
+                 turns it into the actual pinned flex column. Figma node
+                 6997:13601. -->
+            <div id="pinnedFooter">
+              <!-- Both just fill #ideaInput with a starter prompt and
+                   focus it — same data-brief/click contract as
+                   #ideaSuggestions' own chips above, reused verbatim —
+                   rather than acting immediately, so the user can edit
+                   before sending. "Change the font" removed for now. -->
+              <div class="editor-pinned-suggestions" id="pinnedSuggestions" hidden>
+                <button type="button" class="editor-pinned-suggestion-chip" id="conceptsGenerateMoreBtn" data-brief="Generate a few more design concepts, different from what you've already shown me.">
+                  <svg viewBox="0 0 17.4167 18.3333" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.25 0L3.20833 8.25H13.2917L8.25 0ZM8.25 3.52L10.0192 6.41667H6.47167L8.25 3.52ZM13.2917 10.0833C11.0092 10.0833 9.16667 11.9258 9.16667 14.2083C9.16667 16.4908 11.0092 18.3333 13.2917 18.3333C15.5742 18.3333 17.4167 16.4908 17.4167 14.2083C17.4167 11.9258 15.5742 10.0833 13.2917 10.0833ZM13.2917 16.5C12.0267 16.5 11 15.4733 11 14.2083C11 12.9433 12.0267 11.9167 13.2917 11.9167C14.5567 11.9167 15.5833 12.9433 15.5833 14.2083C15.5833 15.4733 14.5567 16.5 13.2917 16.5ZM0 17.875H7.33333V10.5417H0V17.875ZM1.83333 12.375H5.5V16.0417H1.83333V12.375Z" fill="currentColor"/></svg>
+                  <span>Generate more designs</span>
+                </button>
+                <button type="button" class="editor-pinned-suggestion-chip" id="conceptsRefineBriefBtn" data-brief="I'd like to change a few things: ">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"/></svg>
+                  <span>Refine your brief</span>
+                </button>
+              </div>
+
+              <div class="editor-idea-box" id="ideaBox">
+                <textarea class="editor-idea-input" id="ideaInput" rows="2" placeholder="Describe style, colors and elements..."></textarea>
+                <div class="editor-idea-actions">
+                  <div class="editor-attach-wrap" id="attachDropdown">
+                    <button type="button" class="editor-idea-attach" id="attachDropdownTrigger" aria-haspopup="menu" aria-expanded="false">
+                      <img src="assets/editor/app/attach-file-vector.svg" alt="Attach file">
                     </button>
-                    <button type="button" class="editor-attach-option" role="menuitem" data-attach="logo">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21Z" fill="currentColor"/></svg>
-                      <span>Add logo</span>
-                    </button>
-                    <button type="button" class="editor-attach-option" role="menuitem" data-attach="image">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 20h14v-2H5v2Zm0-10h4v6h6v-6h4l-7-7-7 7Z" fill="currentColor"/></svg>
-                      <span>Upload image</span>
-                    </button>
+                    <div class="editor-attach-menu" id="attachDropdownMenu" role="menu" hidden>
+                      <button type="button" class="editor-attach-option" role="menuitem" data-attach="reference-design">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-9 11 2.5 3.01L16 12l4 5H4l3.5-4.5L10 14Z" fill="currentColor"/></svg>
+                        <span>Add reference design</span>
+                      </button>
+                      <button type="button" class="editor-attach-option" role="menuitem" data-attach="logo">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21Z" fill="currentColor"/></svg>
+                        <span>Add logo</span>
+                      </button>
+                      <button type="button" class="editor-attach-option" role="menuitem" data-attach="image">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 20h14v-2H5v2Zm0-10h4v6h6v-6h4l-7-7-7 7Z" fill="currentColor"/></svg>
+                        <span>Upload image</span>
+                      </button>
+                    </div>
+                    <input type="file" id="ideaAttachInput" accept="image/*" hidden>
                   </div>
-                  <input type="file" id="ideaAttachInput" accept="image/*" hidden>
+                  <button type="button" class="editor-idea-send" id="ideaSendBtn">
+                    <img src="assets/editor/app/send-arrow.svg" alt="Send">
+                  </button>
                 </div>
-                <button type="button" class="editor-idea-send" id="ideaSendBtn">
-                  <img src="assets/editor/app/send-arrow.svg" alt="Send">
-                </button>
-              </div>
 
-              <div class="editor-idea-attachment" id="ideaAttachmentChip" hidden>
-                <img class="editor-idea-attachment-thumb" id="ideaAttachmentThumb" alt="">
-                <span class="editor-idea-attachment-label" id="ideaAttachmentLabel"></span>
-                <button type="button" class="editor-idea-attachment-remove" id="ideaAttachmentRemove" aria-label="Remove attachment">
-                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                </button>
+                <div class="editor-idea-attachment" id="ideaAttachmentChip" hidden>
+                  <img class="editor-idea-attachment-thumb" id="ideaAttachmentThumb" alt="">
+                  <span class="editor-idea-attachment-label" id="ideaAttachmentLabel"></span>
+                  <button type="button" class="editor-idea-attachment-remove" id="ideaAttachmentRemove" aria-label="Remove attachment">
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </button>
+                </div>
               </div>
+            </div>
+
+            <div class="editor-idea-suggestions" id="ideaSuggestions">
+              <button type="button" class="editor-idea-suggestion-chip" data-brief="Minimal, clean design with just our logo centered on a plain background, our website address in small text underneath, and the slogan &lsquo;Less is less&rsquo;. No extra patterns or icons — pure and confident. All in black and white.">Minimal box with logo</button>
+              <button type="button" class="editor-idea-suggestion-chip" data-brief="Giant bold copy &lsquo;ALWAYS IN SEASON&rsquo; wrapped in simple, dark floral art featuring large peonies and roses. All in green color.">Floral design with big copy</button>
             </div>
 
             <div class="editor-chat-bubble" id="chatBubble" hidden>
@@ -3798,7 +4274,48 @@
               <span class="editor-thinking-dots" aria-hidden="true"><span></span><span></span><span></span></span>
             </div>
 
-            <a href="#" class="editor-skip-link" id="skipLink">Skip &amp; design step-by-step</a>
+            <!-- Question card (Figma node 6988:13274) — shown instead of
+                 (after) the thinking bubble when the real AI backend
+                 (server.js / POST /api/ai-brief) has clarifying questions
+                 to ask (max 4, see editor-ai-brief-rules-v1.js's QUESTION
+                 RULES). One question at a time; content is filled in by
+                 renderQuestionCard() in submitIdea()'s script below —
+                 markup here is just the shell. -->
+            <div class="editor-question-card" id="questionCard" hidden>
+              <div class="editor-question-card-header">
+                <div class="editor-question-card-pagination">
+                  <span id="questionCardPageLabel">1/1</span>
+                </div>
+                <button type="button" class="editor-question-card-close" id="questionCardClose" aria-label="Skip this question">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <p class="editor-question-card-title" id="questionCardTitle"></p>
+              <div class="editor-question-card-options" id="questionCardOptions"></div>
+            </div>
+          </div>
+
+          <!-- Concepts screen (Figma node 6988:13409) — where the AI-brief
+               flow now ends up once the brief's submitted and every
+               question's answered/skipped: collapsed Q&A summary, then
+               "Choose your favorite concept" and a grid of design concepts
+               to pick from. Replaces step2 [Inspirations]/step3 [Brand]/
+               step4 [Elements] as this flow's destination — those steps
+               stay in the DOM (still reachable from the left rail's
+               Brand/Elements/Template buttons via showMenuPanel(), a
+               separate mechanism from this one) but the AI-brief hand-off
+               no longer lands on them. Populated by showConceptsScreen()
+               in submitIdea()'s script below. -->
+          <div class="editor-step" id="stepConcepts" hidden>
+            <div class="editor-step2-body">
+              <div class="editor-qa-summary-list" id="qaSummaryList"></div>
+
+              <div class="editor-concepts-heading-bubble">
+                <p class="editor-concepts-heading-text">Choose your favorite concept</p>
+              </div>
+
+              <div class="editor-design-grid" id="designGridConcepts"></div>
+            </div>
           </div>
 
           <div class="editor-step" id="step2" hidden>
@@ -3920,12 +4437,16 @@
                 <div class="editor-color-swatches" id="colorSwatches">
                   <!-- One flat, wrapping list — presets, then whatever's
                        been extracted from a logo (see applyExtractedColors()
-                       — each gets data-source="extracted" so a fresh batch
-                       can replace just its own swatches), then whatever's
-                       been added via "+" (see addCustomPrintColorSwatch())
-                       — "+" itself always stays last, both functions insert
+                       — each of those gets data-source="extracted" so a
+                       fresh batch can replace just its own swatches without
+                       touching presets/custom ones), then whatever's been
+                       added via "+" (see addCustomPrintColorSwatch()) —
+                       "+" itself always stays last, both functions insert
                        right before it rather than appending to the row's
-                       end. -->
+                       end. Wraps onto more lines on its own once a row's
+                       full (.editor-color-swatches-row's own flex-wrap),
+                       instead of being split into visually separate rows
+                       by source. -->
                   <div class="editor-color-swatches-row" id="colorSwatchesRow">
                     <button type="button" class="editor-color-swatch is-selected" style="background:#000000" data-color="#000000" aria-label="Black"></button>
                     <button type="button" class="editor-color-swatch" style="background:#5e5e5e" data-color="#5e5e5e" aria-label="Grey"></button>
@@ -3939,8 +4460,11 @@
                       <button type="button" class="editor-color-swatch-add" id="colorSwatchAddBtn" aria-label="Add custom colour" aria-haspopup="true" aria-expanded="false">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555555" stroke-width="2.5" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                       </button>
-                      <!-- Same module as buildColorPickerControls() below —
-                           see that function's own comment. -->
+                      <!-- Same module as the question card's own "Choose or
+                           type HEX" answer (buildColorPickerControls(),
+                           shared — see that function's own comment) — just
+                           dropped from this trigger instead of growing
+                           inline in a card. -->
                       <div class="editor-colorpicker-popover" id="colorSwatchAddPopover" hidden></div>
                     </span>
                   </div>
@@ -4708,41 +5232,6 @@
             <h2 class="editor-menu-panel-title">Configuration</h2>
           </div>
         </div>
-
-        <div class="editor-menu-wrap" hidden>
-        <nav class="editor-menu" id="editorMenu">
-          <button type="button" class="editor-menu-item is-active" data-menu="ai-design">
-            <span class="editor-menu-item-surface">
-              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.03333 20.2507L2.75 18.9673L9.64792 12.0465L5.5 11.0152L10.0375 8.19648L9.64792 2.83398L13.75 6.2944L18.7 4.27773L16.7062 9.25065L20.1667 13.3298L14.8042 12.9632L11.9625 17.5007L10.9312 13.3527L4.03333 20.2507ZM4.58333 8.33398L2.75 6.50065L4.58333 4.66732L6.41667 6.50065L4.58333 8.33398ZM12.7187 12.8486L13.8187 11.0382L15.95 11.1986L14.575 9.57148L15.3771 7.60065L13.4062 8.40273L11.7792 7.05065L11.9396 9.15898L10.1292 10.2819L12.1917 10.7861L12.7187 12.8486ZM16.5 20.2507L14.6667 18.4173L16.5 16.584L18.3333 18.4173L16.5 20.2507Z" fill="currentColor"/></svg>
-              <span class="editor-menu-item-label">AI design</span>
-            </span>
-          </button>
-          <button type="button" class="editor-menu-item" data-menu="brand">
-            <span class="editor-menu-item-surface">
-              <svg viewBox="0 0 16.5 20.1667" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.9167 9.16667H11V1.83333C11 0.825 10.175 0 9.16667 0H7.33333C6.325 0 5.5 0.825 5.5 1.83333V9.16667H4.58333C2.05333 9.16667 0 11.22 0 13.75V20.1667H16.5V13.75C16.5 11.22 14.4467 9.16667 11.9167 9.16667ZM7.33333 1.83333H9.16667V9.16667H7.33333V1.83333ZM14.6667 18.3333H12.8333V15.5833C12.8333 15.0792 12.4208 14.6667 11.9167 14.6667C11.4125 14.6667 11 15.0792 11 15.5833V18.3333H9.16667V15.5833C9.16667 15.0792 8.75417 14.6667 8.25 14.6667C7.74583 14.6667 7.33333 15.0792 7.33333 15.5833V18.3333H5.5V15.5833C5.5 15.0792 5.0875 14.6667 4.58333 14.6667C4.07917 14.6667 3.66667 15.0792 3.66667 15.5833V18.3333H1.83333V13.75C1.83333 12.2375 3.07083 11 4.58333 11H11.9167C13.4292 11 14.6667 12.2375 14.6667 13.75V18.3333Z" fill="currentColor"/></svg>
-              <span class="editor-menu-item-label">Brand</span>
-            </span>
-          </button>
-          <button type="button" class="editor-menu-item" data-menu="elements">
-            <span class="editor-menu-item-surface">
-              <svg viewBox="0 0 17.4167 18.3333" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8.25 0L3.20833 8.25H13.2917L8.25 0ZM8.25 3.52L10.0192 6.41667H6.47167L8.25 3.52ZM13.2917 10.0833C11.0092 10.0833 9.16667 11.9258 9.16667 14.2083C9.16667 16.4908 11.0092 18.3333 13.2917 18.3333C15.5742 18.3333 17.4167 16.4908 17.4167 14.2083C17.4167 11.9258 15.5742 10.0833 13.2917 10.0833ZM13.2917 16.5C12.0267 16.5 11 15.4733 11 14.2083C11 12.9433 12.0267 11.9167 13.2917 11.9167C14.5567 11.9167 15.5833 12.9433 15.5833 14.2083C15.5833 15.4733 14.5567 16.5 13.2917 16.5ZM0 17.875H7.33333V10.5417H0V17.875ZM1.83333 12.375H5.5V16.0417H1.83333V12.375Z" fill="currentColor"/></svg>
-              <span class="editor-menu-item-label">Elements</span>
-            </span>
-          </button>
-          <button type="button" class="editor-menu-item" data-menu="template">
-            <span class="editor-menu-item-surface">
-              <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.2062 11.459L13.2916 10.1986L15.3771 11.459L14.8271 9.07565L16.6604 7.4944L14.2541 7.28815L13.2916 5.04232L12.3291 7.28815L9.9229 7.4944L11.7562 9.07565L11.2062 11.459ZM11.6416 17.4173H16.775C16.668 17.8145 16.4847 18.1354 16.225 18.3798C15.9653 18.6243 15.6291 18.777 15.2166 18.8382L5.22498 20.0527C4.72081 20.1291 4.2663 20.0107 3.86144 19.6975C3.45658 19.3843 3.22359 18.9757 3.16248 18.4715L1.94789 8.4569C1.88678 7.95273 2.00901 7.50204 2.31456 7.10482C2.62012 6.7076 3.02498 6.47843 3.52915 6.41732L4.58331 6.27982V8.11315L3.75831 8.22773L4.99581 18.2423L11.6416 17.4173ZM8.24998 15.584C7.74581 15.584 7.31422 15.4045 6.95519 15.0454C6.59616 14.6864 6.41665 14.2548 6.41665 13.7507V3.66732C6.41665 3.16315 6.59616 2.73155 6.95519 2.37253C7.31422 2.0135 7.74581 1.83398 8.24998 1.83398H18.3333C18.8375 1.83398 19.2691 2.0135 19.6281 2.37253C19.9871 2.73155 20.1666 3.16315 20.1666 3.66732V13.7507C20.1666 14.2548 19.9871 14.6864 19.6281 15.0454C19.2691 15.4045 18.8375 15.584 18.3333 15.584H8.24998ZM8.24998 13.7507H18.3333V3.66732H8.24998V13.7507Z" fill="currentColor"/></svg>
-              <span class="editor-menu-item-label">Template</span>
-            </span>
-          </button>
-          <button type="button" class="editor-menu-item" data-menu="add">
-            <span class="editor-menu-item-surface">
-              <svg viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 5H14V8H11V10H14V13H16V10H19V8H16V5ZM2 9C2 6.21 3.64 3.8 6.01 2.68V0.52C2.52 1.76 0 5.09 0 9C0 12.91 2.52 16.24 6.01 17.48V15.32C3.64 14.2 2 11.79 2 9ZM15 0C10.04 0 6 4.04 6 9C6 13.96 10.04 18 15 18C19.96 18 24 13.96 24 9C24 4.04 19.96 0 15 0ZM15 16C11.14 16 8 12.86 8 9C8 5.14 11.14 2 15 2C18.86 2 22 5.14 22 9C22 12.86 18.86 16 15 16Z" fill="currentColor"/></svg>
-              <span class="editor-menu-item-label">Add</span>
-            </span>
-          </button>
-        </nav>
-        </div>
       </aside>
 
     </div><!-- /.editor-body -->
@@ -4807,13 +5296,17 @@
     </div>
   </div>
 
-  <!-- "Choose a font" — opened by the "Font" dropdown in the Brand panel
-       (see initFontDropdown() further down) instead of the old inline
-       .editor-select-menu listbox, so picking a font always goes through
-       this richer library + upload option rather than a 7-name shortlist.
-       Same modal shell as #brandFetchOverlay above, reused as-is — just a
-       one-step picker instead of a Cancel/Apply flow: tapping a library
-       tile or picking a file both apply immediately and close it. -->
+  <!-- "Choose a font" — opened two ways: from the wizard's "Choose another
+       or upload" font-question option (see the QUESTION RULES'
+       text-element-no-font in editor-ai-brief-rules-v1.js, and
+       isFontPickOption()/openFontPicker() in submitIdea()'s script below),
+       and from the "Font" dropdown in the Brand panel
+       (openFontPickerForDropdown(), same script — see initFontDropdown()
+       further down for why that dropdown opens this instead of its own
+       inline listbox). Same modal shell as #brandFetchOverlay above,
+       reused as-is — just a one-step picker instead of a Cancel/Apply
+       flow: tapping a library tile or picking a file both apply
+       immediately and close it. -->
   <div class="editor-modal-overlay" id="fontPickerOverlay" hidden>
     <div class="editor-modal" role="dialog" aria-modal="true" aria-labelledby="fontPickerTitle">
       <div class="editor-modal-header">
@@ -4859,10 +5352,6 @@
         <span>2.1. Easy Mode - Separated nav</span>
       </label>
       <label class="site-settings-radio">
-        <input type="radio" name="layoutVariant" value="default" id="layoutDefault">
-        <span>2.2. Easy Mode - Merged nav</span>
-      </label>
-      <label class="site-settings-radio">
         <input type="radio" name="layoutVariant" value="current-separated-nav" id="layoutCurrentSeparatedNav">
         <span>2.3. Current - Separated nav</span>
       </label>
@@ -4885,19 +5374,17 @@
        down this page for how they're read. Kept in their own files (rather
        than inlined here) specifically so they're easy to hand-edit without
        touching the rest of the page: editor-ai-vocabulary.js is the
-       colour/font/Elements vocabulary shared with editor_v1.html,
-       editor-ai-brief-rules-v2.js is this flow's own skip/pre-fill rules
-       (editor_v1.html has its own separate clarifying-question rules
-       instead). The shim right after merges both into the single
-       window.EDITOR_AI_BRIEF_RULES shape interpretBrief()/
-       applyInterpretationResult() already expect, so neither of those
-       needed to change when the rules split into two files. -->
+       colour/font/Elements vocabulary shared with editor_v2.html,
+       editor-ai-brief-rules-v1.js is this flow's own clarifying-question
+       rules (nothing shared — editor_v2.html never asks questions). The
+       shim right after merges both into the single window.EDITOR_AI_
+       BRIEF_RULES shape interpretBrief()/applyInterpretationResult()
+       already expect, so neither of those needed to change when the rules
+       split into two files. -->
   <script src="editor-ai-vocabulary.js"></script>
-  <script src="editor-ai-brief-rules-v2.js"></script>
+  <script src="editor-ai-brief-rules-v1.js"></script>
   <script>
-    window.EDITOR_AI_BRIEF_RULES = Object.assign({}, window.EDITOR_AI_VOCABULARY, window.EDITOR_AI_BRIEF_RULES_V2, {
-      elementsContent: Object.assign({}, window.EDITOR_AI_VOCABULARY.elementsContent, window.EDITOR_AI_BRIEF_RULES_V2.elementsContent)
-    });
+    window.EDITOR_AI_BRIEF_RULES = window.EDITOR_AI_VOCABULARY;
   </script>
 
   <script>
@@ -4906,7 +5393,6 @@
       var panel = document.getElementById('siteSettingsPanel');
       var variantRadios = document.querySelectorAll('input[name="layoutVariant"]');
       var editorPage = document.querySelector('.editor-page');
-      var menuWrapEl = document.querySelector('.editor-menu-wrap');
       var railEl = document.getElementById('editorSeparatedRail');
       var reopenEl = document.getElementById('editorSeparatedReopen');
       var currentRailEl = document.getElementById('editorCurrentRail');
@@ -4971,7 +5457,6 @@
         // [hidden]{display:none!important} override means a class-scoped
         // `display` rule could never win against it regardless of
         // specificity, so visibility here is driven straight from JS.
-        if (menuWrapEl) menuWrapEl.hidden = (variant === 'separated-nav' || variant === 'current-separated-nav' || variant === 'mirrored' || variant === 'three-ways' || variant === 'embedded-nav');
         if (railEl) railEl.hidden = variant !== 'separated-nav';
         if (currentRailEl) currentRailEl.hidden = variant !== 'current-separated-nav';
         if (mirroredRailEl) mirroredRailEl.hidden = variant !== 'mirrored';
@@ -5255,7 +5740,7 @@
     }
 
     [
-      'editorMenu', 'editorSeparatedRail', 'editorSeparatedReopen',
+      'editorSeparatedRail', 'editorSeparatedReopen',
       'editorCurrentRail', 'editorCurrentReopen',
       'editorMirroredRail', 'editorMirroredReopen',
       'editorThreeWaysRail', 'editorThreeWaysReopen',
@@ -5302,13 +5787,7 @@
     // the browser stops rendering the placeholder the moment the field has
     // content, and resumes showing whatever we've written to it once empty.
     (function () {
-      // #ideaInput specifically, not the first .editor-idea-input match —
-      // #threeWaysIdeaInput ("2.4 Three ways start" variant's own box)
-      // comes earlier in the DOM and would otherwise silently win a plain
-      // querySelector('.editor-idea-input'), animating a placeholder no
-      // one's actually looking at while the real, visible #ideaInput sits
-      // static (bug found 2026-08-19 — same class, wrong instance).
-      var textarea = document.getElementById('ideaInput');
+      var textarea = document.querySelector('.editor-idea-input');
       var chatBubble = document.getElementById('chatBubble');
       if (!textarea) return;
 
@@ -5368,25 +5847,6 @@
   </script>
 
   <script>
-    // .editor-idea-input textareas (#ideaInput, #threeWaysIdeaInput,
-    // #finishInput) grow with their content — and their .editor-idea-box
-    // card grows past its 116px floor along with them. Delegated so it
-    // covers typing everywhere the class is used; anything that sets
-    // .value programmatically must call window.autosizeIdeaInput(el)
-    // itself since that doesn't fire an 'input' event.
-    function autosizeIdeaInput(el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    }
-    window.autosizeIdeaInput = autosizeIdeaInput;
-    document.addEventListener('input', function (e) {
-      if (e.target.classList && e.target.classList.contains('editor-idea-input')) {
-        autosizeIdeaInput(e.target);
-      }
-    });
-  </script>
-
-  <script>
     // Shared step hand-off: hides `fromStep`'s Continue/Skip row (it's
     // done, not re-clickable from the peek sliver), reveals `toStep`, then
     // scrolls the sidebar so exactly 40px of `fromStep`'s new bottom peeks
@@ -5396,7 +5856,7 @@
     // nothing above it to fade) and this turns it on for good the first
     // time it's called — every step from step 2 onward keeps it, including
     // step 2's own peek of step 1.
-    function revealStep(fromStep, toStep) {
+    function revealStep(fromStep, toStep, opts) {
       var sidebarContent = document.getElementById('sidebarContent');
       var fromActions = fromStep.querySelector('.editor-step2-actions');
       if (fromActions) fromActions.hidden = true;
@@ -5407,7 +5867,17 @@
       sidebarContent.classList.add('is-multistep');
       toStep.hidden = false;
 
+      // Concepts screen (Figma node 6988:13409) lands scrolled all the
+      // way to the bottom — the grid + action chips, not a peek of the
+      // previous step — instead of every other step transition's default
+      // "peek the step above" scroll.
+      var scrollToBottom = opts && opts.scrollToBottom;
+
       requestAnimationFrame(function () {
+        if (scrollToBottom) {
+          sidebarContent.scrollTo({ top: sidebarContent.scrollHeight, behavior: 'smooth' });
+          return;
+        }
         var PEEK = 40;
         var target = fromStep.getBoundingClientRect().bottom
           - sidebarContent.getBoundingClientRect().top
@@ -5490,12 +5960,15 @@
         reader.readAsDataURL(file);
       });
 
-      chipRemove.addEventListener('click', function () {
+      function clearIdeaAttachmentChip() {
         ideaAttachment = null;
         chip.hidden = true;
         chipThumb.src = '';
         fileInput.value = '';
-      });
+      }
+      window.clearIdeaAttachmentChip = clearIdeaAttachmentChip;
+
+      chipRemove.addEventListener('click', clearIdeaAttachmentChip);
 
       document.addEventListener('click', function (e) {
         if (!wrap.contains(e.target)) closeMenu();
@@ -5504,9 +5977,29 @@
   </script>
 
   <script>
+    // .editor-idea-input textareas (#ideaInput, #threeWaysIdeaInput,
+    // #finishInput) grow with their content — and their .editor-idea-box
+    // card grows past its 116px floor along with them — instead of
+    // clipping or scrolling internally. Delegated so it covers typing
+    // everywhere the class is used; anything that sets .value
+    // programmatically must call window.autosizeIdeaInput(el) itself
+    // since that doesn't fire an 'input' event.
+    function autosizeIdeaInput(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+    window.autosizeIdeaInput = autosizeIdeaInput;
+    document.addEventListener('input', function (e) {
+      if (e.target.classList && e.target.classList.contains('editor-idea-input')) {
+        autosizeIdeaInput(e.target);
+      }
+    });
+  </script>
+
+  <script>
     // "AI" brief interpretation — a static prototype stands in for a real
     // model call with plain keyword/regex matching against
-    // editor-ai-brief-rules-v2.js (loaded above), which is the file meant to
+    // editor-ai-brief-rules-v1.js (loaded above), which is the file meant to
     // be hand-edited to tune what gets caught. Calls applyLogoDataUrl(),
     // extractLogoColors(), selectPrintColorByHex(), applyExtractedColors()
     // and applyFontByName() — all defined in later script blocks on this
@@ -5530,7 +6023,7 @@
 
       // "Reference design"/"Upload image" attachments and a precise-enough
       // look/vibe description both skip step 2 [Inspirations] — see the
-      // comments on skipInspirations in editor-ai-brief-rules-v2.js.
+      // comments on skipInspirations in editor-ai-brief-rules-v1.js.
       var skipRules = rules.skipInspirations || {};
       var attachedImage = !!attachment && (attachment.kind === 'reference-design' || attachment.kind === 'image');
       var vibeHits = 0;
@@ -5589,7 +6082,7 @@
       // Elements [step 4] — every other item (Website/Instagram/Facebook/
       // Eco badges): a `keywords` hit (or, if given, a standalone
       // `valuePattern` match — see the comment on it in
-      // editor-ai-brief-rules-v2.js) switches that item on; `valuePattern` is
+      // editor-ai-brief-rules-v1.js) switches that item on; `valuePattern` is
       // then tried again to pull out the actual value typed, if any.
       var elementRules = (rules.elementsContent && rules.elementsContent.elements) || {};
       Object.keys(elementRules).forEach(function (key) {
@@ -5625,6 +6118,14 @@
     // from the local rules file/DOM either way.
     function applyInterpretationResult(result, attachment) {
       var rules = window.EDITOR_AI_BRIEF_RULES || {};
+
+      // #previewLockup starts hidden (see its own markup comment) so the
+      // canvas shows nothing but the plain bag photo until there's an
+      // actual interpreted brief to put on it — this function is that
+      // exact moment, whether it's reached after clarifying questions or
+      // immediately (no questions needed), so un-hiding here covers both.
+      var previewLockup = document.getElementById('previewLockup');
+      if (previewLockup) previewLockup.hidden = false;
 
       // The logo image itself always applies when one's attached — colour
       // is the only thing that's contested between the two sources.
@@ -5666,7 +6167,7 @@
       // above) and fill its own field where a real value got extracted;
       // switch OFF everything else on the list — the brief describes what
       // the packaging SHOULD carry, not extras layered on top of the
-      // defaults, per editor-ai-brief-rules-v2.js's turnOffUnmentioned (Logo
+      // defaults, per editor-ai-brief-rules-v1.js's turnOffUnmentioned (Logo
       // is the one exemption, see exemptKeys there — it never appears in
       // this loop at all). Uses applyElementOnByKey() (defined in the
       // step 4 elements-list script further down the page — global, same
@@ -5710,37 +6211,58 @@
   </script>
 
   <script>
-    // Step 1 -> step 2/3 hand-off: submitting the idea turns the editable
+    // Step 1 -> concepts hand-off: submitting the idea turns the editable
     // input into a read-only chat bubble showing what was typed (falling
     // back to whatever the typewriter placeholder was mid-animation, so the
     // demo works even without the user typing anything), then shows an AI
     // "thinking" bubble while the real AI backend (server.js, POST
-    // /api/ai-brief — see its own comments) decides what to pre-fill, using
-    // editor-ai-brief-rules-v2.js as its guidelines. This variant never shows
-    // the backend's clarifying questions (if any come back, they're simply
-    // ignored in favour of its provisional best-guess fields) — see
-    // editor_v1.html for the version that surfaces them. Once resolved, the
-    // matched step 3 [Brand]/4 [Elements] fields are already pre-filled
-    // (applyInterpretationResult() above) and the flow reveals step 3
-    // directly if the brief/attachment earned a step 2 [Inspirations] skip,
-    // or step 2 otherwise. If the backend request fails for any reason (not
-    // running, network error, ...), this falls back to the local keyword/
-    // regex heuristic (applyBriefInterpretation() above) so the demo still
-    // works without the server up. Scrolling back up still shows the
-    // bubbles instead of the input — it's a one-way hand-off, not a toggle.
+    // /api/ai-brief) decides what clarifying questions to ask — at most 4,
+    // per editor-ai-brief-rules-v1.js's QUESTION RULES — and, provisionally,
+    // what to pre-fill. Any questions run one at a time through
+    // #questionCard (Figma node 6988:13274); once every question's
+    // answered or skipped, the backend is asked once more (forceDecide)
+    // with all the Q&A for its final decision, which lands on the concepts
+    // screen (#stepConcepts, Figma node 6988:13409) — this flow never
+    // reveals step2 [Inspirations]/step3 [Brand]/step4 [Elements] the way
+    // editor_v2.html's still does; those stay reachable separately via the
+    // left rail's Brand/Elements/Template buttons (showMenuPanel()), just
+    // not from this hand-off. If the backend request fails for any reason
+    // (not running, network error, ...), this falls back to the local
+    // keyword/regex heuristic (applyBriefInterpretation() above) and goes
+    // straight to the concepts screen with no questions — no real
+    // reasoning behind it to ask one. Scrolling back up still shows the
+    // bubbles instead of the input — it's a one-way hand-off, not a toggle
+    // (except via the concepts screen's own "Refine your brief" action).
     (function () {
       var ideaBox = document.getElementById('ideaBox');
       var ideaInput = document.getElementById('ideaInput');
       var sendBtn = document.getElementById('ideaSendBtn');
+      var pinnedFooter = document.getElementById('pinnedFooter');
+      var pinnedSuggestions = document.getElementById('pinnedSuggestions');
+      var ideaTitle = document.getElementById('ideaTitle');
+      var ideaTitleBubble = document.getElementById('ideaTitleBubble');
       var chatBubble = document.getElementById('chatBubble');
       var chatBubbleText = document.getElementById('chatBubbleText');
       var thinkingBubble = document.getElementById('thinkingBubble');
       var thinkingBubbleText = document.getElementById('thinkingBubbleText');
-      var skipLink = document.getElementById('skipLink');
+      var ideaSuggestions = document.getElementById('ideaSuggestions');
       var step1 = document.getElementById('step1');
-      var step2 = document.getElementById('step2');
-      var step3 = document.getElementById('step3');
+      var stepConcepts = document.getElementById('stepConcepts');
+      var qaSummaryList = document.getElementById('qaSummaryList');
+      var designGridConcepts = document.getElementById('designGridConcepts');
+      var sidebarContent = document.getElementById('sidebarContent');
       if (!sendBtn) return;
+
+      var questionCard = document.getElementById('questionCard');
+      var questionCardTitle = document.getElementById('questionCardTitle');
+      var questionCardOptions = document.getElementById('questionCardOptions');
+      var questionCardPageLabel = document.getElementById('questionCardPageLabel');
+      var questionCardClose = document.getElementById('questionCardClose');
+      var fontPickerOverlay = document.getElementById('fontPickerOverlay');
+      var fontPickerModal = fontPickerOverlay.querySelector('.editor-modal');
+      var fontPickerGrid = document.getElementById('fontPickerGrid');
+      var fontPickerCancel = document.getElementById('fontPickerCancel');
+      var fontPickerUploadInput = document.getElementById('fontPickerUploadInput');
 
       // Locally (python3 -m http.server, per this repo's own testing
       // convention), the standalone server.js dev backend listens on
@@ -5767,21 +6289,19 @@
         });
       }
 
-      function submitIdea(message, attachment) {
-        if (!message) return;
-
-        chatBubbleText.textContent = message;
-        ideaBox.hidden = true;
-        skipLink.hidden = true;
-        chatBubble.hidden = false;
-
-        // Plays the whole messages list in order (starting with "Reading
-        // your brief…", never a random pick) in the same bubble, one
-        // stepMs-long turn each, with a quick opacity crossfade between
-        // them, looping for as long as the real request takes.
+      // Plays the whole messages list in order (starting with "Reading
+      // your brief…", never a random pick) in the same bubble, one
+      // stepMs-long turn each, with a quick opacity crossfade between
+      // them, looping for as long as the real request takes — returns a
+      // function that stops the loop and hides the bubble once it resolves.
+      // `phase` picks which message set: 'reading' (default) while the
+      // brief itself is first being read, 'generating' once questions are
+      // done and the actual design is being put together — different
+      // work, so it reads oddly to reuse "Reading your brief…" for both.
+      function startThinking(phase) {
         var thinkingRules = (window.EDITOR_AI_BRIEF_RULES || {}).thinking || {};
-        var messages = thinkingRules.messages && thinkingRules.messages.length
-          ? thinkingRules.messages : ['Thinking…'];
+        var messageSet = phase === 'generating' ? thinkingRules.generatingMessages : thinkingRules.messages;
+        var messages = messageSet && messageSet.length ? messageSet : ['Thinking…'];
         var stepMs = thinkingRules.stepMs || 1200;
 
         thinkingBubbleText.textContent = messages[0];
@@ -5797,26 +6317,591 @@
           }, 200);
         }, stepMs) : null;
 
-        function finish(result) {
+        return function stopThinking() {
           if (cycleTimer) clearInterval(cycleTimer);
           thinkingBubble.hidden = true;
-          revealStep(step1, result.skipInspirations ? step3 : step2);
+        };
+      }
+
+      function attachmentKindOf(attachment) {
+        return attachment && attachment.kind ? attachment.kind : null;
+      }
+
+      // ---------------------------------------------------------------
+      // Question wizard — #questionCard, one question at a time. `wizard`
+      // is non-null for the whole duration; `answers[i]` is undefined
+      // (not yet reached), null (skipped via the close button) or a
+      // string (answered, either a tapped option or free text).
+      // ---------------------------------------------------------------
+      var wizard = null;
+      var activeQuestionIndex = 0;
+
+      // An "Upload my own"/"Upload it"-type answer doesn't just answer the
+      // question — it needs a file before the wizard can move on, so it
+      // grows the card in place with a small upload field instead of
+      // advancing immediately (see selectUploadOption()/buildUploadField()
+      // below). Detected by the word "upload" rather than a rule id, since
+      // the AI writes each question's option text fresh every time.
+      function isUploadOption(text) {
+        return /upload/i.test(text);
+      }
+
+      function selectUploadOption(index, optionText) {
+        wizard.answers[index] = optionText;
+        renderQuestionCard(index);
+      }
+
+      function buildUploadField(index) {
+        var wrap = document.createElement('div');
+        wrap.className = 'editor-question-card-upload';
+
+        var uploaded = wizard.uploads[index];
+        if (uploaded) {
+          var chip = document.createElement('div');
+          chip.className = 'editor-question-card-upload-chip';
+          var thumb = document.createElement('img');
+          thumb.className = 'editor-question-card-upload-chip-thumb';
+          thumb.src = uploaded.dataUrl;
+          thumb.alt = '';
+          var name = document.createElement('span');
+          name.className = 'editor-question-card-upload-chip-label';
+          name.textContent = uploaded.name;
+          chip.appendChild(thumb);
+          chip.appendChild(name);
+          wrap.appendChild(chip);
+          return wrap;
         }
 
+        var dropzone = document.createElement('label');
+        dropzone.className = 'editor-question-card-upload-dropzone';
+        dropzone.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 20h14v-2H5v2Zm0-10h4v6h6v-6h4l-7-7-7 7Z" fill="currentColor"/></svg><span>Upload file</span>';
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.hidden = true;
+        input.addEventListener('change', function () {
+          var file = input.files && input.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            wizard.uploads[index] = { name: file.name, dataUrl: reader.result };
+            advanceOrFinish(index);
+          };
+          reader.readAsDataURL(file);
+        });
+        dropzone.appendChild(input);
+        wrap.appendChild(dropzone);
+        return wrap;
+      }
+
+      function isHexOption(text) {
+        return /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test((text || '').trim());
+      }
+
+      // "Choose or type HEX" — offered alongside real hex-code shade
+      // options on color questions (see editor-ai-brief-rules-v1.js's
+      // color rules) for anyone who wants a shade those presets didn't
+      // cover. Like the upload flow above, it doesn't answer immediately
+      // — it grows the card with a "+" trigger that opens a real color
+      // picker. Detected by this exact phrase since the rules file tells
+      // the AI to use it verbatim (rather than "I'll pick my own" or
+      // similar).
+      function isColorPickOption(text) {
+        return /choose or type hex/i.test(text || '');
+      }
+
+      function selectColorPickOption(index, optionText) {
+        wizard.answers[index] = optionText;
+        renderQuestionCard(index);
+      }
+
+      // The logo question (editor-ai-brief-rules-v1.js's no-logo-mentioned
+      // rule) is the one place this wizard actually decides whether the
+      // *live design* shows a logo at all — unlike colors/font/elements,
+      // "logo" isn't part of the AI's JSON response (see server.js's
+      // RESPONSE_SCHEMA_NOTE), so finishWizard() below reads the answer
+      // straight off these two exact option strings instead. "Upload logo"
+      // is also an isUploadOption() match (so it gets the same upload
+      // field as any other asset question) — isLogoUploadOption() narrows
+      // that down to specifically the logo one, since asset-not-attached's
+      // own upload questions (e.g. "your own floral graphics?") share the
+      // same "Upload" wording but aren't about the logo.
+      function isLogoUploadOption(text) {
+        return /upload/i.test(text || '') && /logo/i.test(text || '');
+      }
+      function isLogoDeclineOption(text) {
+        return /^no logo$/i.test((text || '').trim());
+      }
+
+      function buildColorPickField(index) {
+        var wrap = document.createElement('div');
+        wrap.className = 'editor-question-card-colorpick';
+
+        var picked = wizard.colorPicks[index];
+        if (picked) {
+          var chip = document.createElement('div');
+          chip.className = 'editor-question-card-colorpick-chip';
+          var chipSwatch = document.createElement('span');
+          chipSwatch.className = 'editor-question-card-colorpick-chip-swatch';
+          chipSwatch.style.background = picked;
+          var chipLabel = document.createElement('span');
+          chipLabel.className = 'editor-question-card-colorpick-chip-label';
+          chipLabel.textContent = picked.toUpperCase();
+          chip.appendChild(chipSwatch);
+          chip.appendChild(chipLabel);
+          wrap.appendChild(chip);
+          return wrap;
+        }
+
+        wrap.appendChild(buildColorPickerControls('#2757ff', function (hex) {
+          wizard.colorPicks[index] = hex;
+          advanceOrFinish(index);
+        }));
+        return wrap;
+      }
+
+      // Font questions (editor-ai-brief-rules-v1.js's text-element-no-font
+      // rule) offer exactly 2 real font names, each shown set in that
+      // actual font (same CSS stacks #fontDropdownMenu's own 7 options
+      // already use, reused verbatim so a name picked here matches one
+      // picked there), plus a 3rd "Choose another or upload" entry that
+      // opens #fontPickerOverlay instead of answering immediately —
+      // detected by that exact phrase since the rules file mandates it
+      // verbatim, same convention as isColorPickOption() above.
+      var FONT_NAME_CSS = {
+        'Poppins': "'Poppins',sans-serif",
+        'Lora': "'Lora',serif",
+        'Inter': "'Inter',sans-serif",
+        'Bebas Neue': "'Bebas Neue',sans-serif",
+        'Google Sans': "'Google Sans',sans-serif",
+        'Archivo Black': "'Archivo Black',sans-serif",
+        'IBM Plex Serif': "'IBM Plex Serif',serif"
+      };
+      function isFontNameOption(text) {
+        return Object.prototype.hasOwnProperty.call(FONT_NAME_CSS, (text || '').trim());
+      }
+      function isFontPickOption(text) {
+        return /choose another or upload/i.test(text || '');
+      }
+
+      // Larger curated library #fontPickerGrid offers beyond the 7-name
+      // picker any dropdown is limited to — real Google Fonts, loaded on
+      // demand via ensureGoogleFontLoaded()/applyFontByName() (defined
+      // further down the page — global, same cross-script-tag reasoning
+      // as every other function this page calls before its own
+      // definition; the website-fetch modal's own font tiles already lean
+      // on the same two functions for exactly this reason).
+      var FONT_LIBRARY = [
+        'Poppins', 'Inter', 'Roboto', 'Montserrat', 'Open Sans', 'Raleway', 'Work Sans', 'Nunito',
+        'Lora', 'IBM Plex Serif', 'Playfair Display', 'Merriweather',
+        'Bebas Neue', 'Archivo Black', 'Oswald',
+        'Pacifico', 'Caveat', 'Dancing Script'
+      ];
+      var fontPickerTargetIndex = null;
+      var fontPickerIsDropdown = false;
+
+      function buildFontPickerTile(fontName) {
+        if (window.ensureGoogleFontLoaded) window.ensureGoogleFontLoaded(fontName);
+        var tile = document.createElement('button');
+        tile.type = 'button';
+        tile.className = 'editor-modal-font-tile';
+        var preview = document.createElement('span');
+        preview.className = 'editor-modal-font-preview';
+        preview.style.fontFamily = '"' + fontName + '",sans-serif';
+        preview.textContent = 'Abcdefgh';
+        var label = document.createElement('span');
+        label.className = 'editor-modal-font-name';
+        label.textContent = fontName;
+        tile.appendChild(preview);
+        tile.appendChild(label);
+        tile.addEventListener('click', function () { confirmFontPick(fontName); });
+        return tile;
+      }
+
+      function openFontPicker(index) {
+        fontPickerIsDropdown = false;
+        fontPickerTargetIndex = index;
+        if (!fontPickerGrid.childElementCount) {
+          FONT_LIBRARY.forEach(function (fontName) {
+            fontPickerGrid.appendChild(buildFontPickerTile(fontName));
+          });
+        }
+        fontPickerOverlay.hidden = false;
+      }
+      // Same modal, opened from the "Font" dropdown in the Brand panel
+      // (see initFontDropdown() further down) instead of a wizard question
+      // — confirmFontPick() below just applies + closes rather than also
+      // recording a wizard answer and advancing.
+      function openFontPickerForDropdown() {
+        fontPickerIsDropdown = true;
+        fontPickerTargetIndex = null;
+        if (!fontPickerGrid.childElementCount) {
+          FONT_LIBRARY.forEach(function (fontName) {
+            fontPickerGrid.appendChild(buildFontPickerTile(fontName));
+          });
+        }
+        fontPickerOverlay.hidden = false;
+      }
+      window.openFontPickerForDropdown = openFontPickerForDropdown;
+      function closeFontPicker() {
+        fontPickerOverlay.hidden = true;
+        fontPickerTargetIndex = null;
+        fontPickerIsDropdown = false;
+      }
+      function confirmFontPick(fontName) {
+        if (window.applyFontByName) window.applyFontByName(fontName);
+        if (fontPickerIsDropdown) {
+          closeFontPicker();
+          return;
+        }
+        var index = fontPickerTargetIndex;
+        if (index == null) return;
+        wizard.answers[index] = fontName;
+        closeFontPicker();
+        advanceOrFinish(index);
+      }
+
+      fontPickerCancel.addEventListener('click', closeFontPicker);
+      fontPickerOverlay.addEventListener('click', function (e) {
+        if (!fontPickerModal.contains(e.target)) closeFontPicker();
+      });
+      fontPickerUploadInput.addEventListener('change', function () {
+        var file = fontPickerUploadInput.files && fontPickerUploadInput.files[0];
+        if (!file) return;
+        var fontName = file.name.replace(/\.[^.]+$/, '');
+        var reader = new FileReader();
+        reader.onload = function () {
+          var fontFace = new FontFace(fontName, reader.result);
+          fontFace.load().then(function (loaded) {
+            document.fonts.add(loaded);
+            confirmFontPick(fontName);
+          }).catch(function (err) {
+            console.warn('Could not load uploaded font:', err);
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      function renderQuestionCard(index) {
+        activeQuestionIndex = index;
+        var q = wizard.questions[index];
+        var total = wizard.questions.length;
+
+        questionCardPageLabel.textContent = (index + 1) + '/' + total;
+        questionCardTitle.textContent = q.question;
+
+        questionCardOptions.innerHTML = '';
+        var currentAnswer = wizard.answers[index];
+        var isCustomAnswer = typeof currentAnswer === 'string' && q.options.indexOf(currentAnswer) === -1;
+
+        q.options.forEach(function (optionText, i) {
+          var row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'editor-question-card-option';
+          if (currentAnswer === optionText) row.classList.add('is-selected');
+          var badge = document.createElement('span');
+          badge.className = 'editor-question-card-option-badge';
+          if (isHexOption(optionText)) {
+            badge.classList.add('is-swatch');
+            badge.style.background = optionText.trim();
+          } else {
+            badge.textContent = String(i + 1);
+          }
+          var label = document.createElement('span');
+          label.className = 'editor-question-card-option-label';
+          label.textContent = optionText;
+          if (isFontNameOption(optionText)) {
+            label.style.fontFamily = FONT_NAME_CSS[optionText.trim()];
+          }
+          row.appendChild(badge);
+          row.appendChild(label);
+          // isFontPickOption() first — "Choose another or upload" also
+          // contains the word "upload", which would otherwise match
+          // isUploadOption() below and open the wrong (inline dropzone)
+          // flow instead of the font picker modal.
+          if (isFontPickOption(optionText)) {
+            row.addEventListener('click', function () { openFontPicker(index); });
+          } else if (isUploadOption(optionText)) {
+            row.addEventListener('click', function () { selectUploadOption(index, optionText); });
+          } else if (isColorPickOption(optionText)) {
+            row.addEventListener('click', function () { selectColorPickOption(index, optionText); });
+          } else {
+            row.addEventListener('click', function () { answerQuestion(index, optionText); });
+          }
+          questionCardOptions.appendChild(row);
+          if (currentAnswer === optionText && isUploadOption(optionText)) {
+            questionCardOptions.appendChild(buildUploadField(index));
+          }
+          if (currentAnswer === optionText && isColorPickOption(optionText)) {
+            questionCardOptions.appendChild(buildColorPickField(index));
+          }
+        });
+
+        // "Something else" — always present as a free-text fallback, even
+        // for questions with 0 AI-provided options (open-ended ones).
+        var freetextRow = document.createElement('div');
+        freetextRow.className = 'editor-question-card-option is-freetext';
+        var freetextBadge = document.createElement('span');
+        freetextBadge.className = 'editor-question-card-option-badge';
+        freetextBadge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25ZM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"/></svg>';
+        var freetextInput = document.createElement('input');
+        freetextInput.type = 'text';
+        freetextInput.className = 'editor-question-card-freetext-input';
+        freetextInput.placeholder = q.options.length ? 'Something else…' : 'Type your answer…';
+        if (isCustomAnswer) freetextInput.value = currentAnswer;
+
+        var freetextSubmit = document.createElement('button');
+        freetextSubmit.type = 'button';
+        freetextSubmit.className = 'editor-question-card-freetext-submit';
+        freetextSubmit.setAttribute('aria-label', 'Submit answer');
+        freetextSubmit.innerHTML = '<img src="assets/editor/app/send-arrow.svg" alt="">';
+        freetextSubmit.hidden = !freetextInput.value.trim();
+
+        function submitFreetext() {
+          var val = freetextInput.value.trim();
+          if (val) answerQuestion(index, val);
+        }
+        freetextInput.addEventListener('input', function () {
+          freetextSubmit.hidden = !freetextInput.value.trim();
+        });
+        freetextInput.addEventListener('keydown', function (e) {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          submitFreetext();
+        });
+        freetextSubmit.addEventListener('click', submitFreetext);
+
+        freetextRow.appendChild(freetextBadge);
+        freetextRow.appendChild(freetextInput);
+        freetextRow.appendChild(freetextSubmit);
+        questionCardOptions.appendChild(freetextRow);
+      }
+
+      function answerQuestion(index, answerText) {
+        wizard.answers[index] = answerText;
+        advanceOrFinish(index);
+      }
+
+      function skipQuestion(index) {
+        wizard.answers[index] = null;
+        advanceOrFinish(index);
+      }
+
+      function advanceOrFinish(index) {
+        if (index < wizard.questions.length - 1) {
+          renderQuestionCard(index + 1);
+        } else {
+          finishWizard();
+        }
+      }
+
+      questionCardClose.addEventListener('click', function () {
+        if (wizard) skipQuestion(activeQuestionIndex);
+      });
+
+      function startWizard(questions, brief, attachment) {
+        wizard = {
+          brief: brief,
+          attachment: attachment,
+          questions: questions,
+          answers: questions.map(function () { return undefined; }),
+          uploads: {},
+          colorPicks: {}
+        };
+        questionCard.hidden = false;
+        renderQuestionCard(0);
+      }
+
+      function finishWizard() {
+        var w = wizard;
+        wizard = null;
+        questionCard.hidden = true;
+
+        // A "Choose or type HEX" color answer is a placeholder option
+        // label, not an actual answer — swap in the real hex the picker confirmed
+        // (see buildColorPickField() above) so the backend/summary see
+        // the color the user actually chose.
+        var qaPairs = w.questions.map(function (q, i) {
+          var answer = w.colorPicks[i] || w.answers[i];
+          return { question: q.question, answer: answer == null ? null : answer };
+        });
+
+        // Apply the logo question's answer straight to the live design —
+        // see isLogoUploadOption()/isLogoDeclineOption() above for why
+        // this can't go through the AI's JSON response like colors/font/
+        // elements do. Independent of the fetch below (and of whether it
+        // even succeeds), so it runs unconditionally here rather than in
+        // either branch.
+        w.answers.forEach(function (answer, i) {
+          if (isLogoUploadOption(answer) && w.uploads[i]) {
+            applyLogoDataUrl(w.uploads[i].dataUrl);
+            applyElementOnByKey('logo', true);
+          } else if (isLogoDeclineOption(answer)) {
+            applyElementOnByKey('logo', false);
+          }
+        });
+
+        var stopThinking = startThinking('generating');
         fetchAIInterpretation({
-          flow: 'v2',
-          brief: message,
-          attachmentKind: attachment && attachment.kind ? attachment.kind : null
+          flow: 'v1',
+          brief: w.brief,
+          attachmentKind: attachmentKindOf(w.attachment),
+          qaPairs: qaPairs,
+          forceDecide: true
         })
           .then(function (aiResult) {
-            applyInterpretationResult(aiResult, attachment);
-            finish(aiResult);
+            stopThinking();
+            showConceptsScreen(aiResult, w.attachment, qaPairs);
           })
           .catch(function (err) {
             console.warn('AI brief backend unavailable, falling back to local rules:', err);
-            finish(applyBriefInterpretation(message, attachment));
+            stopThinking();
+            showConceptsScreen(interpretBrief(w.brief, w.attachment), w.attachment, qaPairs);
           });
       }
+
+      // ---------------------------------------------------------------
+      // Concepts screen — #stepConcepts. Each tile clones the actual live
+      // #previewLockup (not a hardcoded copy of its default markup) so the
+      // real brand colours/logo/copy already applied by
+      // applyInterpretationResult() above show up correctly — a static
+      // copy would only ever show whatever #previewLockup's markup
+      // happened to say at page-load, stale the moment a real brief
+      // changes anything. Only the clone's own data-composition differs
+      // per tile; content stays identical, matching how step 5's own
+      // design-tile markup already works (see handleDesignGridClick()
+      // further down, which this grid's clicks are wired into too).
+      // ---------------------------------------------------------------
+      var CONCEPT_COMPOSITIONS = ['02', '01', '04', '05', '03', '06'];
+      var conceptsRotationOffset = 0;
+
+      function cloneLivePreviewLockup(compositionId) {
+        var original = document.getElementById('previewLockup');
+        var clone = original.cloneNode(true);
+        clone.removeAttribute('id');
+        clone.dataset.composition = compositionId;
+        clone.querySelectorAll('[id]').forEach(function (el) { el.removeAttribute('id'); });
+        return clone;
+      }
+
+      function buildConceptTile(compositionId, isSelected) {
+        var tile = document.createElement('button');
+        tile.type = 'button';
+        tile.className = 'editor-design-tile' + (isSelected ? ' is-selected' : '');
+        tile.dataset.design = compositionId;
+
+        var thumb = document.createElement('span');
+        thumb.className = 'editor-design-thumb';
+
+        var stage = document.createElement('span');
+        stage.className = 'editor-design-mini-stage';
+        var bg = document.createElement('img');
+        bg.className = 'editor-design-mini-bg';
+        bg.src = 'assets/editor/app/preview-bg.png';
+        bg.alt = '';
+        stage.appendChild(bg);
+        stage.appendChild(cloneLivePreviewLockup(compositionId));
+        thumb.appendChild(stage);
+
+        var check = document.createElement('img');
+        check.className = 'editor-design-check';
+        check.src = 'assets/editor/app/step2/checkmark-badge.svg';
+        check.alt = '';
+        thumb.appendChild(check);
+
+        tile.appendChild(thumb);
+        return tile;
+      }
+
+      function renderConceptsGrid() {
+        var previewLockup = document.getElementById('previewLockup');
+        var current = (previewLockup && previewLockup.dataset.composition) || '02';
+        var n = CONCEPT_COMPOSITIONS.length;
+        designGridConcepts.innerHTML = '';
+        for (var i = 0; i < 4; i++) {
+          var id = CONCEPT_COMPOSITIONS[(conceptsRotationOffset + i) % n];
+          designGridConcepts.appendChild(buildConceptTile(id, id === current));
+        }
+      }
+
+      function showConceptsScreen(result, attachment, qaPairs) {
+        applyInterpretationResult(result, attachment);
+        pinnedSuggestions.hidden = false;
+
+        qaSummaryList.innerHTML = '';
+        qaPairs.forEach(function (pair) {
+          var item = document.createElement('div');
+          item.className = 'editor-qa-summary-item';
+          var questionEl = document.createElement('p');
+          questionEl.className = 'editor-qa-summary-question';
+          questionEl.textContent = pair.question;
+          var answerEl = document.createElement('p');
+          answerEl.className = 'editor-qa-summary-answer';
+          answerEl.textContent = pair.answer == null ? 'Skipped' : pair.answer;
+          item.appendChild(questionEl);
+          item.appendChild(answerEl);
+          qaSummaryList.appendChild(item);
+        });
+
+        renderConceptsGrid();
+        updatePinnedFooterScrollPadding();
+        revealStep(step1, stepConcepts, { scrollToBottom: true });
+      }
+
+      function submitIdea(message, attachment) {
+        if (!message) return;
+
+        chatBubbleText.textContent = message;
+        // Docks #pinnedFooter (#ideaBox + the concepts screen's own
+        // suggestion chips) to the bottom of the sidebar instead of hiding
+        // it — Figma keeps it visible/pinned through the whole rest of the
+        // conversation (clarifying questions, then concepts screen) so
+        // there's always a way to send a follow-up. Cleared so it's ready
+        // for exactly that, whatever this particular submission came from
+        // (typed text, a suggestion chip, or the "Three ways start" box).
+        pinnedFooter.classList.add('is-pinned-bottom');
+        ideaInput.value = '';
+        // Once pinned, it's a follow-up box for tweaking the design
+        // already on screen, not the original blank-slate brief prompt —
+        // the placeholder says so.
+        ideaInput.placeholder = 'Describe your changes';
+        autosizeIdeaInput(ideaInput);
+        if (window.clearIdeaAttachmentChip) window.clearIdeaAttachmentChip();
+        if (ideaSuggestions) ideaSuggestions.hidden = true;
+        chatBubble.hidden = false;
+        // The page-title heading only makes sense before there's a
+        // thread — once there is one, it reads as the tool's own opening
+        // message instead, so it swaps for #ideaTitleBubble (see the
+        // markup comment there).
+        ideaTitle.hidden = true;
+        ideaTitleBubble.hidden = false;
+        // Same top-aligned layout stepConcepts/step2 etc. already use once
+        // there's genuinely too much content to center (see .is-multistep
+        // in the CSS) — turned on here too, this early, so the title+
+        // bubble+question-card trio floats up to 56px below the navbar
+        // instead of staying vertically centered mid-screen the way the
+        // empty starting screen correctly does.
+        sidebarContent.classList.add('is-multistep');
+        updatePinnedFooterScrollPadding();
+
+        var stopThinking = startThinking('reading');
+
+        fetchAIInterpretation({ flow: 'v1', brief: message, attachmentKind: attachmentKindOf(attachment) })
+          .then(function (aiResult) {
+            stopThinking();
+            if (aiResult.questions && aiResult.questions.length) {
+              startWizard(aiResult.questions, message, attachment);
+            } else {
+              showConceptsScreen(aiResult, attachment, []);
+            }
+          })
+          .catch(function (err) {
+            console.warn('AI brief backend unavailable, falling back to local rules:', err);
+            stopThinking();
+            showConceptsScreen(interpretBrief(message, attachment), attachment, []);
+          });
+      }
+
       // "2.4. Three ways start" variant's own prompt box (further down
       // the page) submits through this exact same function rather than
       // duplicating it — exposed on window for that script to call.
@@ -5826,25 +6911,55 @@
         submitIdea(ideaInput.value.trim() || ideaInput.placeholder.trim(), ideaAttachment);
       });
 
-      // "Skip brief & guide me step-by-step" — there's no brief to show or
-      // interpret, so neither bubble makes sense here: no chat bubble (no
-      // message was actually sent), no "thinking" bubble (nothing to
-      // think about), straight to step 2. Also why this doesn't go
-      // through submitIdea()/applyBriefInterpretation() at all — running
-      // that on an empty brief would trip editor-ai-brief-rules-v2.js's
-      // turnOffUnmentioned pass and switch every non-exempt step 4
-      // [Elements] item off, which isn't what "guide me step-by-step" is
-      // asking for.
-      //
-      // Unlike the send-a-brief path, the idea box + this link stay put
-      // (not hidden) — skipping isn't a one-way hand-off the way sending
-      // a real brief is, so scrolling back up to step 1 still shows the
-      // actual input field and this link, not just the bare title, in
-      // case the user wants to type a brief after all.
-      skipLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        revealStep(step1, step2);
+      // Suggestion chips: each fills #ideaInput with its own (longer)
+      // data-brief, not the short label shown on the pill itself.
+      if (ideaSuggestions) {
+        ideaSuggestions.querySelectorAll('.editor-idea-suggestion-chip').forEach(function (chip) {
+          chip.addEventListener('click', function () {
+            ideaInput.value = chip.dataset.brief;
+            autosizeIdeaInput(ideaInput);
+            ideaInput.focus();
+          });
+        });
+      }
+
+      // Concepts screen's own suggestion chips (#pinnedSuggestions) — same
+      // fill-and-focus contract as #ideaSuggestions' own chips just above,
+      // not an immediate action: the user reviews/edits before sending,
+      // and sending runs through submitIdea() same as any other message,
+      // so the AI backend decides what happens next (more concepts,
+      // revised ones, new clarifying questions, ...) rather than a
+      // client-side special case per chip.
+      pinnedSuggestions.querySelectorAll('.editor-pinned-suggestion-chip[data-brief]').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          ideaInput.value = chip.dataset.brief;
+          autosizeIdeaInput(ideaInput);
+          ideaInput.focus();
+        });
       });
+
+      // Keeps a real 40px between the scrollable content (design tiles,
+      // question card, ...) and #pinnedFooter's own top edge (where the
+      // suggestion chips sit, when they're showing) — not a fixed guess,
+      // since the footer's height genuinely varies (chips wrap, #ideaBox
+      // grows with typed text, chips show/hide). Recomputed on every
+      // resize of either piece; harmless no-op while unpinned (falls
+      // back to .is-multistep's own static 240px via the cleared inline
+      // style).
+      function updatePinnedFooterScrollPadding() {
+        if (!pinnedFooter.classList.contains('is-pinned-bottom')) {
+          sidebarContent.style.paddingBottom = '';
+          return;
+        }
+        var suggestionsSpace = pinnedSuggestions.hidden ? 0 : pinnedSuggestions.getBoundingClientRect().height + 12;
+        var total = 24 + ideaBox.getBoundingClientRect().height + suggestionsSpace + 40;
+        sidebarContent.style.paddingBottom = total + 'px';
+      }
+      if (window.ResizeObserver) {
+        var pinnedFooterResizeObserver = new ResizeObserver(updatePinnedFooterScrollPadding);
+        pinnedFooterResizeObserver.observe(ideaBox);
+        pinnedFooterResizeObserver.observe(pinnedSuggestions);
+      }
     })();
   </script>
 
@@ -5941,13 +7056,15 @@
   <script>
     // One shared color-picker module — a native color input (proxied by a
     // styled swatch button, same hidden-input pattern the file upload
-    // dropzones use) + a hex text field + a confirm button. Only consumer
-    // in this file is the "Print colour" swatch row's own "+" button
-    // right below (editor_v1.html's own copy of this module is also used
-    // by its AI-brief wizard's "Choose or type HEX" answer — this file
-    // has no such wizard). `initialHex` seeds the native input/preview;
-    // `onConfirm(hex)` fires once a valid hex is confirmed (click or
-    // Enter).
+    // dropzones use) + a hex text field + a confirm button. Used by BOTH
+    // the question card's own "Choose or type HEX" answer (see
+    // buildColorPickField() in submitIdea()'s script) and the "Print
+    // colour" swatch row's "+" button right below — literally the same
+    // module in both places, just appended inline in one and inside a
+    // dropdown popover in the other, per caller. `initialHex` seeds the
+    // native input/preview; `onConfirm(hex)` fires once a valid hex is
+    // confirmed (click or Enter) — the caller decides what that means
+    // (answer a question, add a print-color swatch, ...).
     function buildColorPickerControls(initialHex, onConfirm) {
       var picker = document.createElement('div');
       picker.className = 'editor-question-card-colorpick-picker';
@@ -6616,104 +7733,40 @@
   </script>
 
   <script>
-    // "Choose a font" (#fontPickerOverlay) — a curated library + upload
-    // option, beyond the 7-name shortlist any inline dropdown is limited
-    // to. Real Google Fonts, loaded on demand via ensureGoogleFontLoaded()/
-    // applyFontByName() (both defined in the script block above — global,
-    // same cross-script-tag reasoning as every other function this page
-    // calls before its own definition; the website-fetch modal's own font
-    // tiles already lean on the same two functions for exactly this
-    // reason). Tapping a library tile or picking a file both apply
-    // immediately and close the modal.
-    var FONT_LIBRARY = [
-      'Poppins', 'Inter', 'Roboto', 'Montserrat', 'Open Sans', 'Raleway', 'Work Sans', 'Nunito',
-      'Lora', 'IBM Plex Serif', 'Playfair Display', 'Merriweather',
-      'Bebas Neue', 'Archivo Black', 'Oswald',
-      'Pacifico', 'Caveat', 'Dancing Script'
-    ];
-    var fontPickerOverlay = document.getElementById('fontPickerOverlay');
-    var fontPickerModal = fontPickerOverlay.querySelector('.editor-modal');
-    var fontPickerGrid = document.getElementById('fontPickerGrid');
-    var fontPickerCancel = document.getElementById('fontPickerCancel');
-    var fontPickerUploadInput = document.getElementById('fontPickerUploadInput');
-
-    function buildFontPickerTile(fontName) {
-      ensureGoogleFontLoaded(fontName);
-      var tile = document.createElement('button');
-      tile.type = 'button';
-      tile.className = 'editor-modal-font-tile';
-      var preview = document.createElement('span');
-      preview.className = 'editor-modal-font-preview';
-      preview.style.fontFamily = '"' + fontName + '",sans-serif';
-      preview.textContent = 'Abcdefgh';
-      var label = document.createElement('span');
-      label.className = 'editor-modal-font-name';
-      label.textContent = fontName;
-      tile.appendChild(preview);
-      tile.appendChild(label);
-      tile.addEventListener('click', function () { confirmFontPick(fontName); });
-      return tile;
-    }
-
-    function openFontPicker() {
-      if (!fontPickerGrid.childElementCount) {
-        FONT_LIBRARY.forEach(function (fontName) {
-          fontPickerGrid.appendChild(buildFontPickerTile(fontName));
-        });
-      }
-      fontPickerOverlay.hidden = false;
-    }
-    function closeFontPicker() {
-      fontPickerOverlay.hidden = true;
-    }
-    function confirmFontPick(fontName) {
-      applyFontByName(fontName);
-      closeFontPicker();
-    }
-
-    fontPickerCancel.addEventListener('click', closeFontPicker);
-    fontPickerOverlay.addEventListener('click', function (e) {
-      if (!fontPickerModal.contains(e.target)) closeFontPicker();
-    });
-    fontPickerUploadInput.addEventListener('change', function () {
-      var file = fontPickerUploadInput.files && fontPickerUploadInput.files[0];
-      if (!file) return;
-      var fontName = file.name.replace(/\.[^.]+$/, '');
-      var reader = new FileReader();
-      reader.onload = function () {
-        var fontFace = new FontFace(fontName, reader.result);
-        fontFace.load().then(function (loaded) {
-          document.fonts.add(loaded);
-          confirmFontPick(fontName);
-        }).catch(function (err) {
-          console.warn('Could not load uploaded font:', err);
-        });
-      };
-      reader.readAsArrayBuffer(file);
-    });
-  </script>
-
-  <script>
-    // Both Font dropdowns (#fontDropdownTrigger/2) now open
-    // #fontPickerOverlay (openFontPicker(), just above) instead of their
-    // own inline .editor-select-menu listbox — that listbox's 7 buttons
-    // stay in the DOM as-is, still read by applyFontByName() for each
-    // preset's exact font-family stack (see that function's own comment),
-    // just never opened directly by a click anymore.
-    ['fontDropdownTrigger', 'fontDropdownTrigger2'].forEach(function (triggerId) {
+    // Step 3 font picker: a custom trigger+panel dropdown (not a native
+    // <select>) specifically so each option can reliably render in ITS OWN
+    // font — browser support for styling native <option> per-item is
+    // inconsistent. Applies to the tagline + website copy in the preview
+    // (the logo mark is vector path outlines, not real text, so a font
+    // choice has nothing to act on there). "Google Sans" is included as an
+    // option per the request, but isn't published on Google Fonts —
+    // picking it just falls back to the stack's default sans-serif.
+    //
+    // Both Font dropdowns (#fontDropdownTrigger/2) open the "Choose a
+    // font" modal (#fontPickerOverlay, openFontPickerForDropdown() in the
+    // QUESTION RULES script above — global, same cross-script-tag
+    // reasoning as every other function this page calls before its own
+    // definition) instead of their own inline .editor-select-menu listbox
+    // — that listbox's 7 buttons stay in the DOM as-is, still read by
+    // applyFontByName() for each preset's exact font-family stack (see
+    // that function's own comment), just never opened directly by a click
+    // anymore.
+    function initFontDropdown(triggerId) {
       var trigger = document.getElementById(triggerId);
       if (!trigger) return;
-      trigger.addEventListener('click', openFontPicker);
-    });
+      trigger.addEventListener('click', function () {
+        if (window.openFontPickerForDropdown) window.openFontPickerForDropdown();
+      });
+    }
+    initFontDropdown('fontDropdownTrigger');
+    initFontDropdown('fontDropdownTrigger2');
 
     // "Add custom font" (next to the "Font" label) opens the exact same
     // modal as the dropdown itself, rather than jumping straight to the
-    // modal's own upload dropzone.
-    ['addCustomFontBtn', 'addCustomFontBtn2'].forEach(function (btnId) {
-      var btn = document.getElementById(btnId);
-      if (!btn) return;
-      btn.addEventListener('click', openFontPicker);
-    });
+    // modal's own upload dropzone — it's still just #fontPickerOverlay,
+    // library tiles included.
+    initFontDropdown('addCustomFontBtn');
+    initFontDropdown('addCustomFontBtn2');
   </script>
 
   <script>
@@ -6744,11 +7797,16 @@
     // a static image, so it stays live if the user keeps editing content,
     // colour or font afterwards.
     //
-    // Attached to both #designGrid (step 5) and #designGrid2 (the
-    // "Template" bottom-menu tab's duplicate) — .editor-design-tile.is-
-    // selected is toggled via a *global* querySelectorAll, so picking a
-    // tile in either grid deselects the other's too, keeping the two
-    // grids' selection in sync automatically.
+    // Attached to #designGrid (step 5), #designGrid2 (the "Template"
+    // bottom-menu tab's duplicate) and #designGridConcepts (the AI-brief
+    // flow's concepts screen, built dynamically — see
+    // buildConceptTileHTML() above) — .editor-design-tile.is-selected is
+    // toggled via a *global* querySelectorAll, so picking a tile in any
+    // one of them deselects the others' too, keeping all three grids'
+    // selection in sync automatically. Delegated on each grid's
+    // container, so it keeps working on #designGridConcepts even though
+    // its tiles get replaced wholesale (innerHTML) every time the concepts
+    // screen re-renders.
     function handleDesignGridClick(e) {
       var tile = e.target.closest('.editor-design-tile');
       if (!tile) return;
@@ -6773,6 +7831,8 @@
     document.getElementById('designGrid').addEventListener('click', handleDesignGridClick);
     var designGrid2 = document.getElementById('designGrid2');
     if (designGrid2) designGrid2.addEventListener('click', handleDesignGridClick);
+    var designGridConcepts = document.getElementById('designGridConcepts');
+    if (designGridConcepts) designGridConcepts.addEventListener('click', handleDesignGridClick);
   </script>
 
   <script>
