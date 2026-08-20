@@ -748,6 +748,73 @@
     font-size: 9px;
   }
 
+  /* 07-09: "1.2. Or start with a template" only (#designGrid3) — 3 extra
+     compositions so that screen has 9 templates instead of reusing
+     1-6 twice; step 5 and the "Template" tab keep their own 6, since
+     these 3 never get a tile there. */
+
+  /* 07: airy centered stack, tight double rule top+bottom (03's rule
+     idea, centered instead of left-aligned) around a large tagline, no
+     website/instagram at this size. */
+  .editor-preview-lockup[data-composition="07"] {
+    gap: 14px;
+  }
+  .editor-preview-lockup[data-composition="07"] .editor-preview-rule {
+    display: block;
+  }
+  .editor-preview-lockup[data-composition="07"] .editor-preview-tagline {
+    width: 260px;
+    font-size: 24px;
+    letter-spacing: -0.48px;
+  }
+  .editor-preview-lockup[data-composition="07"] .editor-preview-website,
+  .editor-preview-lockup[data-composition="07"] .editor-preview-instagram {
+    font-size: 11px;
+  }
+
+  /* 08: bigger logo mark, small tracked-out uppercase tagline underneath —
+     a quieter, logo-forward badge rather than 04's rotated sidebar. */
+  .editor-preview-lockup[data-composition="08"] {
+    gap: 12px;
+  }
+  .editor-preview-lockup[data-composition="08"] .editor-preview-logo {
+    transform: scale(1.25);
+  }
+  .editor-preview-lockup[data-composition="08"] .editor-preview-tagline {
+    width: auto;
+    white-space: nowrap;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .editor-preview-lockup[data-composition="08"] .editor-preview-website,
+  .editor-preview-lockup[data-composition="08"] .editor-preview-instagram {
+    font-size: 10px;
+  }
+
+  /* 09: horizontal badge — logo and copy side by side instead of stacked,
+     copy block left-aligned same as 03/04's own left-aligned text. */
+  .editor-preview-lockup[data-composition="09"] {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  .editor-preview-lockup[data-composition="09"] .editor-preview-copy {
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .editor-preview-lockup[data-composition="09"] .editor-preview-tagline,
+  .editor-preview-lockup[data-composition="09"] .editor-preview-website {
+    width: auto;
+    white-space: nowrap;
+    text-align: left;
+    font-size: 13px;
+  }
+  .editor-preview-lockup[data-composition="09"] .editor-preview-instagram {
+    justify-content: flex-start;
+    font-size: 10px;
+  }
+
   .editor-preview-bottombar {
     position: absolute;
     left: 50%;
@@ -1150,6 +1217,30 @@
      cropped by the centering with no way to scroll back up to it. */
   .editor-sidebar-content.is-menu-panel {
     justify-content: flex-start;
+  }
+
+  /* "1.2. Or start with a template" / "1.3. Or start by choosing the
+     style" only — `safe center` (not the plain `center` every other
+     variant's step 1 gets) centers #step1 vertically same as always
+     whenever the taller #templateStartSection/#styleStartSection content
+     still fits the viewport, but falls back to start-alignment the moment
+     it doesn't — the same crop-with-no-way-back-up bug .is-menu-panel's
+     flex-start fixes above, just conditional instead of unconditional
+     since this content is only SOMETIMES taller than the screen. Toggled
+     by applyVariant() alongside each section's own visibility. The extra
+     32px margin on #step1 itself (on top of this container's existing
+     32px top padding) reaches a 64px gap from the navbar in the
+     start-aligned/overflowing case, instead of every other variant's
+     32px, since #step1 sits right at the very top of the scroll here with
+     nothing else claiming that space first. */
+  .editor-sidebar-content.is-template-start,
+  .editor-sidebar-content.is-style-start {
+    justify-content: safe center;
+  }
+
+  .editor-sidebar-content.is-template-start #step1,
+  .editor-sidebar-content.is-style-start #step1 {
+    margin-top: 32px;
   }
 
   /* Pinned to the top of the scroll container (not the page) so it fades
@@ -2776,6 +2867,188 @@
     display: block;
   }
 
+  /* ---------- "1.2. Or start with a template" variant only ----------
+     An extra section inside #step1, right after #ideaSuggestions — same
+     idea box as every other variant, this one just also offers
+     #designGrid3 below it, a third instance of the exact same design-tile
+     grid step 5/the "Template" tab already use (see handleDesignGridClick()
+     further down — attached to all three, .is-selected is toggled via a
+     *global* querySelectorAll so picking a tile here stays in sync with
+     the other two grids and the live preview, automatically). Shown only
+     while this specific variant is active (applyVariant()'s own
+     templateStartSection toggle) and hidden for good the moment a brief
+     is actually submitted (submitIdea()) — once the AI conversation
+     starts, offering a template pick above it no longer makes sense. 32px
+     margin stacks on top of .editor-step's own 24px gap to reach a 56px
+     gap from the idea suggestions above, matching every other inter-step
+     gap in this file. */
+  .editor-template-start {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-top: 32px;
+  }
+
+  .editor-template-start-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .editor-template-start-title {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  /* 3 tiles per row here (114px each, 8px gaps, 358px total) instead of
+     #designGrid/#designGrid2's shared 2-column 175px sizing — scoped to
+     #designGrid3 alone so step 5 and the "Template" tab keep their own
+     larger tiles untouched. The mini-preview stage inside each tile still
+     renders the same 958x788 reference frame (see .editor-design-mini-
+     stage's own comment on the *why*), just scaled down further to fit:
+     (114/958)*1.2 ≈ 0.1428 instead of 0.2192, and the centering nudge
+     scaled down by the same 114/175 ratio the thumb itself shrunk by
+     (8px * 114/175 ≈ 5px). */
+  .editor-template-start .editor-design-grid {
+    grid-template-columns: repeat(3, 114px);
+  }
+
+  .editor-template-start .editor-design-thumb {
+    width: 114px;
+    height: 103px;
+  }
+
+  .editor-template-start .editor-design-mini-stage {
+    top: calc(50% + 5px);
+    transform: translate(-50%, -50%) scale(0.1428);
+  }
+
+  /* Same checkmark size/position as the "Inspirations" step's own tiles
+     (.editor-tile-check — 16px, 7px/10px inset) instead of #designGrid/
+     #designGrid2's larger 20px one, which reads oversized and too far
+     from the corner at this tile's smaller 114px size. */
+  .editor-template-start .editor-design-check {
+    top: 7px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Plain white pill, 1px grey-300 border, no active-state fill/shadow the
+     way .editor-filter-tab gets; a passive style picker rather than a
+     toggle. */
+  .editor-template-start-style-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 8px 12px;
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .editor-template-start-style-filter svg {
+    flex: none;
+    transform: rotate(90deg);
+  }
+
+  /* Floating, pinned CTA — hidden until a template's actually been picked
+     (handleDesignGridClick() unhides it), never part of the document flow
+     so it overlaps whatever's scrolled underneath instead of pushing it
+     up. Positioned against .editor-sidebar (the nearest position:relative
+     ancestor, same reasoning as .editor-three-ways-prompt-wrap's own CSS
+     comment) rather than this section, and nested inside
+     #templateStartSection so a hidden ancestor still hides it regardless
+     of its own position:absolute. Same blurred-white-pill recipe as the
+     left-edge tool rail instead of a solid bar, so it reads as floating
+     chrome rather than another in-flow section. */
+  .editor-template-start-cta-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    z-index: 4;
+    padding: 8px;
+    background: rgba(255, 255, 255, .8);
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 8px 0 rgba(47, 47, 47, .08);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .editor-template-start-cta-bar.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+
+  /* ---------- "1.3. Or start by choosing the style" variant only ----------
+     Same shape as "1.2. Or start with a template" just above (extra
+     section inside #step1, right after #ideaSuggestions, floating CTA
+     that appears once something's picked) but reuses #tileGrid's own
+     .editor-tile/-thumb/-photo/-check markup from the "Inspirations" step
+     verbatim instead of the design-tile/composition system — these are
+     mood tiles with no live-preview effect, same as step 2's own (see
+     #tileGrid2's own click handler further down: independent multi-select,
+     not globally synced with #tileGrid — picking several here is the
+     point, unlike the design-tile grids' single-select-across-all-
+     instances behavior). No filter pill next to the heading here. */
+  .editor-style-start {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-top: 32px;
+  }
+
+  .editor-style-start-title {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    color: var(--color-text-primary);
+  }
+
+  /* Same floating, pinned CTA recipe as .editor-template-start-cta-bar —
+     see that class' own comment for the *why* behind each property. */
+  .editor-style-start-cta-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    z-index: 4;
+    padding: 8px;
+    background: rgba(255, 255, 255, .8);
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 8px 0 rgba(47, 47, 47, .08);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .editor-style-start-cta-bar.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+
   /* ---------- Step 6 — "Ready for the finishing touches?" (final step,
      no Continue/Skip — it's a free-text refinement prompt, not a gate). ---------- */
   .editor-prompt-chip-row {
@@ -4277,6 +4550,325 @@
               <button type="button" class="editor-idea-suggestion-chip" data-brief="Giant bold copy &lsquo;ALWAYS IN SEASON&rsquo; wrapped in simple, dark floral art featuring large peonies and roses. All in green color.">Floral design with big copy</button>
             </div>
 
+            <!-- "1.2. Or start with a template" variant only — see this
+                 section's own CSS comment. -->
+            <div class="editor-template-start" id="templateStartSection" hidden>
+              <div class="editor-template-start-heading">
+                <h2 class="editor-template-start-title">Or start with a template</h2>
+                <!-- Not .editor-filter-tab's own .editor-filter-tabs
+                     wrapper — that class' click handler mirrors
+                     "is-active" across every .editor-filter-tabs instance
+                     by CHILD INDEX, so a single-button instance here would
+                     mis-mirror onto step 5/the "Template" tab's own
+                     2-button pairs. Plain white pill instead (see its own
+                     CSS comment), no mirroring. -->
+                <button type="button" class="editor-template-start-style-filter" id="templateStartStyleFilter">
+                  All styles
+                  <svg width="8" height="8" viewBox="0 0 4.44427 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0.628267 0L4.31467 3.68533C4.48747 3.85813 4.48747 4.1408 4.31467 4.3136L0.629333 8L0 7.37173L3.37173 4L0 0.628267L0.628267 0Z" fill="#555555"/></svg>
+                </button>
+              </div>
+
+              <div class="editor-design-grid" id="designGrid3">
+                <button type="button" class="editor-design-tile is-selected" data-design="02">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="02">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="01">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="01">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="03">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="03">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="04">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="04">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="05">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-decor" aria-hidden="true">
+                        <svg class="editor-decor-icon" style="left:6%; top:8%; width:52px; height:26px;"><use href="#decor-wink"></use></svg>
+                        <svg class="editor-decor-icon" style="left:46%; top:4%; width:36px; height:32px;"><use href="#decor-heart"></use></svg>
+                        <svg class="editor-decor-icon" style="left:78%; top:14%; width:18px; height:18px;"><use href="#decor-dot"></use></svg>
+                        <svg class="editor-decor-icon" style="left:4%; top:24%; width:48px; height:27px;"><use href="#decor-lips"></use></svg>
+                        <svg class="editor-decor-icon" style="left:68%; top:18%; width:56px; height:19px; transform:rotate(-8deg);"><use href="#decor-squiggle"></use></svg>
+                        <svg class="editor-decor-icon" style="left:2%; top:66%; width:22px; height:22px; transform:rotate(90deg);"><use href="#decor-squiggle"></use></svg>
+                        <svg class="editor-decor-icon" style="left:26%; top:70%; width:32px; height:29px;"><use href="#decor-heart"></use></svg>
+                        <svg class="editor-decor-icon" style="left:56%; top:74%; width:44px; height:25px;"><use href="#decor-lips"></use></svg>
+                        <svg class="editor-decor-icon" style="left:82%; top:80%; width:16px; height:16px;"><use href="#decor-dot"></use></svg>
+                      </span>
+                      <span class="editor-preview-lockup" data-composition="05">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="06">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-decor" aria-hidden="true">
+                        <svg class="editor-decor-icon" style="left:8%; top:18%; width:52px; height:52px;"><use href="#decor-star"></use></svg>
+                        <svg class="editor-decor-icon" style="left:66%; top:10%; width:44px; height:36px;"><use href="#decor-scribble"></use></svg>
+                        <svg class="editor-decor-icon" style="left:80%; top:36%; width:16px; height:16px;"><use href="#decor-dot"></use></svg>
+                        <svg class="editor-decor-icon" style="left:14%; top:52%; width:16px; height:16px;"><use href="#decor-dot"></use></svg>
+                        <svg class="editor-decor-icon" style="left:10%; top:64%; width:44px; height:36px; transform:rotate(150deg);"><use href="#decor-scribble"></use></svg>
+                        <svg class="editor-decor-icon" style="left:72%; top:60%; width:52px; height:52px;"><use href="#decor-star"></use></svg>
+                        <svg class="editor-decor-icon" style="left:58%; top:80%; width:16px; height:16px;"><use href="#decor-dot"></use></svg>
+                      </span>
+                      <span class="editor-preview-lockup" data-composition="06">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="07">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="07">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="08">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="08">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+                <button type="button" class="editor-design-tile" data-design="09">
+                  <span class="editor-design-thumb">
+                    <span class="editor-design-mini-stage">
+                      <img class="editor-design-mini-bg" src="assets/editor/app/preview-bg.png" alt="">
+                      <span class="editor-preview-lockup" data-composition="09">
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                        <span class="editor-preview-logo">
+                          <svg class="editor-preview-logo-svg js-logo-mark" width="216" height="50" viewBox="0 0 216 50"><use href="#logo-wordmark"></use></svg>
+                          <img class="editor-preview-logo-img js-logo-img" alt="" hidden>
+                        </span>
+                        <span class="editor-preview-copy">
+                          <span class="editor-preview-tagline js-tagline">You&rsquo;ve been expecting me</span>
+                          <span class="editor-preview-website js-website" hidden>www.website.com</span>
+                          <span class="editor-preview-instagram js-instagram" hidden><svg class="editor-preview-instagram-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="15" rx="4"/><circle cx="10" cy="10" r="3.5"/><circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none"/></svg><span class="js-instagram-text">instagram.com/yourprofile</span></span>
+                        </span>
+                        <span class="editor-preview-rule" aria-hidden="true"></span>
+                      </span>
+                    </span>
+                    <img class="editor-design-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                </button>
+              </div>
+
+              <!-- Appears only once a template's actually been picked (see
+                   handleDesignGridClick()'s own comment further down). -->
+              <div class="editor-template-start-cta-bar" id="templateStartCtaBar">
+                <button type="button" class="editor-step2-continue" id="templateStartNextBtn">Next step</button>
+              </div>
+            </div>
+
+            <!-- "1.3. Or start by choosing the style" variant only — see
+                 this section's own CSS comment. Tiles copied verbatim from
+                 #tileGrid (step 2/"Inspirations", further up this file) —
+                 same photos/labels, own id so its multi-select state is
+                 independent (see #tileGrid2's own click handler). -->
+            <div class="editor-style-start" id="styleStartSection" hidden>
+              <h2 class="editor-style-start-title">Or start by choosing the style</h2>
+
+              <div class="editor-tile-grid" id="tileGrid2">
+                <button type="button" class="editor-tile" data-tile="minimalistic">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Minimalistic.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Minimalistic</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="big-logo">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Big_logo.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Big logo</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="big-text">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Big_text.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Big text</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="lines-grids">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Lines&amp;Grids.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Lines &amp; Grids</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="playful">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Playful.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Playful</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="floral">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Floral.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Floral</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="luxury">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Luxury.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Luxury</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="geometric">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Geometric.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Geometric</span>
+                </button>
+                <button type="button" class="editor-tile" data-tile="christmas">
+                  <span class="editor-tile-thumb">
+                    <img class="editor-tile-photo" src="assets/editor/app/step2/Christmas.png" alt="">
+                    <img class="editor-tile-check" src="assets/editor/app/step2/checkmark-badge.svg" alt="">
+                  </span>
+                  <span class="editor-tile-label">Christmas</span>
+                </button>
+              </div>
+
+              <!-- Appears once at least one style's picked (see
+                   #tileGrid2's own click handler further down), hides
+                   again if the selection count drops back to 0. -->
+              <div class="editor-style-start-cta-bar" id="styleStartCtaBar">
+                <button type="button" class="editor-step2-continue" id="styleStartContinueBtn">Continue</button>
+              </div>
+            </div>
+
             <div class="editor-chat-bubble" id="chatBubble" hidden>
               <p class="editor-chat-bubble-text" id="chatBubbleText"></p>
             </div>
@@ -5369,6 +5961,14 @@
         <span>2.1. Easy Mode - Separated nav</span>
       </label>
       <label class="site-settings-radio">
+        <input type="radio" name="layoutVariant" value="template-start" id="layoutTemplateStart">
+        <span>1.2. Or start with a template</span>
+      </label>
+      <label class="site-settings-radio">
+        <input type="radio" name="layoutVariant" value="style-start" id="layoutStyleStart">
+        <span>1.3. Or start by choosing the style</span>
+      </label>
+      <label class="site-settings-radio">
         <input type="radio" name="layoutVariant" value="current-separated-nav" id="layoutCurrentSeparatedNav">
         <span>2.3. Current - Separated nav</span>
       </label>
@@ -5421,6 +6021,24 @@
       // 2.6 has no reopen button (see .editor-embedded-rail's own CSS
       // comment) — just the rail itself to show/hide.
       var embeddedRailEl = document.getElementById('editorEmbeddedRail');
+      // "1.2. Or start with a template" shares 2.1's own rail/reopen and
+      // is-separated-nav class wholesale (see applyVariant()'s own OR
+      // clauses below) — the only thing distinguishing it is this one
+      // extra section, toggled here rather than via CSS since its
+      // visibility also depends on whether a brief's already been
+      // submitted (see #templateStartSection's own CSS comment).
+      var templateStartSection = document.getElementById('templateStartSection');
+      var ideaBoxEl = document.getElementById('ideaBox');
+      var sidebarContentEl = document.getElementById('sidebarContent');
+      // "1.3. Or start by choosing the style" — same sharing/toggle
+      // reasoning as templateStartSection just above, own section instead.
+      var styleStartSection = document.getElementById('styleStartSection');
+      // Hidden outright while "1.2" or "1.3" is active (below) —
+      // #ideaSuggestions sits directly above #templateStartSection/
+      // #styleStartSection and reads as a redundant second "quick pick"
+      // competing with the template/style tiles right below it, on
+      // request.
+      var ideaSuggestionsEl = document.getElementById('ideaSuggestions');
       if (!btn || !panel || !variantRadios.length || !editorPage) return;
 
       btn.addEventListener('click', function (e) {
@@ -5466,7 +6084,7 @@
         // left / sidebar right) takes over, which is "sidebar swaps to
         // the right, canvas moves left" for free.
         editorPage.classList.toggle('is-mirrored', variant === 'mirrored');
-        editorPage.classList.toggle('is-separated-nav', variant === 'separated-nav');
+        editorPage.classList.toggle('is-separated-nav', variant === 'separated-nav' || variant === 'template-start' || variant === 'style-start');
         editorPage.classList.toggle('is-current-separated-nav', variant === 'current-separated-nav');
         editorPage.classList.toggle('is-three-ways', variant === 'three-ways');
         editorPage.classList.toggle('is-embedded-nav', variant === 'embedded-nav');
@@ -5474,11 +6092,22 @@
         // [hidden]{display:none!important} override means a class-scoped
         // `display` rule could never win against it regardless of
         // specificity, so visibility here is driven straight from JS.
-        if (railEl) railEl.hidden = variant !== 'separated-nav';
+        if (railEl) railEl.hidden = !(variant === 'separated-nav' || variant === 'template-start' || variant === 'style-start');
         if (currentRailEl) currentRailEl.hidden = variant !== 'current-separated-nav';
         if (mirroredRailEl) mirroredRailEl.hidden = variant !== 'mirrored';
         if (threeWaysRailEl) threeWaysRailEl.hidden = variant !== 'three-ways';
         if (embeddedRailEl) embeddedRailEl.hidden = variant !== 'embedded-nav';
+        // Only while step 1's idea box is still showing (i.e. no brief
+        // sent yet this session) — submitIdea() hides it for good once a
+        // brief goes out, and switching variants afterward shouldn't
+        // resurrect it.
+        var templateStartVisible = variant === 'template-start' && ideaBoxEl && !ideaBoxEl.hidden;
+        if (templateStartSection) templateStartSection.hidden = !templateStartVisible;
+        var styleStartVisible = variant === 'style-start' && ideaBoxEl && !ideaBoxEl.hidden;
+        if (styleStartSection) styleStartSection.hidden = !styleStartVisible;
+        if (ideaSuggestionsEl) ideaSuggestionsEl.hidden = variant === 'template-start' || variant === 'style-start' || (ideaBoxEl && ideaBoxEl.hidden);
+        if (sidebarContentEl) sidebarContentEl.classList.toggle('is-template-start', templateStartVisible);
+        if (sidebarContentEl) sidebarContentEl.classList.toggle('is-style-start', styleStartVisible);
         // If no SPECIFIC panel (Brand, etc.) is open right now — i.e. one
         // of the two "default" panels is showing — switch which default
         // is showing to match this variant instead of leaving whatever
@@ -6286,15 +6915,17 @@
       var fontPickerUploadInput = document.getElementById('fontPickerUploadInput');
 
       // Locally (python3 -m http.server, per this repo's own testing
-      // convention), the standalone server.js dev backend listens on
-      // :3001 (see its own PORT env var). Everywhere else — a Vercel
+      // convention — OR a bare file:// double-click open, where
+      // location.hostname is '' rather than 'localhost'/'127.0.0.1', so
+      // that's checked too), the standalone server.js dev backend listens
+      // on :3001 (see its own PORT env var). Everywhere else — a Vercel
       // deployment included — the same request logic runs as a same-origin
       // serverless function at /api/ai-brief (see api/ai-brief.js's own
       // comment), so a plain relative path reaches it with no CORS setup
       // needed. Override by setting window.EDITOR_AI_API_URL before this
       // script runs, if the backend ends up hosted somewhere else again.
       var AI_API_URL = window.EDITOR_AI_API_URL || (
-        (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        (!location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
           ? 'http://localhost:3001/api/ai-brief'
           : '/api/ai-brief'
       );
@@ -6889,6 +7520,21 @@
         autosizeIdeaInput(ideaInput);
         if (window.clearIdeaAttachmentChip) window.clearIdeaAttachmentChip();
         if (ideaSuggestions) ideaSuggestions.hidden = true;
+        // "1.2. Or start with a template" / "1.3. Or start by choosing
+        // the style" only — one-way hand-off, same reasoning as
+        // #ideaSuggestions just above: once there's a real conversation,
+        // offering a template/style pick above it no longer makes sense.
+        // .is-template-start/.is-style-start's only effect (a centering
+        // tweak) is also what .is-multistep sets moments from now anyway,
+        // so this isn't fixing a visible bug — just keeping
+        // #sidebarContent's own class list an honest reflection of both
+        // sections' now-hidden state instead of leaving a stale flag
+        // behind.
+        var templateStartSectionEl = document.getElementById('templateStartSection');
+        if (templateStartSectionEl) templateStartSectionEl.hidden = true;
+        var styleStartSectionEl = document.getElementById('styleStartSection');
+        if (styleStartSectionEl) styleStartSectionEl.hidden = true;
+        sidebarContent.classList.remove('is-template-start', 'is-style-start');
         chatBubble.hidden = false;
         // The page-title heading only makes sense before there's a
         // thread — once there is one, it reads as the tool's own opening
@@ -7072,6 +7718,29 @@
       if (!tile) return;
       tile.classList.toggle('is-selected');
     });
+  </script>
+
+  <script>
+    // "1.3. Or start by choosing the style" own tile picker — same
+    // independent multi-select as #tileGrid just above, not synced with
+    // it (each represents its own pick, and #tileGrid's step is normally
+    // skipped by this variant's own "Continue" anyway). Also reveals the
+    // floating CTA the moment at least one tile's selected, and hides it
+    // again if the count drops back to 0 — unlike "1.2"'s CTA (which,
+    // once shown, only needs to hide again on its own "Next step" click,
+    // since a design-tile grid always has exactly one thing selected),
+    // deselecting every tile here is a real, reachable state.
+    (function () {
+      var grid = document.getElementById('tileGrid2');
+      var ctaBar = document.getElementById('styleStartCtaBar');
+      if (!grid) return;
+      grid.addEventListener('click', function (e) {
+        var tile = e.target.closest('.editor-tile');
+        if (!tile) return;
+        tile.classList.toggle('is-selected');
+        if (ctaBar) ctaBar.classList.toggle('is-visible', !!grid.querySelector('.editor-tile.is-selected'));
+      });
+    })();
   </script>
 
   <script>
@@ -7793,18 +8462,77 @@
   <script>
     // Step 4 -> step 5 hand-off: "Continue" reveals the design-match step.
     // "Skip" goes to the same place, without picking any packaging elements.
+    // Both retarget straight to step 6 instead for anyone who came in via
+    // "1.2. Or start with a template" (window.cameFromTemplateStart, set
+    // by that section's own "Next step" script below) — they already
+    // picked a design/composition up front via #designGrid3, so step 5
+    // would just be asking the same question again.
     (function () {
       var step4ContinueBtn = document.getElementById('step4ContinueBtn');
       var step4SkipBtn = document.getElementById('step4SkipBtn');
       var step4 = document.getElementById('step4');
       var step5 = document.getElementById('step5');
+      var step6 = document.getElementById('step6');
       if (!step4ContinueBtn) return;
 
-      step4ContinueBtn.addEventListener('click', function () {
-        revealStep(step4, step5);
+      function goPastStep4() {
+        revealStep(step4, window.cameFromTemplateStart ? step6 : step5);
+      }
+      step4ContinueBtn.addEventListener('click', goPastStep4);
+      step4SkipBtn.addEventListener('click', goPastStep4);
+    })();
+  </script>
+
+  <script>
+    // "1.2. Or start with a template" — "Next step" jumps straight from
+    // step 1 to step 3 (Branding), skipping step 2 (Inspirations)
+    // entirely: whoever's here already picked a template/composition via
+    // #designGrid3 above, so a mood-board step right after would just be
+    // re-asking the same question. Bypasses submitIdea()/the AI-brief
+    // wizard completely — no brief was typed, so there's nothing to
+    // interpret or ask clarifying questions about, just a direct step
+    // hand-off like every other Continue button on this page.
+    // window.cameFromTemplateStart (checked by step 4's own Continue/Skip
+    // handlers above) carries this same skip-forward intent to the step 5
+    // (Design) hand-off later, for the same reason.
+    (function () {
+      var btn = document.getElementById('templateStartNextBtn');
+      var step1 = document.getElementById('step1');
+      var step3 = document.getElementById('step3');
+      var ctaBar = document.getElementById('templateStartCtaBar');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        window.cameFromTemplateStart = true;
+        // Not part of #step1's own .editor-step2-actions row (revealStep()
+        // only hides that), and position:absolute besides — left alone
+        // it'd keep floating over step 3 and beyond forever. Removing
+        // .is-visible (not a hard `hidden`) keeps it reactive: scrolling
+        // back up and picking a different tile still brings it back, same
+        // as before this click.
+        if (ctaBar) ctaBar.classList.remove('is-visible');
+        revealStep(step1, step3);
       });
-      step4SkipBtn.addEventListener('click', function () {
-        revealStep(step4, step5);
+    })();
+  </script>
+
+  <script>
+    // "1.3. Or start by choosing the style" — "Continue" jumps straight
+    // from step 1 to step 3 (Branding), same as "1.2"'s own "Next step"
+    // just above and for the same reason (step 2/Inspirations would just
+    // be re-asking what #tileGrid2 already answered). Bypasses submitIdea()/
+    // the AI-brief wizard completely, same as "1.2". Does NOT set
+    // window.cameFromTemplateStart though — no design/composition was
+    // picked here, only a style mood, so step 5 (Design) still has a real
+    // question left to ask and stays in the flow.
+    (function () {
+      var btn = document.getElementById('styleStartContinueBtn');
+      var step1 = document.getElementById('step1');
+      var step3 = document.getElementById('step3');
+      var ctaBar = document.getElementById('styleStartCtaBar');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        if (ctaBar) ctaBar.classList.remove('is-visible');
+        revealStep(step1, step3);
       });
     })();
   </script>
@@ -7819,12 +8547,13 @@
     // colour or font afterwards.
     //
     // Attached to #designGrid (step 5), #designGrid2 (the "Template"
-    // bottom-menu tab's duplicate) and #designGridConcepts (the AI-brief
+    // bottom-menu tab's duplicate), #designGridConcepts (the AI-brief
     // flow's concepts screen, built dynamically — see
-    // buildConceptTileHTML() above) — .editor-design-tile.is-selected is
-    // toggled via a *global* querySelectorAll, so picking a tile in any
-    // one of them deselects the others' too, keeping all three grids'
-    // selection in sync automatically. Delegated on each grid's
+    // buildConceptTileHTML() above) and #designGrid3 ("1.2. Or start with
+    // a template"'s own copy, inside step 1) — .editor-design-tile.is-
+    // selected is toggled via a *global* querySelectorAll, so picking a
+    // tile in any one of them deselects the others' too, keeping every
+    // grid's selection in sync automatically. Delegated on each grid's
     // container, so it keeps working on #designGridConcepts even though
     // its tiles get replaced wholesale (innerHTML) every time the concepts
     // screen re-renders.
@@ -7848,12 +8577,22 @@
       var decor06 = document.getElementById('previewDecor06');
       if (decor05) decor05.hidden = tile.dataset.design !== '05';
       if (decor06) decor06.hidden = tile.dataset.design !== '06';
+
+      // "1.2. Or start with a template" only — reveals the floating "Next
+      // step" CTA the first time a template's picked. Unconditional: when
+      // #templateStartCtaBar's own ancestor (#templateStartSection) is
+      // hidden — every other grid's click included — this class addition
+      // is simply inert.
+      var templateStartCtaBar = document.getElementById('templateStartCtaBar');
+      if (templateStartCtaBar) templateStartCtaBar.classList.add('is-visible');
     }
     document.getElementById('designGrid').addEventListener('click', handleDesignGridClick);
     var designGrid2 = document.getElementById('designGrid2');
     if (designGrid2) designGrid2.addEventListener('click', handleDesignGridClick);
     var designGridConcepts = document.getElementById('designGridConcepts');
     if (designGridConcepts) designGridConcepts.addEventListener('click', handleDesignGridClick);
+    var designGrid3 = document.getElementById('designGrid3');
+    if (designGrid3) designGrid3.addEventListener('click', handleDesignGridClick);
   </script>
 
   <script>
