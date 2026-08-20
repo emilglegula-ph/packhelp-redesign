@@ -921,6 +921,18 @@
     color: var(--color-text-primary);
   }
 
+  /* #threeWaysStart is the only .editor-menu-panel meant to sit vertically
+     centered in #sidebarContent — that container's own
+     justify-content:center already centers whatever single panel is
+     visible, but .editor-menu-panel's shared margin-top:24px (there so
+     every OTHER panel — Template/Elements/Brand/Add — sits pinned near the
+     top after a scroll-to-top instead) would otherwise offset this one's
+     centered position downward by itself. Zeroed out here so the parent's
+     centering lands exactly centered instead. */
+  #threeWaysStart {
+    margin-top: 0;
+  }
+
   /* ---------- "2.4. Three ways start" — the 3 entry options ---------- */
   .editor-start-options {
     display: flex;
@@ -5592,8 +5604,12 @@
       // fresh panel each time, so switching back to it restores exactly
       // the scroll position it was left at (captured in the click handler
       // below right before navigating away) instead of jumping to the top.
+      // 'three-ways-start' is the other exception alongside 'ai-design' —
+      // #threeWaysStart is short and meant to sit vertically centered
+      // (see that id's own CSS comment), not pinned flex-start like the
+      // taller bottom-menu panels this class exists for.
       var sidebarContent = document.getElementById('sidebarContent');
-      sidebarContent.classList.toggle('is-menu-panel', menuKey !== 'ai-design');
+      sidebarContent.classList.toggle('is-menu-panel', menuKey !== 'ai-design' && menuKey !== 'three-ways-start');
       sidebarContent.scrollTop = menuKey === 'ai-design' ? savedAiDesignScrollTop : 0;
 
       // Separated-nav (1.1) variant only — no-op (and window.* undefined)
