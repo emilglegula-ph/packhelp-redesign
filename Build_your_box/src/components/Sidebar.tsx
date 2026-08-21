@@ -65,12 +65,12 @@ export default function Sidebar({
   onPrintChange,
 }: SidebarProps) {
   const [product, setProduct] = useState('boxes')
-  const [material, setMaterial] = useState('cardboard')
-  // Combined single "Product" picker (Cardboard/Corrugated/Rigid Boxes +
-  // Boxes/Envelopes/Bags/Tubes/More products) is the default; this opts
-  // back into the previously-implemented two-group layout (separate
-  // "Product" and "Box material" pickers).
-  const [splitProductPicker, setSplitProductPicker] = useState(false)
+  const [material, setMaterial] = useState('product-box')
+  // Split two-group layout (separate "Product" and "Box category" pickers)
+  // is the default; turning this off falls back to the previously-default
+  // combined single "Product" picker (Product/Mailer/Shipping/Rigid Box +
+  // Boxes/Envelopes/Bags/Tubes/More products all in one group).
+  const [splitProductPicker, setSplitProductPicker] = useState(true)
   const [hideSubheader, setHideSubheader] = useState(false)
   const [type, setType] = useState('hanging')
   const [opening, setOpening] = useState('tuck-end')
@@ -82,15 +82,17 @@ export default function Sidebar({
   const [adhesiveStrip, setAdhesiveStrip] = useState('none')
   const [finish, setFinish] = useState('goss')
 
-  // Same materialOptions, relabeled for the combined "Product" picker so
-  // they read as product tiles ("Cardboard Boxes") next to Envelopes/Bags/
-  // Tubes, instead of the bare material name ("Cardboard").
-  const boxMaterialOptions = materialOptions.map((option) => ({
-    ...option,
-    label: `${option.label} Boxes`,
-  }))
+  // materialOptions' own labels ("Product Box", "Mailer Box", ...) already
+  // read as product tiles as-is, so the combined "Product" picker reuses
+  // them verbatim instead of relabeling like the old bare material names
+  // ("Cardboard" -> "Cardboard Boxes") used to need.
+  const boxMaterialOptions = materialOptions
 
-  const isCorrugated = material === 'corrugated'
+  // Mailer and shipping boxes are both corrugated construction; product
+  // and rigid boxes aren't -- same two-way split the old 'corrugated'
+  // material id used to drive, just spread across the category's two
+  // corrugated options instead of one.
+  const isCorrugated = material === 'mailer-box' || material === 'shipping-box'
   const currentTypeOptions = isCorrugated ? corrugatedTypeOptions : typeOptions
   const currentPrintCoverageOptions = isCorrugated ? corrugatedPrintCoverageOptions : printCoverageOptions
 
@@ -179,7 +181,7 @@ export default function Sidebar({
               </a>
             </OptionGroup>
 
-            <OptionGroup title="Box material" options={materialOptions} showLearnMore>
+            <OptionGroup title="Box category" options={materialOptions} showLearnMore>
               {materialOptions.map((option) => (
                 <Chip
                   key={option.id}

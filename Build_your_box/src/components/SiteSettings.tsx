@@ -66,10 +66,10 @@ export default function SiteSettings({
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-[13px] leading-[1.32] tracking-[-0.26px] text-richblue">
-              Split Product / Box material
+              Split Product / Box category
             </p>
             <p className="mt-1 text-[11px] leading-[1.32] tracking-[-0.22px] text-grey-600">
-              Show Product and Box material as two separate picker groups instead of one combined Product picker
+              Show Product and Box category as two separate picker groups instead of one combined Product picker
             </p>
           </div>
           <label className="relative inline-block h-6 w-10 shrink-0 cursor-pointer">

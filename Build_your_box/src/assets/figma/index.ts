@@ -9,7 +9,7 @@ export { default as imgSamples } from './imgVector3.svg'
 // assets/packaging/ tile set (packaging.html's top-level category picker) --
 // not Figma exports like the rest of this file, but kept in the same
 // folder since it's the only image folder this app has.
-export { default as imgProductBoxes } from './Product_Boxes.png'
+export { default as imgProductBoxes } from './boxes.png'
 export { default as imgProductEnvelopes } from './Product_Envelopes.png'
 export { default as imgProductBags } from './Product_Bags.png'
 export { default as imgProductTubes } from './Product_Tubes.png'

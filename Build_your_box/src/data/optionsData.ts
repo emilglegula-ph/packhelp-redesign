@@ -6,6 +6,7 @@ import {
   imgFoldingBox,
   imgRigidBox,
   imgMailerBox,
+  imgShippingBox,
   imgTypeClassic,
   imgTypeHanging,
   imgTypeWithLid,
@@ -57,9 +58,10 @@ export const productOptions: ChipOption[] = [
 ]
 
 export const materialOptions: ChipOption[] = [
-  { id: 'cardboard', label: 'Cardboard', image: imgFoldingBox, fit: 'cover' },
-  { id: 'corrugated', label: 'Corrugated', image: imgMailerBox, fit: 'cover' },
-  { id: 'rigid', label: 'Rigid', image: imgRigidBox, fit: 'cover' },
+  { id: 'product-box', label: 'Product Box', image: imgFoldingBox, fit: 'cover' },
+  { id: 'mailer-box', label: 'Mailer Box', image: imgMailerBox, fit: 'cover' },
+  { id: 'shipping-box', label: 'Shipping Box', image: imgShippingBox, fit: 'cover' },
+  { id: 'rigid-box', label: 'Rigid Box', image: imgRigidBox, fit: 'cover' },
 ]
 
 export const typeOptions: ChipOption[] = [
