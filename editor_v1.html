@@ -8756,12 +8756,20 @@
         function (url) { return 'https://corsproxy.io/?url=' + encodeURIComponent(url); }
       ];
 
+      // Races all 3 proxies at once (first one to actually succeed wins)
+      // instead of trying them one at a time — these are free, unauthenticated
+      // third-party services with no uptime guarantee, and at any given
+      // moment one or two of them tend to be down/rate-limited/blocked for
+      // a given target site. Sequentially waiting out a full timeoutMs on
+      // each dead one before reaching a live one wastes up to
+      // 2*timeoutMs doing nothing; racing means a single live proxy is
+      // enough to resolve almost immediately regardless of which slot in
+      // PROXIES it happens to be.
       function fetchTextViaProxy(url, timeoutMs) {
-        var attempt = function (i) {
-          if (i >= PROXIES.length) return Promise.reject(new Error('All proxies failed'));
+        var attempts = PROXIES.map(function (buildUrl) {
           var controller = new AbortController();
           var timer = setTimeout(function () { controller.abort(); }, timeoutMs || 10000);
-          return fetch(PROXIES[i](url), { signal: controller.signal })
+          return fetch(buildUrl(url), { signal: controller.signal })
             .then(function (res) {
               clearTimeout(timer);
               if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -8773,10 +8781,15 @@
             })
             .catch(function (err) {
               clearTimeout(timer);
-              return attempt(i + 1);
+              throw err;
             });
-        };
-        return attempt(0);
+        });
+        // Promise.any resolves the moment any one settles successfully,
+        // and only rejects (with an AggregateError) once every one of
+        // them has failed — exactly "all proxies failed" either way.
+        return Promise.any(attempts).catch(function () {
+          throw new Error('All proxies failed');
+        });
       }
 
       // A domain-shaped hostname check — new URL() alone isn't strict
